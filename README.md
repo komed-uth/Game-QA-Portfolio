@@ -24,17 +24,17 @@ Example systems covered:
 ## QA Workflow
 
 Requirement
-↓
+➡️
 Test design
-↓
+➡️
 Test execution
-↓
+➡️
 Defect investigation
-↓
+➡️
 Bug report
-↓
+➡️
 Regression
-↓
+➡️
 Test summary
 
 ## Repository Contents
