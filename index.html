@@ -1,0 +1,79 @@
+<section class="performance-reports">
+    <h2>Mobile Performance Testing — Samsung Galaxy S10</h2>
+
+    <p>
+        Select a workload level below to view the full interactive
+        performance test report.
+    </p>
+
+    <div class="report-selector">
+        <button
+            class="report-button"
+            onclick="loadReport('S10_Very_Low_Fixed.html', this)">
+            Very Low
+        </button>
+
+        <button
+            class="report-button"
+            onclick="loadReport('S10_Low_Fixed.html', this)">
+            Low
+        </button>
+
+        <button
+            class="report-button active"
+            onclick="loadReport('S10_Medium_Fixed.html', this)">
+            Medium
+        </button>
+
+        <button
+            class="report-button"
+            onclick="loadReport('S10_High_Fixed.html', this)">
+            High
+        </button>
+
+        <button
+            class="report-button"
+            onclick="loadReport('S10_Very_High_Fixed.html', this)">
+            Very High
+        </button>
+    </div>
+
+    <div class="report-actions">
+        <a
+            id="openReport"
+            href="Performance-Testing-Mobile/Full%20Report/S10_Medium_Fixed.html"
+            target="_blank"
+            rel="noopener noreferrer">
+            Open Full Report ↗
+        </a>
+    </div>
+
+    <iframe
+        id="reportViewer"
+        src="Performance-Testing-Mobile/Full%20Report/S10_Medium_Fixed.html"
+        title="Samsung Galaxy S10 Performance Test Report"
+        loading="lazy">
+    </iframe>
+</section>
+
+<script>
+    const reportFolder =
+        "Performance-Testing-Mobile/Full%20Report/";
+
+    function loadReport(filename, button) {
+        const reportUrl = reportFolder + filename;
+
+        // Change embedded report
+        document.getElementById("reportViewer").src = reportUrl;
+
+        // Change Open Full Report link
+        document.getElementById("openReport").href = reportUrl;
+
+        // Update selected button
+        document.querySelectorAll(".report-button").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+    }
+</script>
