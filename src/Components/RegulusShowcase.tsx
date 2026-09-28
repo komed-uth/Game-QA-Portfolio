@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { assetUrl, project } from "../data";
 
 const videoId = "-dEsiPzZ4v8";
@@ -13,12 +13,63 @@ export default function RegulusShowcase() {
   const [selected, setSelected] = useState(0);
   const [playing, setPlaying] = useState(true);
   const item = media[selected];
+  const gesture = useRef<{
+    id: number;
+    x: number;
+    y: number;
+    direction: "horizontal" | "vertical" | null;
+  } | null>(null);
+  const suppressClick = useRef(false);
 
   function select(index: number) {
     const nextIndex = (index + media.length) % media.length;
     setSelected(nextIndex);
     setPlaying(media[nextIndex].type === "video");
   }
+
+  function startSwipe(event: PointerEvent<HTMLDivElement>) {
+    suppressClick.current = false;
+    if (!event.isPrimary || event.button !== 0) return;
+    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, direction: null };
+  }
+
+  function moveSwipe(event: PointerEvent<HTMLDivElement>) {
+    const start = gesture.current;
+    if (!start || start.id !== event.pointerId) return;
+    const dx = Math.abs(event.clientX - start.x);
+    const dy = Math.abs(event.clientY - start.y);
+    if (!start.direction && Math.max(dx, dy) > 12) {
+      start.direction = dx > dy * 1.2 ? "horizontal" : "vertical";
+      if (start.direction === "horizontal") {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+    }
+    if (start.direction === "horizontal") event.preventDefault();
+  }
+
+  function finishSwipe(event: PointerEvent<HTMLDivElement>) {
+    const start = gesture.current;
+    gesture.current = null;
+    if (!start || start.id !== event.pointerId || start.direction !== "horizontal") return;
+    suppressClick.current = true;
+    const distance = event.clientX - start.x;
+    const threshold = Math.max(40, Math.min(64, event.currentTarget.clientWidth * 0.12));
+    if (Math.abs(distance) >= threshold) select(selected + (distance < 0 ? -1 : 1));
+  }
+
+  const swipeHandlers = {
+    onPointerDown: startSwipe,
+    onPointerMove: moveSwipe,
+    onPointerUp: finishSwipe,
+    onPointerCancel: () => { gesture.current = null; },
+    onClickCapture: (event: MouseEvent<HTMLDivElement>) => {
+      if (suppressClick.current) {
+        event.preventDefault();
+        event.stopPropagation();
+        suppressClick.current = false;
+      }
+    },
+  };
 
   return (
     <section className="project-grid regulus-showcase" aria-labelledby="regulus-showcase-title">
@@ -65,7 +116,7 @@ export default function RegulusShowcase() {
       </div>
       <div className="game-gallery" role="region" aria-roledescription="carousel" aria-label="Regulus the Advent media">
         <figure className="gallery-figure">
-          <div className="gallery-viewer" key={`${selected}-${playing}`}>
+          <div className={`gallery-viewer${item.type === "image" ? " gallery-swipe-surface" : ""}`} key={`${selected}-${playing}`} {...(item.type === "image" ? swipeHandlers : {})}>
             {item.type === "video" ? (
               playing ? (
                 <iframe
@@ -81,8 +132,8 @@ export default function RegulusShowcase() {
                 </button>
               )
             ) : (
-              <a href={item.source} target="_blank" rel="noopener noreferrer" aria-label={`Open full-size ${item.label.toLowerCase()} screenshot`}>
-                <img src={item.source} alt={item.alt} />
+              <a href={item.source} target="_blank" rel="noopener noreferrer" draggable={false} aria-label={`Open full-size ${item.label.toLowerCase()} screenshot`}>
+                <img src={item.source} alt={item.alt} draggable={false} />
               </a>
             )}
           </div>
@@ -93,15 +144,30 @@ export default function RegulusShowcase() {
             </a>
           </figcaption>
         </figure>
-        <div className="gallery-controls">
-          <button className="gallery-arrow" onClick={() => select(selected - 1)} aria-label="Previous media">‹</button>
+        <div className="gallery-swipe-strip gallery-swipe-surface" role="group" aria-label="Swipe or choose a media preview" {...swipeHandlers}>
           <div className="gallery-thumbnails">
             {media.map((thumbnail, index) => (
               <button key={thumbnail.label} className="gallery-thumbnail" aria-label={`Show ${thumbnail.label.toLowerCase()}`} aria-pressed={selected === index} onClick={() => select(index)}>
-                <img src={thumbnail.source} alt="" />
+                <img src={thumbnail.source} alt="" draggable={false} />
                 <span>{thumbnail.type === "video" ? "▶ Video" : thumbnail.label}</span>
               </button>
             ))}
+          </div>
+        </div>
+        <div className="gallery-controls">
+          <button className="gallery-arrow" onClick={() => select(selected - 1)} aria-label="Previous media">‹</button>
+          <div className="gallery-navigation">
+            <div className="gallery-dots" role="group" aria-label="Choose media slide">
+              {media.map((slide, index) => (
+                <button
+                  key={slide.label}
+                  className="gallery-dot"
+                  aria-label={`Go to slide ${index + 1} of ${media.length}: ${slide.label}`}
+                  aria-pressed={selected === index}
+                  onClick={() => select(index)}
+                ><span aria-hidden="true" /></button>
+              ))}
+            </div>
           </div>
           <button className="gallery-arrow" onClick={() => select(selected + 1)} aria-label="Next media">›</button>
         </div>
