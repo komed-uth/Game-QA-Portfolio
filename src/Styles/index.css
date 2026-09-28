@@ -199,6 +199,32 @@ nav a.active {
   padding-bottom: 36px;
   border-bottom: 1px solid var(--line);
 }
+.store-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+}
+.store-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 12px;
+}
+.store-badge img {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+.store-badge:focus-visible {
+  outline-offset: -3px;
+}
+.store-credits {
+  flex-basis: 100%;
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
 .game-gallery {
   min-width: 0;
 }
@@ -513,6 +539,7 @@ nav a.active {
 }
 footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 20px;
   border-top: 1px solid var(--line);
