@@ -19,6 +19,16 @@ export default function SelfSummary() {
           </NavLink>
           <NavLink to="/about">QA approach</NavLink>
         </nav>
+        <a
+          className="linkedin-link"
+          href="https://www.linkedin.com/in/komed-uthisanont-592388187/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Komed Uthisanont on LinkedIn (opens in a new tab)"
+          title="Visit my LinkedIn profile"
+        >
+          <img src={assetUrl("images/linkedin-in-white.png")} alt="" />
+        </a>
       </div>
       <p className="eyebrow">{personalInfo.role}</p>
       <p className="introduction">{personalInfo.introduction}</p>
