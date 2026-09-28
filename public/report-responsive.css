@@ -1,0 +1,83 @@
+/* Presentation overrides for published reports. Original captures stay unchanged. */
+html {
+  box-sizing: border-box;
+  background: white;
+  color-scheme: light;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+body {
+  margin: 0;
+  padding: clamp(12px, 3vw, 28px);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+div#content {
+  width: 100%;
+  min-width: 0;
+  max-width: 1200px;
+  display: flow-root;
+}
+.title-blue {
+  display: block;
+  font-size: clamp(28px, 5vw, 58px);
+  line-height: 1.2;
+}
+#content > div {
+  min-width: 0;
+}
+ul.messages {
+  left: 0;
+  margin: 12px 0;
+}
+ul.messages li {
+  padding-left: 34px;
+}
+.interactiveLegend {
+  width: 100%;
+  clear: both;
+}
+.Row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.Column {
+  display: flex;
+  align-items: center;
+}
+.regionLink {
+  white-space: normal;
+}
+#footer {
+  clear: both;
+}
+@media (max-width: 760px) {
+  /* The generator uses inline percentage widths and floats for summary charts. */
+  #content > div[style*="width"],
+  #content > div[id^="graph"] {
+    width: 100% !important;
+    float: none !important;
+    clear: both;
+    margin-bottom: 20px;
+  }
+  .interactiveLegend {
+    width: 100%;
+  }
+  .bb-legend-item text {
+    font-size: 10px;
+  }
+  #content h1 {
+    font-size: 1.5rem;
+  }
+  #content h2 {
+    font-size: 1.3rem;
+  }
+  #content h3 {
+    font-size: 1.15rem;
+  }
+}

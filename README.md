@@ -1,98 +1,81 @@
-# Game QA Manual Testing Portfolio
+# Game QA Portfolio
 
-This repository demonstrates my approach to Game QA through
-requirements analysis, test design, exploratory testing,
-defect reporting, regression testing, and test documentation.
+A React + TypeScript portfolio adapted from the local **Portfolio Template** for game QA work. It preserves the template's dark background, gaming typography, cyan project headings, green links, responsive project/media layout, and separate approach page. Vite supplies the development server and production build; hash routing works on static hosts without server rewrites.
 
-## Project Scope
+## Run locally
 
-The project focuses on testing gameplay systems from a
-player-facing and risk-based QA perspective.
+Requires Node.js 20.19+ or 22.12+ and npm.
 
-Example systems covered:
+```sh
+npm install
+npm run dev
+```
 
-- Player movement
-- Combat
-- Checkpoints
-- Death and respawn
-- Save/load
-- UI navigation
-- Inventory
-- Game state transitions
-- Visual Graphic
+## Build and preview
 
-## QA Workflow
+```sh
+npm run build
+npm run preview
+```
 
-Requirement
-➡️
-Test design
-➡️
-Test execution
-➡️
-Defect investigation
-➡️
-Bug report
-➡️
-Regression
-➡️
-Test summary
+The build checks TypeScript before creating `dist/`. Publish the contents of `dist/` to a static host. The root source `index.html` needs the development server; it is not the deployable site. Relative asset URLs support repository subfolders.
 
-## Repository Contents
+GitHub Pages uses `.github/workflows/deploy-pages.yml` to build and publish every push to `main`. The repository's Pages publishing source must be **GitHub Actions**. Live site: https://komed-uth.github.io/Game-QA-Portfolio/.
 
-### Coverage Map
+## Change your information later
 
-`docs/COVERAGE_MAP.md`
+Edit **`src/data.ts`**. The `personalInfo` object controls the name, role, introduction, description, profile links, and optional photo/CV. Missing photo, CV, and links are hidden automatically.
 
-Maps gameplay features to:
+```ts
+name: 'Your name',
+role: 'Game QA Tester',
+introduction: 'Your short introduction',
+image: 'images/profile.jpg',
+cvUri: 'files/my-cv.pdf',
+links: [{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/your-profile' }],
+```
 
-- Happy paths
-- Negative cases
-- Boundaries
-- State transitions
-- Persistence
-- Recovery
-- Player-facing risks
+Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, workflow, tools, and planned coverage also live in `src/data.ts`.
 
-### Test Cases
+## Current evidence
 
-`test-cases/`
+- Regulus the Advent cutscene performance demonstration on Samsung Galaxy S10.
+- Five original ARM Streamline / Performance Advisor reports: Very High, High, Medium, Low, and Very Low.
+- The Regulus featured-project section combines device details and the live HTML report viewer. Its static capture image is not displayed or linked.
+- Report selector with Medium selected by default and a synchronized full-report link.
+- Vecchio Furioso PC performance testing: a Microsoft PIX GPU frame capture with a full-size image link.
+- The PC environment is documented as Intel Core i7-7700K, NVIDIA GeForce GTX 1060 6GB, 16 GB RAM, and Windows 10 Home (build 19045). These specifications were read from this PC when the project was added.
 
-Contains test cases following the portfolio QA test-suite
-convention.
+Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
 
-### Bug Reports
+Manual test cases, defect reports, and coverage documents remain **work in progress**. The approach page describes the intended QA process, not completed execution results. The original `test-cases/TC-MOV-001` is a placeholder.
 
-`bug-reports/`
+## Structure
 
-Contains player-facing defect reports with:
+```text
+src/
+  App.tsx              Shared shell and routes
+  data.ts              Editable portfolio content
+  types.ts             Content interfaces
+  Components/          Header, project, report viewer, footer
+  Pages/               Portfolio and QA approach
+  Styles/              Responsive styling
+  assets/              Template fonts and background
+public/
+  Performance-Testing-Mobile/Full Report/  Published original reports
+  images/                                 Published capture
+Performance-Testing-Mobile/                Preserved original evidence
+test-cases/                                Manual QA work in progress
+```
 
-- Reproduction steps
-- Actual result
-- Expected result
-- Environment data
-- Acceptance criteria violated
-- Technical investigation
-- Recommendation
+The evidence in `Performance-Testing-Mobile/Full Report/` stays unchanged. `scripts/sync-reports.mjs` generates the published copies by adding a viewport tag and a link to `public/report-responsive.css`; all capture data and chart scripts are preserved. Development and build commands automatically regenerate the published copies. Legacy `assets/css/style.css` is preserved but unused by the React app.
 
+## Responsive support
 
-### Evidence
+Layouts adapt to available width and support both orientations. Project sections stack below 900px, report summary charts stack below 760px, and the embedded viewer adapts to viewport height. Controls provide at least 44px tap height. Full reports can be opened separately to avoid nested scrolling.
 
-`evidence/`
+Validation viewports include 1920 × 1080 and 1366 × 768 desktops, 390 × 845 (19.5:9) and 360 × 840 (21:9) phones and their landscape rotations, and a 1200 × 800 (3:2) tablet with its portrait rotation. These are browser viewport checks rather than physical-device certification.
 
-WIP
+## Template attribution
 
-## Tools
-
-- Unity
-- Git
-- GitHub
-- SourceTree
-- Jira
-- C#
-- ARM Streamline
-- PIX
-- Codex
-
-## Portfolio Status
-
-WIP
+Visual assets and design adapted from the local Portfolio Template by Sol Elan. Its MIT copyright and terms are preserved in **`LICENSE.template`**. The source template repository was left unchanged.

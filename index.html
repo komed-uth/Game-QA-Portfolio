@@ -1,105 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101414" />
+    <meta
+      name="description"
+      content="Game QA portfolio: manual testing workflow and mobile performance evidence for Regulus the Advent on Samsung Galaxy S10."
+    />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <title>Game QA Portfolio</title>
-
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-
-<body>
-
-    <!-- your portfolio -->
-
-    <section class="performance-reports">
-    <h2>Mobile Performance Testing — Samsung Galaxy S10</h2>
-
-    <p>
-        This is demonstration of performance report of ARM streamline measure of Regulus the Advent cutscene between various of setting using real mobile phone.
-    </p>
-
-    <div class="report-selector">
-       
-        <button
-            class="report-button"
-            onclick="loadReport('S10_Very_High_Fixed.html', this)">
-            Very High
-        </button>
-
-        <button
-            class="report-button"
-            onclick="loadReport('S10_High_Fixed.html', this)">
-            High
-        </button>
-
-         <button
-            class="report-button active"
-            onclick="loadReport('S10_Medium_Fixed.html', this)">
-            Medium
-        </button>
-
-         <button
-            class="report-button"
-            onclick="loadReport('S10_Low_Fixed.html', this)">
-            Low
-        </button>
-        
-        <button
-            class="report-button"
-            onclick="loadReport('S10_Very_Low_Fixed.html', this)">
-            Very Low
-        </button>
-       
-        <div class="report-actions">
-            <a
-                id="openReport"
-                href="Performance-Testing-Mobile/Full%20Report/S10_Medium_Fixed.html"
-                target="_blank"
-                rel="noopener noreferrer">
-            Open Full Report ↗
-            </a>
-        </div>
-        
-    </div>
-
-    
-
-    <iframe
-        id="reportViewer"
-        src="Performance-Testing-Mobile/Full%20Report/S10_Medium_Fixed.html"
-        title="Samsung Galaxy S10 Performance Test Report"
-        loading="lazy">
-    </iframe>
-</section>
-
-<script>
-    const reportFolder =
-        "Performance-Testing-Mobile/Full%20Report/";
-
-    function loadReport(filename, button) {
-        const reportUrl = reportFolder + filename;
-
-        // Change embedded report
-        document.getElementById("reportViewer").src = reportUrl;
-
-        // Change Open Full Report link
-        document.getElementById("openReport").href = reportUrl;
-
-        // Update selected button
-        document.querySelectorAll(".report-button").forEach(btn => {
-            btn.classList.remove("active");
-        });
-
-        button.classList.add("active");
-    }
-</script>
-
-</body>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
 </html>
-
-
-
-
