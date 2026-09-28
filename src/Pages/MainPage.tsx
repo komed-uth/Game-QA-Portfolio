@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import Game from "../Components/Game";
 import PcPerformanceProject from "../Components/PcPerformanceProject";
+import RegulusShowcase from "../Components/RegulusShowcase";
 
 export default function MainPage() {
   return (
     <>
+      <RegulusShowcase />
       <Game />
       <PcPerformanceProject />
       <section className="work-in-progress" aria-labelledby="manual-heading">
