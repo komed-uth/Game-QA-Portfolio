@@ -40,6 +40,28 @@ export default function RegulusShowcase() {
           <span>Samsung Galaxy S10</span>
           <span>5 quality settings</span>
         </div>
+        <div className="store-links" aria-label="Get Regulus the Advent">
+          <a
+            className="store-badge"
+            href="https://apps.apple.com/th/app/regulus-the-advent/id6739992769"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Regulus the Advent on the App Store (opens in a new tab)"
+            title="App Store"
+          >
+            <img src={assetUrl("images/store-badges/app-store.svg")} alt="Download on the App Store" />
+          </a>
+          <a
+            className="store-badge"
+            href="https://play.google.com/store/apps/details?id=com.jj.regulus.android&hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Regulus the Advent on Google Play (opens in a new tab)"
+            title="Google Play"
+          >
+            <img src={assetUrl("images/store-badges/google-play.svg")} alt="Get it on Google Play" />
+          </a>
+        </div>
       </div>
       <div className="game-gallery" role="region" aria-roledescription="carousel" aria-label="Regulus the Advent media">
         <figure className="gallery-figure">
