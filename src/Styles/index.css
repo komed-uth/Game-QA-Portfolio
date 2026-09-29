@@ -213,9 +213,10 @@ nav a.active {
   color: var(--muted);
   margin-bottom: 22px;
 }
-.regulus-showcase {
-  padding-bottom: 36px;
-  border-bottom: 1px solid var(--line);
+.regulus-evidence {
+  display: grid;
+  gap: 36px;
+  min-width: 0;
 }
 .store-links {
   display: flex;

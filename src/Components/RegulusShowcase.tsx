@@ -1,5 +1,6 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { assetUrl, project } from "../data";
+import ReportViewer from "./ReportViewer";
 
 const videoId = "-dEsiPzZ4v8";
 const media = [
@@ -75,22 +76,31 @@ export default function RegulusShowcase() {
     <section className="project-grid regulus-showcase" aria-labelledby="regulus-showcase-title">
       <div className="project-info">
         <p className="eyebrow">Project showcase</p>
-        <h2 id="regulus-showcase-title" className="project-title">{project.name}</h2>
+        <h1 id="regulus-showcase-title" className="project-title">{project.name}</h1>
         <p className="project-category">{project.category}</p>
-        <p className="project-description">
-          An Android performance testing demonstration on a real Samsung Galaxy
-          S10. The same cutscene is captured across five graphics quality
-          settings using ARM Streamline and Performance Advisor.
-        </p>
-        <p className="section-description">
-          Browse gameplay, boss battle, and shop screenshots, or watch the
-          video. Explore the performance captures in the featured project below.
-        </p>
-        <div className="project-tags">
-          <span>Android</span>
-          <span>Samsung Galaxy S10</span>
-          <span>5 quality settings</span>
-        </div>
+        <p className="project-description">{project.description}</p>
+        <dl className="info-table">
+          <div>
+            <dt>Platform</dt>
+            <dd>{project.platform}</dd>
+          </div>
+          <div>
+            <dt>Device</dt>
+            <dd>{project.device}</dd>
+          </div>
+          <div>
+            <dt>GPU</dt>
+            <dd>{project.gpu}</dd>
+          </div>
+          <div>
+            <dt>Capture</dt>
+            <dd>{project.tool}</dd>
+          </div>
+          <div>
+            <dt>Scenario</dt>
+            <dd>{project.scene}</dd>
+          </div>
+        </dl>
         <div className="store-links" aria-label="Get Regulus the Advent">
           <a
             className="store-badge"
@@ -114,63 +124,66 @@ export default function RegulusShowcase() {
           </a>
         </div>
       </div>
-      <div className="game-gallery" role="region" aria-roledescription="carousel" aria-label="Regulus the Advent media">
-        <figure className="gallery-figure">
-          <div className={`gallery-viewer${item.type === "image" ? " gallery-swipe-surface" : ""}`} key={`${selected}-${playing}`} {...(item.type === "image" ? swipeHandlers : {})}>
-            {item.type === "video" ? (
-              playing ? (
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
-                  title="Regulus the Advent video"
-                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+      <div className="regulus-evidence">
+        <div className="game-gallery" role="region" aria-roledescription="carousel" aria-label="Regulus the Advent media">
+          <figure className="gallery-figure">
+            <div className={`gallery-viewer${item.type === "image" ? " gallery-swipe-surface" : ""}`} key={`${selected}-${playing}`} {...(item.type === "image" ? swipeHandlers : {})}>
+              {item.type === "video" ? (
+                playing ? (
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
+                    title="Regulus the Advent video"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                ) : (
+                  <button className="gallery-video-preview" onClick={() => setPlaying(true)} aria-label="Play Regulus the Advent video">
+                    <img src={item.source} alt={item.alt} />
+                    <span className="gallery-play">▶ <span>Play video</span></span>
+                  </button>
+                )
               ) : (
-                <button className="gallery-video-preview" onClick={() => setPlaying(true)} aria-label="Play Regulus the Advent video">
-                  <img src={item.source} alt={item.alt} />
-                  <span className="gallery-play">▶ <span>Play video</span></span>
-                </button>
-              )
-            ) : (
-              <a href={item.source} target="_blank" rel="noopener noreferrer" draggable={false} aria-label={`Open full-size ${item.label.toLowerCase()} screenshot`}>
-                <img src={item.source} alt={item.alt} draggable={false} />
+                <a href={item.source} target="_blank" rel="noopener noreferrer" draggable={false} aria-label={`Open full-size ${item.label.toLowerCase()} screenshot`}>
+                  <img src={item.source} alt={item.alt} draggable={false} />
+                </a>
+              )}
+            </div>
+            <figcaption className="gallery-caption">
+              <span aria-live="polite" aria-atomic="true">{selected + 1} / {media.length} · {item.label}</span>
+              <a href={item.type === "video" ? `https://youtu.be/${videoId}` : item.source} target="_blank" rel="noopener noreferrer">
+                {item.type === "video" ? "Watch on YouTube ↗" : "Open full-size image ↗"}
               </a>
-            )}
-          </div>
-          <figcaption className="gallery-caption">
-            <span aria-live="polite" aria-atomic="true">{selected + 1} / {media.length} · {item.label}</span>
-            <a href={item.type === "video" ? `https://youtu.be/${videoId}` : item.source} target="_blank" rel="noopener noreferrer">
-              {item.type === "video" ? "Watch on YouTube ↗" : "Open full-size image ↗"}
-            </a>
-          </figcaption>
-        </figure>
-        <div className="gallery-swipe-strip gallery-swipe-surface" role="group" aria-label="Swipe or choose a media preview" {...swipeHandlers}>
-          <div className="gallery-thumbnails">
-            {media.map((thumbnail, index) => (
-              <button key={thumbnail.label} className="gallery-thumbnail" aria-label={`Show ${thumbnail.label.toLowerCase()}`} aria-pressed={selected === index} onClick={() => select(index)}>
-                <img src={thumbnail.source} alt="" draggable={false} />
-                <span>{thumbnail.type === "video" ? "▶ Video" : thumbnail.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="gallery-controls">
-          <button className="gallery-arrow" onClick={() => select(selected - 1)} aria-label="Previous media">‹</button>
-          <div className="gallery-navigation">
-            <div className="gallery-dots" role="group" aria-label="Choose media slide">
-              {media.map((slide, index) => (
-                <button
-                  key={slide.label}
-                  className="gallery-dot"
-                  aria-label={`Go to slide ${index + 1} of ${media.length}: ${slide.label}`}
-                  aria-pressed={selected === index}
-                  onClick={() => select(index)}
-                ><span aria-hidden="true" /></button>
+            </figcaption>
+          </figure>
+          <div className="gallery-swipe-strip gallery-swipe-surface" role="group" aria-label="Swipe or choose a media preview" {...swipeHandlers}>
+            <div className="gallery-thumbnails">
+              {media.map((thumbnail, index) => (
+                <button key={thumbnail.label} className="gallery-thumbnail" aria-label={`Show ${thumbnail.label.toLowerCase()}`} aria-pressed={selected === index} onClick={() => select(index)}>
+                  <img src={thumbnail.source} alt="" draggable={false} />
+                  <span>{thumbnail.type === "video" ? "▶ Video" : thumbnail.label}</span>
+                </button>
               ))}
             </div>
           </div>
-          <button className="gallery-arrow" onClick={() => select(selected + 1)} aria-label="Next media">›</button>
+          <div className="gallery-controls">
+            <button className="gallery-arrow" onClick={() => select(selected - 1)} aria-label="Previous media">‹</button>
+            <div className="gallery-navigation">
+              <div className="gallery-dots" role="group" aria-label="Choose media slide">
+                {media.map((slide, index) => (
+                  <button
+                    key={slide.label}
+                    className="gallery-dot"
+                    aria-label={`Go to slide ${index + 1} of ${media.length}: ${slide.label}`}
+                    aria-pressed={selected === index}
+                    onClick={() => select(index)}
+                  ><span aria-hidden="true" /></button>
+                ))}
+              </div>
+            </div>
+            <button className="gallery-arrow" onClick={() => select(selected + 1)} aria-label="Next media">›</button>
+          </div>
         </div>
+        <ReportViewer />
       </div>
     </section>
   );
