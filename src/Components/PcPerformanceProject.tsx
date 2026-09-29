@@ -21,6 +21,18 @@ export default function PcPerformanceProject() {
             </div>
           ))}
         </dl>
+        <div className="store-links" aria-label="Get Vecchio Furioso">
+          <a
+            className="store-icon"
+            href="https://store.steampowered.com/app/4524580/Vecchio_Furioso/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Vecchio Furioso on Steam (opens in a new tab)"
+            title="Steam"
+          >
+            <img src={assetUrl("images/store-badges/steam.svg")} alt="Steam" />
+          </a>
+        </div>
         <div className="project-tags">
           <span>GPU frame capture</span>
           <span>Rendering events</span>

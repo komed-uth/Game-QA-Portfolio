@@ -103,24 +103,24 @@ export default function RegulusShowcase() {
         </dl>
         <div className="store-links" aria-label="Get Regulus the Advent">
           <a
-            className="store-badge"
+            className="store-icon"
             href="https://apps.apple.com/th/app/regulus-the-advent/id6739992769"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Regulus the Advent on the App Store (opens in a new tab)"
             title="App Store"
           >
-            <img src={assetUrl("images/store-badges/app-store.svg")} alt="Download on the App Store" />
+            <img src={assetUrl("images/store-badges/app-store-icon.png")} alt="App Store" />
           </a>
           <a
-            className="store-badge"
+            className="store-icon"
             href="https://play.google.com/store/apps/details?id=com.jj.regulus.android&hl=en"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Regulus the Advent on Google Play (opens in a new tab)"
             title="Google Play"
           >
-            <img src={assetUrl("images/store-badges/google-play.svg")} alt="Get it on Google Play" />
+            <img src={assetUrl("images/store-badges/google-play-icon.svg")} alt="Google Play" />
           </a>
         </div>
       </div>
