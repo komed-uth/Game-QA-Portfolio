@@ -30,8 +30,6 @@ export default function SelfSummary() {
           <img src={assetUrl("images/linkedin-in-white.png")} alt="" />
         </a>
       </div>
-      <p className="eyebrow">{personalInfo.role}</p>
-      <p className="introduction">{personalInfo.introduction}</p>
       {personalInfo.links.length > 0 && (
         <div className="profile-links">
           {personalInfo.links.map((link) => (
