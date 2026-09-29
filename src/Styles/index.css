@@ -226,18 +226,37 @@ nav a.active {
   max-width: 100%;
   margin-top: 12px;
 }
-.store-badge {
+.store-icon {
   display: inline-flex;
   flex-shrink: 0;
-  padding: 12px;
+  padding: 20px;
+  transition: transform 0.2s ease-in-out;
 }
-.store-badge img {
+.store-icon img {
   display: block;
-  width: auto;
-  height: 44px;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
-.store-badge:focus-visible {
+.store-icon:hover,
+.store-icon:focus-visible {
+  transform: scale(1.1);
+}
+.store-icon:active {
+  transform: scale(0.9);
+}
+.store-icon:focus-visible {
   outline-offset: -3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .store-icon {
+    transition: none;
+  }
+  .store-icon:hover,
+  .store-icon:focus-visible,
+  .store-icon:active {
+    transform: none;
+  }
 }
 .store-credits {
   flex-basis: 100%;
