@@ -3,7 +3,7 @@ import type { PerformanceReport, Profile } from "./types";
 // Edit this object when you are ready to add your name, bio, CV or profile links.
 // Optional image and CV paths are relative to public/, e.g. 'files/my-cv.pdf'.
 export const personalInfo: Profile = {
-  name: "Game QA Portfolio",
+  name: "Komed's Portfolio",
   role: "Manual & performance testing",
   introduction: "From player-facing risks to reproducible evidence.",
   description:
