@@ -42,11 +42,12 @@ export const pcProject = {
 };
 
 export const reports: PerformanceReport[] = [
-  { label: "Very High", filename: "S10_Very_High_Fixed.html" },
-  { label: "High", filename: "S10_High_Fixed.html" },
-  { label: "Medium", filename: "S10_Medium_Fixed.html" },
-  { label: "Low", filename: "S10_Low_Fixed.html" },
-  { label: "Very Low", filename: "S10_Very_Low_Fixed.html" },
+  { label: "Very High", filename: "S10_Very_High_Fixed.html", kind: "html" },
+  { label: "High", filename: "S10_High_Fixed.html", kind: "html" },
+  { label: "Medium", filename: "S10_Medium_Fixed.html", kind: "html" },
+  { label: "Low", filename: "S10_Low_Fixed.html", kind: "html" },
+  { label: "Very Low", filename: "S10_Very_Low_Fixed.html", kind: "html" },
+  { label: "Overall", filename: "overall-performance-report.png", kind: "image" },
 ];
 
 export const workflow = [
@@ -107,5 +108,9 @@ export const plannedCoverage = [
 
 // Relative base keeps links working when hosted inside a repository subfolder.
 export const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
-export const reportUrl = (filename: string) =>
-  assetUrl(`Performance-Testing-Mobile/Full%20Report/${filename}`);
+export const reportUrl = (report: PerformanceReport) =>
+  assetUrl(
+    report.kind === "image"
+      ? `images/${report.filename}`
+      : `Performance-Testing-Mobile/Full%20Report/${report.filename}`,
+  );

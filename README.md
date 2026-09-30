@@ -42,7 +42,7 @@ Place optional files in `public/`. Use relative paths without a leading slash. T
 - Regulus the Advent cutscene performance demonstration on Samsung Galaxy S10.
 - Five original ARM Streamline / Performance Advisor reports: Very High, High, Medium, Low, and Very Low.
 - One Regulus project showcase combines a single introduction, device details, and store badges on the left with the media gallery and live HTML report viewer stacked on the right. On narrow screens, the introduction and details come first, followed by the gallery and reports. Its static capture image is not displayed or linked.
-- Report selector with Medium selected by default and a synchronized full-report link.
+- Report selector with Medium selected by default, an Overall image summary, and a full-report link for each quality setting.
 - Vecchio Furioso PC performance testing: a Microsoft PIX GPU frame capture with a full-size image link.
 - The PC environment is documented as Intel Core i7-7700K, NVIDIA GeForce GTX 1060 6GB, 16 GB RAM, and Windows 10 Home (build 19045). These specifications were read from this PC when the project was added.
 

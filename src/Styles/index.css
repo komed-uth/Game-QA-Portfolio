@@ -595,6 +595,15 @@ nav a.active {
   background: white;
   color-scheme: light;
 }
+.overall-report-viewer {
+  overflow: auto;
+}
+.overall-report-viewer img {
+  display: block;
+  width: 1140px;
+  max-width: none;
+  height: auto;
+}
 .report-note {
   font-size: 0.8rem;
   color: var(--muted);
