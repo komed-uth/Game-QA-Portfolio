@@ -446,7 +446,8 @@ nav a.active {
 @media (prefers-reduced-motion: reduce) {
   .gallery-viewer { animation: none; }
 }
-.pc-project {
+.pc-project,
+.video-project {
   border-top: 1px solid var(--line);
   padding-top: 36px;
 }
