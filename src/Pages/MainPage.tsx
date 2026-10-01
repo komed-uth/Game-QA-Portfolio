@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import FatherSonShowcase from "../Components/FatherSonShowcase";
 import PcPerformanceProject from "../Components/PcPerformanceProject";
 import RegulusShowcase from "../Components/RegulusShowcase";
 
@@ -6,6 +7,7 @@ export default function MainPage() {
   return (
     <>
       <RegulusShowcase />
+      <FatherSonShowcase />
       <PcPerformanceProject />
       <section className="work-in-progress" aria-labelledby="manual-heading">
         <div>
