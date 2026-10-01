@@ -23,6 +23,12 @@ export const project = {
   scene: "Cutscene",
 };
 
+export const fatherSonProject = {
+  name: "Father, Son & Holy Guns",
+  videoId: "Pp3EoksO-hI",
+  videoUrl: "https://youtu.be/Pp3EoksO-hI?si=jQN9AlynytsjpaVJ",
+};
+
 export const pcProject = {
   name: "Vecchio Furioso",
   category: "PC performance testing",
