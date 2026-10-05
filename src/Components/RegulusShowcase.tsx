@@ -77,30 +77,14 @@ export default function RegulusShowcase() {
       <div className="project-info">
         <p className="eyebrow">Project showcase</p>
         <h1 id="regulus-showcase-title" className="project-title">{project.name}</h1>
-        <p className="project-category">{project.category}</p>
-        <p className="project-description">{project.description}</p>
-        <dl className="info-table">
-          <div>
-            <dt>Platform</dt>
-            <dd>{project.platform}</dd>
-          </div>
-          <div>
-            <dt>Device</dt>
-            <dd>{project.device}</dd>
-          </div>
-          <div>
-            <dt>GPU</dt>
-            <dd>{project.gpu}</dd>
-          </div>
-          <div>
-            <dt>Capture</dt>
-            <dd>{project.tool}</dd>
-          </div>
-          <div>
-            <dt>Scenario</dt>
-            <dd>{project.scene}</dd>
-          </div>
-        </dl>
+        <div className="project-details" aria-label="Project details">
+          {project.details.map(({ label, value }) => (
+            <div key={label}>
+              <h3 className="project-detail-label">{label}</h3>
+              <p>{value}</p>
+            </div>
+          ))}
+        </div>
         <div className="store-links" aria-label="Get Regulus the Advent">
           <a
             className="store-icon"
