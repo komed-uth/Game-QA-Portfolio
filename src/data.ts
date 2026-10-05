@@ -13,14 +13,27 @@ export const personalInfo: Profile = {
 
 export const project = {
   name: "Regulus the Advent",
-  category: "Mobile performance testing",
-  description:
-    "A performance testing demonstration of a cutscene across five graphics quality settings, captured on a real Samsung Galaxy S10 with ARM Streamline.",
-  device: "Samsung Galaxy S10",
-  gpu: "Mali-G76 MP12",
-  platform: "Android",
-  tool: "ARM Streamline / Performance Advisor",
-  scene: "Cutscene",
+  details: [
+    {
+      label: "Project overview",
+      value:
+        "A mobile performance testing demonstration of a cutscene across five graphics quality settings.",
+    },
+    {
+      label: "My role",
+      value: "Mobile performance testing",
+    },
+    {
+      label: "Responsibilities",
+      value:
+        "Capture the cutscene at five graphics quality settings on a real Samsung Galaxy S10 using ARM Streamline.",
+    },
+    {
+      label: "Platforms / tools",
+      value:
+        "Android · Samsung Galaxy S10 · Mali-G76 MP12 · ARM Streamline / Performance Advisor",
+    },
+  ],
 };
 
 export const fatherSonProject = {
@@ -50,17 +63,26 @@ export const fatherSonProject = {
 
 export const pcProject = {
   name: "Vecchio Furioso",
-  category: "PC performance testing",
-  description:
-    "GPU frame capture showing rendering events and their timing during gameplay.",
-  environment: [
-    { label: "Platform", value: "Windows PC" },
-    { label: "CPU", value: "Intel Core i7-7700K @ 4.20 GHz" },
-    { label: "GPU", value: "NVIDIA GeForce GTX 1060 6GB" },
-    { label: "RAM", value: "16 GB" },
-    { label: "OS", value: "Windows 10 Home · Build 19045" },
-    { label: "Capture", value: "Microsoft PIX" },
-    { label: "Scenario", value: "Gameplay GPU frame analysis" },
+  details: [
+    {
+      label: "Project overview",
+      value:
+        "A PC performance testing sample for Vecchio Furioso, centered on GPU rendering events and frame timing during gameplay.",
+    },
+    {
+      label: "My role",
+      value: "PC performance testing",
+    },
+    {
+      label: "Responsibilities",
+      value:
+        "Capture a gameplay GPU frame in Microsoft PIX and review rendering events against their timing data.",
+    },
+    {
+      label: "Platforms / tools",
+      value:
+        "Windows 10 Home · Build 19045 · Intel Core i7-7700K @ 4.20 GHz · NVIDIA GeForce GTX 1060 6 GB · 16 GB RAM · Microsoft PIX",
+    },
   ],
   image: "images/vecchio-furioso-pix.png",
   imageCaption: "Microsoft PIX · GPU capture and event timeline",

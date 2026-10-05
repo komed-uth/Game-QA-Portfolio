@@ -11,7 +11,7 @@ export default function FatherSonShowcase() {
         <h2 id="father-son-showcase-title" className="project-title">
           {fatherSonProject.name}
         </h2>
-        <div className="father-son-details" aria-label="Project details">
+        <div className="project-details" aria-label="Project details">
           {fatherSonProject.details.map(({ label, value }) => (
             <div key={label}>
               <h3 className="project-detail-label">{label}</h3>
