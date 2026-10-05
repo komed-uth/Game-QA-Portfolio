@@ -814,12 +814,12 @@ footer {
 }
 
 
-.father-son-details {
+.project-details {
   display: grid;
   gap: 16px;
   max-width: 44ch;
 }
-.father-son-details p {
+.project-details p {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.55;
