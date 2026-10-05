@@ -812,3 +812,26 @@ footer {
     transition: none !important;
   }
 }
+
+
+.father-son-details {
+  display: grid;
+  gap: 16px;
+  max-width: 44ch;
+}
+.father-son-details p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+.project-detail-label {
+  color: var(--green);
+  font-family: Oxanium, Arial, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  line-height: 1.5;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}

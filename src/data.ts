@@ -27,6 +27,25 @@ export const fatherSonProject = {
   name: "Father, Son & Holy Guns",
   videoId: "Pp3EoksO-hI",
   videoUrl: "https://youtu.be/Pp3EoksO-hI?si=jQN9AlynytsjpaVJ",
+  details: [
+    {
+      label: "Project overview",
+      value:
+        "A fast-paced roguelite action game set in a strange world overrun by alien threats. The project centers on high-energy combat and cooperative missions.",
+    },
+    {
+      label: "My role",
+      value: "[Role / position to confirm]",
+    },
+    {
+      label: "Responsibilities",
+      value: "[Project responsibilities to confirm]",
+    },
+    {
+      label: "Platforms / tools",
+      value: "Windows PC · [Engine / QA tools to confirm]",
+    },
+  ],
 };
 
 export const pcProject = {
