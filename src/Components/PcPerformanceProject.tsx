@@ -11,16 +11,14 @@ export default function PcPerformanceProject() {
         <h2 id="pc-project-title" className="project-title">
           {pcProject.name}
         </h2>
-        <p className="project-category">{pcProject.category}</p>
-        <p className="project-description">{pcProject.description}</p>
-        <dl className="info-table">
-          {pcProject.environment.map(({ label, value }) => (
+        <div className="project-details" aria-label="Project details">
+          {pcProject.details.map(({ label, value }) => (
             <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
+              <h3 className="project-detail-label">{label}</h3>
+              <p>{value}</p>
             </div>
           ))}
-        </dl>
+        </div>
         <div className="store-links" aria-label="Get Vecchio Furioso">
           <a
             className="store-icon"
@@ -32,11 +30,6 @@ export default function PcPerformanceProject() {
           >
             <img src={assetUrl("images/store-badges/steam.svg")} alt="Steam" />
           </a>
-        </div>
-        <div className="project-tags">
-          <span>GPU frame capture</span>
-          <span>Rendering events</span>
-          <span>Timing evidence</span>
         </div>
       </div>
       <figure className="capture-media">
