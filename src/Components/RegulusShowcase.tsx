@@ -72,16 +72,14 @@ export default function RegulusShowcase() {
           </a>
         </div>
       </div>
-      <div className="regulus-evidence">
-        <MediaGallery
-          projectName={project.name}
-          galleryName="Regulus the Advent media"
-          videoId={videoId}
-          videoUrl={"https://youtu.be/" + videoId}
-          media={media}
-        />
-        <ReportViewer />
-      </div>
+      <MediaGallery
+        projectName={project.name}
+        galleryName="Regulus the Advent media"
+        videoId={videoId}
+        videoUrl={"https://youtu.be/" + videoId}
+        media={media}
+      />
+      <ReportViewer />
     </section>
   );
 }
