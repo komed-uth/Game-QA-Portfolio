@@ -44,7 +44,7 @@ Place optional files in `public/`. Use relative paths without a leading slash. T
 - One Regulus project showcase combines a single introduction, device details, and store badges on the left with the media gallery and live HTML report viewer stacked on the right. On narrow screens, the introduction and details come first, followed by the gallery and reports. Its static capture image is not displayed or linked.
 - Report selector with Medium selected by default, an Overall image summary, and a full-report link for each quality setting.
 - Vecchio Furioso PC performance testing: a Microsoft PIX GPU frame capture with a full-size image link.
-- Father, Son & Holy Guns: an embedded project video and YouTube link directly below Regulus the Advent.
+- Father, Son & Holy Guns: a media gallery with its video and three gameplay screenshots directly below Regulus the Advent.
 - The PC environment is documented as Intel Core i7-7700K, NVIDIA GeForce GTX 1060 6GB, 16 GB RAM, and Windows 10 Home (build 19045). These specifications were read from this PC when the project was added.
 
 Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
