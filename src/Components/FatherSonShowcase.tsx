@@ -1,4 +1,32 @@
-import { fatherSonProject } from "../data";
+import { assetUrl, fatherSonProject } from "../data";
+import MediaGallery, { type MediaGalleryItem } from "./MediaGallery";
+
+const media: MediaGalleryItem[] = [
+  {
+    type: "video",
+    source: "https://i.ytimg.com/vi/" + fatherSonProject.videoId + "/hqdefault.jpg",
+    label: "Video",
+    alt: "Father, Son & Holy Guns video preview",
+  },
+  {
+    type: "image",
+    source: assetUrl("images/father-son-holy-guns/boss-battle.png"),
+    label: "Boss battle",
+    alt: "Father, Son & Holy Guns cooperative battle against the Hunter with a 0.0% sanity meter",
+  },
+  {
+    type: "image",
+    source: assetUrl("images/father-son-holy-guns/blessing-selection.png"),
+    label: "Blessing selection",
+    alt: "Father, Son & Holy Guns blessing selection showing Penitent's Joy, Lone Wolf, and Fortified",
+  },
+  {
+    type: "image",
+    source: assetUrl("images/father-son-holy-guns/combat-effects.png"),
+    label: "Combat effects",
+    alt: "Father, Son & Holy Guns cooperative combat with enemies, bright tornado effects, and the minimap",
+  },
+];
 
 export default function FatherSonShowcase() {
   return (
@@ -20,26 +48,13 @@ export default function FatherSonShowcase() {
           ))}
         </div>
       </div>
-      <figure className="gallery-figure">
-        <div className="gallery-viewer">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${fatherSonProject.videoId}?playsinline=1&rel=0`}
-            title={`${fatherSonProject.name} video`}
-            loading="lazy"
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        </div>
-        <figcaption className="gallery-caption">
-          <a
-            href={fatherSonProject.videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Watch on YouTube ↗
-          </a>
-        </figcaption>
-      </figure>
+      <MediaGallery
+        projectName={fatherSonProject.name}
+        galleryName="Father, Son & Holy Guns media"
+        videoId={fatherSonProject.videoId}
+        videoUrl={fatherSonProject.videoUrl}
+        media={media}
+      />
     </section>
   );
 }
