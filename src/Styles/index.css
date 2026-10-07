@@ -202,6 +202,9 @@ nav a.active {
   align-items: start;
   margin-bottom: 56px;
 }
+.regulus-showcase {
+  --report-status-space: 36px;
+}
 .project-info,
 .work-in-progress > div,
 .about-intro > div {
@@ -213,10 +216,19 @@ nav a.active {
   color: var(--muted);
   margin-bottom: 22px;
 }
-.regulus-evidence {
-  display: grid;
-  gap: 36px;
+.regulus-showcase > .report-controls,
+.regulus-showcase > .report-output {
   min-width: 0;
+  grid-row: 2;
+}
+.regulus-showcase > .report-controls {
+  grid-column: 1;
+  padding-top: var(--report-status-space);
+}
+.regulus-showcase > .report-output {
+  grid-column: 2;
+  position: relative;
+  padding-top: var(--report-status-space);
 }
 .store-links {
   display: flex;
@@ -524,9 +536,6 @@ nav a.active {
   color: #d4ddd7;
   background: rgba(21, 32, 27, 0.6);
 }
-.report-section {
-  min-width: 0;
-}
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -588,6 +597,12 @@ nav a.active {
   font-size: 0.8rem;
   color: var(--muted);
   margin: 20px 0 12px;
+}
+.report-output > .report-status {
+  position: absolute;
+  inset: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
 }
 .report-viewer {
   display: block;
@@ -837,4 +852,20 @@ footer {
   line-height: 1.5;
   margin: 0 0 4px;
   text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .regulus-showcase {
+    --report-status-space: 0px;
+  }
+  .regulus-showcase > .report-controls,
+  .regulus-showcase > .report-output {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .report-output > .report-status {
+    position: static;
+    margin: 20px 0 12px;
+    white-space: normal;
+  }
 }
