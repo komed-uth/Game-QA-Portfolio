@@ -592,8 +592,8 @@ nav a.active {
 .report-viewer {
   display: block;
   width: 100%;
-  height: clamp(240px, 72vh, 760px);
-  height: clamp(240px, 72svh, 760px);
+  height: auto;
+  aspect-ratio: 16 / 9;
   border: 1px solid #48584e;
   border-radius: 4px;
   background: white;
