@@ -1,16 +1,33 @@
 import assert from "node:assert/strict";
-import { waitForPhoto } from "./gallery-photo-ready.mjs";
+// Keep dwell assertions independent of the machine's wall-clock scheduling.
+async function installPausedClock(page) {
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
+}
+async function waitForPhoto(gallery) {
+  const page = gallery.page();
+  for (let attempt = 0; attempt < 300; attempt++) {
+    await page.clock.runFor(16);
+    await page.waitForTimeout(16);
+    const photo = gallery.locator('.gallery-viewer .evidence-image-button');
+    const source = await gallery.locator('.gallery-thumbnail[aria-pressed="true"] img').getAttribute('src');
+    if (await photo.count() && await photo.isEnabled() && await photo.locator('img').getAttribute('src') === source) return;
+  }
+  throw new Error('Selected photo did not become fully displayed');
+}
 
 export default async function checkSlideshow(page) {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.clock.install();
+  await installPausedClock(page);
   const galleries = page.locator('.game-gallery');
   async function isSelected(gallery, index, message) {
-    assert.equal(await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed'), 'true', message);
+    const value = await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed');
+    assert.equal(value, 'true', message);
   }
   async function releaseInspection() {
     await page.mouse.move(0, 0);
     await page.evaluate(() => document.activeElement?.blur());
+    await page.clock.runFor(1);
     await page.waitForTimeout(60);
   }
   async function photo(gallery, index) {
@@ -20,6 +37,10 @@ export default async function checkSlideshow(page) {
     await releaseInspection();
   }
   async function fullInterval(gallery, from, to) {
+    await gallery.scrollIntoViewIfNeeded();
+    // Let browser rendering and passive effects settle before advancing its clock.
+    await page.clock.runFor(32);
+    await page.waitForTimeout(100);
     await page.clock.fastForward(4500);
     await isSelected(gallery, from, 'A ready/resumed photo receives a full five-second interval');
     await page.clock.fastForward(700);
@@ -82,15 +103,18 @@ export default async function checkSlideshow(page) {
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Active drag suspends even outside gallery');
     await page.locator('body').dispatchEvent('pointerup', { pointerId: 42, isPrimary: true, button: 0, pointerType: 'touch' });
+    await page.clock.runFor(1);
     await page.waitForTimeout(60);
     await fullInterval(gallery, 1, 2);
 
     await photo(gallery, 1);
     await gallery.evaluate(e => window.scrollTo(0, e.getBoundingClientRect().bottom + scrollY + 20));
+    await page.clock.runFor(32);
     await page.waitForTimeout(100);
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Offscreen gallery suspends');
     await gallery.scrollIntoViewIfNeeded();
+    await page.clock.runFor(32);
     await page.waitForTimeout(100);
     await fullInterval(gallery, 1, 2);
 
@@ -112,6 +136,7 @@ export default async function checkSlideshow(page) {
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Modal inspection suspends progression');
     await page.getByRole('button', { name: 'Close evidence', exact: true }).click();
+    await page.clock.runFor(220);
     await page.locator('dialog').waitFor({ state: 'detached' });
     await releaseInspection();
     await fullInterval(gallery, 1, 2);
@@ -153,6 +178,44 @@ export default async function checkSlideshow(page) {
       await page.unroute(failedUrl);
     }
   }
+
+  // Native panning cancels pointer delivery while the finger remains down.
+  const touchContext = await page.context().browser().newContext({ viewport: {width:390,height:845}, hasTouch:true, isMobile:true });
+  try {
+    const touchPage = await touchContext.newPage();
+    await touchPage.goto(page.url());
+    await installPausedClock(touchPage);
+    const touchGallery = touchPage.locator('.game-gallery').first();
+    await touchGallery.locator('.gallery-thumbnail').nth(1).tap();
+    await waitForPhoto(touchGallery);
+    await touchPage.evaluate(() => document.activeElement?.blur());
+    const strip = touchGallery.locator('.gallery-thumbnails');
+    await strip.scrollIntoViewIfNeeded();
+    await strip.evaluate(e => {
+      window.touchPointerCancelled = false;
+      e.addEventListener('pointercancel', () => { window.touchPointerCancelled = true; }, {once:true});
+    });
+    const box = await strip.boundingBox();
+    const session = await touchContext.newCDPSession(touchPage);
+    const x = box.x + box.width * .8;
+    const y = box.y + 20;
+    await session.send('Input.dispatchTouchEvent', {type:'touchStart',touchPoints:[{x,y}]});
+    for (let i = 1; i <= 8; i++) {
+      await session.send('Input.dispatchTouchEvent', {type:'touchMove',touchPoints:[{x:x-box.width*.6*i/8,y}]});
+      await touchPage.waitForTimeout(20);
+    }
+    assert(await touchPage.evaluate(() => window.touchPointerCancelled), 'Native strip panning cancels pointer delivery');
+    await touchPage.clock.fastForward(7000);
+    assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Finger still down suspends progression after pointercancel');
+    await session.send('Input.dispatchTouchEvent', {type:'touchEnd',touchPoints:[]});
+    await touchPage.waitForTimeout(100);
+    await touchPage.clock.fastForward(4500);
+    assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Touch release receives a fresh interval');
+    await touchPage.clock.fastForward(700);
+    assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(2).getAttribute('aria-pressed'), 'true', 'Progression resumes after actual touch release');
+    await session.detach();
+  } finally { await touchContext.close(); }
+  await page.bringToFront();
 
   // Both timers run on the same visible portfolio while one gallery stays paused.
   await page.setViewportSize({ width: 1366, height: 6000 });

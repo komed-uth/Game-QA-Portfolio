@@ -35,6 +35,15 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
       pointer = null;
       update("dragging", false);
     };
+    // Native touch scrolling cancels pointer delivery before the finger lifts.
+    const cancelPointer = (event: globalThis.PointerEvent) => {
+      if (event.pointerType !== "touch") up(event);
+    };
+    const endTouch = (event: TouchEvent) => {
+      if (event.touches.length) return;
+      pointer = null;
+      update("dragging", false);
+    };
     const blur = () => {
       pointer = null;
       update("dragging", false);
@@ -50,7 +59,9 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     element.addEventListener("focusin", focus);
     element.addEventListener("focusout", deferFocus);
     window.addEventListener("pointerup", up, true);
-    window.addEventListener("pointercancel", up, true);
+    window.addEventListener("pointercancel", cancelPointer, true);
+    window.addEventListener("touchend", endTouch, true);
+    window.addEventListener("touchcancel", endTouch, true);
     window.addEventListener("blur", blur);
     window.addEventListener("focus", focus);
     document.addEventListener("visibilitychange", visibility);
@@ -63,7 +74,9 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
       element.removeEventListener("focusin", focus);
       element.removeEventListener("focusout", deferFocus);
       window.removeEventListener("pointerup", up, true);
-      window.removeEventListener("pointercancel", up, true);
+      window.removeEventListener("pointercancel", cancelPointer, true);
+      window.removeEventListener("touchend", endTouch, true);
+      window.removeEventListener("touchcancel", endTouch, true);
       window.removeEventListener("blur", blur);
       window.removeEventListener("focus", focus);
       document.removeEventListener("visibilitychange", visibility);
