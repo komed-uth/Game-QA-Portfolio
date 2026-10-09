@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 
-export async function startPreview(port = 4175) {
+export async function startPreview(port = 0) {
   let output = "";
   const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "preview",
     "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
@@ -18,8 +18,9 @@ export async function startPreview(port = 4175) {
         output = (output + chunk).slice(-4000);
         // Vite prints this URL only after this child has successfully bound its port.
         const confirmation = output.replace(/\u001b\[[0-9;]*m/g, "")
-          .match(/Local:\s+http:\/\/127\.0\.0\.1:(\d+)\//);
-        if (Number(confirmation?.[1]) === port && server.exitCode === null && !server.killed) {
+          .match(/Local:\s+(http:\/\/127\.0\.0\.1:(\d+)\/)/);
+        if (confirmation && (port === 0 || Number(confirmation[2]) === port) && server.exitCode === null && !server.killed) {
+          server.url = confirmation[1];
           clearTimeout(timeout);
           resolve();
         }
