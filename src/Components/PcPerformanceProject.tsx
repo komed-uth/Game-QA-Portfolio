@@ -1,6 +1,9 @@
+import { useState } from "react";
+import EvidenceModal from "./EvidenceModal";
 import { assetUrl, pcProject } from "../data";
 
 export default function PcPerformanceProject() {
+  const [open, setOpen] = useState(false);
   return (
     <article
       className="project-grid pc-project"
@@ -33,10 +36,7 @@ export default function PcPerformanceProject() {
         </div>
       </div>
       <figure className="capture-media">
-        <a
-          href={assetUrl(pcProject.image)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
           aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
         >
           <img
@@ -44,23 +44,22 @@ export default function PcPerformanceProject() {
             alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
             loading="lazy"
           />
-        </a>
+        </button>
         <figcaption>
           <span>{pcProject.imageCaption}</span>
-          <a
-            className="text-link"
-            href={assetUrl(pcProject.image)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button type="button" className="text-link evidence-open" onClick={() => setOpen(true)}
           >
-            Open full-size capture ↗
-          </a>
+            Open full-size capture
+          </button>
         </figcaption>
         <p className="report-note">
           Open the full-size capture to inspect the event list and timeline
           labels.
         </p>
       </figure>
+      {open && <EvidenceModal title="Vecchio Furioso · Microsoft PIX capture"
+        source={assetUrl(pcProject.image)} alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
+        onClose={() => setOpen(false)} />}
     </article>
   );
 }
