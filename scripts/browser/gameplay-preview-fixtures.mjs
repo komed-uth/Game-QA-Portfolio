@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { build } from "vite";
+import { waitForPhoto } from "./gallery-photo-ready.mjs";
 
 async function checkScrollInterruption(page, gallery) {
   await page.setViewportSize({width:390,height:845});
@@ -44,9 +45,9 @@ async function checkScrollInterruption(page, gallery) {
 // The actual portfolio, other showcase, and production media files stay intact.
 export default async function checkPreviewFixtures(page) {
   const browser = page.context().browser();
-  for (const fixture of ["empty", "single", "long"]) {
+  for (const fixture of ["empty", "single", "single-photo", "long"]) {
     const adjustment = fixture === "empty" ? "media.splice(0);" : fixture === "single" ?
-      "media.splice(1);" : "media.push(...Array.from({length:12}, (_,index) => ({...media[1],label:'Fixture photo '+(index+1)})));";
+      "media.splice(1);" : fixture === "single-photo" ? "media.splice(0, media.length, media[1]);" : "media.push(...Array.from({length:12}, (_,index) => ({...media[1],label:'Fixture photo '+(index+1)})));";
     const result = await build({ logLevel: "silent", plugins: [{ name: "gameplay-list-fixture", enforce: "pre",
       transform(code, id) {
         if (!id.replaceAll('\\', '/').endsWith('/src/Components/RegulusShowcase.tsx')) return;
@@ -64,10 +65,21 @@ export default async function checkPreviewFixtures(page) {
       const gallery=fixturePage.getByRole('region',{name:'Regulus the Advent media',exact:true});
       if (fixture === "empty") {
         assert.equal(await gallery.count(),0,'Empty list omits gallery');
-      } else if (fixture === "single") {
+      } else if (fixture === "single" || fixture === "single-photo") {
         assert.equal(await gallery.locator('.gallery-thumbnail').count(),1);
         assert.equal(await gallery.locator('.gallery-controls').count(),0);
-        assert.equal(await gallery.locator('iframe').count(),1);
+        assert.equal(await gallery.getByRole('button', {name: /slideshow/}).count(),0,'Single item omits slideshow controls');
+        if (fixture === "single") assert.equal(await gallery.locator('iframe').count(),1);
+        else {
+          await fixturePage.emulateMedia({reducedMotion:'no-preference'});
+          await fixturePage.clock.install();
+          await waitForPhoto(gallery);
+          await fixturePage.mouse.move(0,0);
+          await fixturePage.evaluate(() => document.activeElement?.blur());
+          await fixturePage.clock.fastForward(10000);
+          assert.equal(await gallery.locator('.gallery-thumbnail[aria-pressed="true"]').count(),1,'Single photo never advances');
+          await waitForPhoto(gallery);
+        }
       } else {
         const strip=gallery.locator('.gallery-thumbnails');
         const previews=gallery.locator('.gallery-thumbnail');
