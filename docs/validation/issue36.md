@@ -9,3 +9,5 @@ The four ticket #24 retrospective improvements are tracked in [issue #36](https:
 - Ripgrep 15.2.0 is permanently installed with WinGet user scope (`BurntSushi.ripgrep.MSVC`). `rg --version` and repository searches work after refreshing PATH; fresh processes inherit WinGet's managed alias.
 
 Validation: production build/typecheck passed; all ten preview/argument/parser checks passed; focused gameplay including representative lists and native touch passed in installed Edge. The initial complete Edge portfolio suite passed; the review strengthened the interruption assertion and grouped runner mode settings. Final focused results, review, and Linux Chromium CI are recorded in the PR. No application behavior, original media, or deployment workflow is changed.
+
+An earlier Linux CI run failed the existing responsive report-order comparison, which measured its two regions in separate browser calls after resizing. The final check measures both rectangles in one browser snapshot, retaining the ordering assertion and avoiding inconsistent scroll-anchor coordinates. Final report checks and CI outcomes are recorded in the PR.
