@@ -84,9 +84,10 @@ export default function MediaGallery({
     },
     onClickCapture: (event: MouseEvent<HTMLDivElement>) => {
       if (suppressClick.current) {
+        suppressClick.current = false;
+        if (event.detail === 0) return;
         event.preventDefault();
         event.stopPropagation();
-        suppressClick.current = false;
       }
     },
   };
