@@ -870,12 +870,13 @@ footer {
   }
 }
 .evidence-open {
+  min-height: 44px;
   border: 0;
   padding: 0;
   background: none;
   color: var(--green);
   cursor: pointer;
-  }
+}
 .gallery-viewer > .evidence-image-button {
   width: 100%;
   height: 100%;
@@ -884,7 +885,7 @@ footer {
   border: 0;
   background: transparent;
   cursor: zoom-in;
-  }
+}
 .capture-media > .evidence-image-button {
   display: block;
   width: 100%;
@@ -892,7 +893,7 @@ footer {
   border: 0;
   background: transparent;
   cursor: zoom-in;
-  }
+}
 .report-preview {
   display: flex;
   flex-direction: column;
@@ -906,13 +907,13 @@ footer {
   background: #16211a;
   color: var(--green);
   cursor: zoom-in;
-  }
+}
 .report-preview span:first-child {
   font-size: 1.5rem;
-  }
+}
 .report-preview span:nth-child(2) {
   color: var(--muted);
-  }
+}
 .evidence-modal {
   position: fixed;
   inset: 0;
@@ -927,74 +928,74 @@ footer {
   background: #16211a;
   color: #dbe4de;
   overflow: hidden;
-  }
+}
 .evidence-modal[open] {
   display: flex;
   flex-direction: column;
   animation: evidence-enter 200ms ease both;
-  }
+}
 .evidence-modal::backdrop {
   background: rgb(0 0 0 / 78%);
   animation: evidence-backdrop 200ms ease both;
-  }
+}
 .evidence-modal.is-closing {
-  animation: evidence-enter 200ms ease reverse both;
-  }
+  animation: evidence-exit 200ms ease both;
+}
 .evidence-modal.is-closing::backdrop {
-  animation: evidence-backdrop 200ms ease reverse both;
-  }
+  animation: evidence-backdrop-exit 200ms ease both;
+}
 .evidence-modal-header, .evidence-modal-footer {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
   flex-shrink: 0;
-  }
+}
 .evidence-modal-header h2 {
   font-size: 1rem;
   margin: 0;
   flex: 1;
-  }
+}
 .evidence-modal button, .evidence-modal a {
   min-height: 44px;
   color: var(--green);
-  }
+}
 .evidence-modal button {
   border: 1px solid #48584e;
   border-radius: 4px;
   padding: 8px 12px;
   background: #19221d;
   cursor: pointer;
-  }
+}
 .evidence-modal-header button {
   min-width: 44px;
   font-size: 1.5rem;
-  }
+}
 .evidence-modal-footer {
   flex-wrap: wrap;
-  }
+}
 .evidence-modal-footer a {
   display: inline-flex;
   align-items: center;
   margin-left: auto;
-  }
+}
 .evidence-modal-content {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  }
+}
 .evidence-modal-image {
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   padding: 8px;
-  }
+}
 .evidence-modal-image img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  }
+}
 .evidence-modal-html iframe {
   display: block;
   width: 100%;
@@ -1002,40 +1003,64 @@ footer {
   border: 0;
   background: white;
   color-scheme: light;
-  }
+}
 .evidence-modal-summary {
   overflow: auto;
   background: white;
-  }
+}
 .evidence-modal-summary img {
   display: block;
   width: max(100%, 900px);
   max-width: none;
   height: auto;
-  }
+}
 .evidence-modal :focus-visible, .evidence-open:focus-visible, .evidence-image-button:focus-visible, .report-preview:focus-visible {
   outline: 3px solid var(--green);
   outline-offset: -3px;
-  }
+}
 @keyframes evidence-enter {
   from {
-  opacity: 0;
-  transform: scale(.97);
-  } to {
-  opacity: 1;
-  transform: scale(1);
-  } }
+    opacity: 0;
+    transform: scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 @keyframes evidence-backdrop {
   from {
-  opacity: 0;
-  } to {
-  opacity: 1;
-  } }
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .evidence-modal[open], .evidence-modal::backdrop, .evidence-modal.is-closing, .evidence-modal.is-closing::backdrop {
-  animation: none;
-  } }
+    animation: none;
+  }
+}
 @media (max-height: 450px) {
   .evidence-modal-header, .evidence-modal-footer {
-  padding: 4px 12px;
-  } }
+    padding: 4px 12px;
+  }
+}
+@keyframes evidence-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(.97);
+  }
+}
+@keyframes evidence-backdrop-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

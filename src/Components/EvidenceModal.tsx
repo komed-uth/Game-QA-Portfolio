@@ -42,6 +42,7 @@ export default function EvidenceModal({ title, source, kind = "image", alt = "",
     const oldOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     element.showModal();
+    element.querySelector<HTMLButtonElement>(".evidence-modal-header button")?.focus();
     function keydown(event: KeyboardEvent) {
       if (event.key === "Tab") {
         const controls = Array.from(element.querySelectorAll<HTMLElement>('button, a[href], iframe, [tabindex="0"]'));
@@ -118,7 +119,7 @@ export default function EvidenceModal({ title, source, kind = "image", alt = "",
       }}>
       <header className="evidence-modal-header">
         <h2 id={titleId}>{title}</h2>
-        <button type="button" autoFocus onClick={close} aria-label="Close evidence">×</button>
+        <button type="button" onClick={close} aria-label="Close evidence">×</button>
       </header>
       <div ref={viewport} className={"evidence-modal-content evidence-modal-" + kind}
         tabIndex={kind === "summary" ? 0 : undefined}
