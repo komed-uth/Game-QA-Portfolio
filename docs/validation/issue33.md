@@ -29,3 +29,9 @@ Synthetic fixture coverage verifies report/modal integration. Real capture certi
 - Self-review against the user request: full CI default retained; no production/evidence-file changes or new harness/dependencies; local-data readiness and synthetic coverage clearly separated; persistent CLI setup verified. Fixture backdrop checks follow image inspection, which exits native middle-button autoscroll before dismissal.
 
 The existing GitHub workflow is retained: its `check:preview` command also runs the overlay-data parser tests, and its default `check:browser` performs readiness before browser startup. Publishing does not require a workflow-file edit or additional token scopes.
+
+## PR #34 review follow-up
+
+The optional P3 duplicated-matching concern at reviewed head `46a8085b7a2f0de7122ccbc4fa338cef5ac631f9` is resolved: `report-overlay-data.mjs` owns one script-matching expression and the replacement helper; the fixture calls that helper. Replacement validates the original JSON, retaining missing/malformed-data failures, and preserves script tags and all surrounding report HTML.
+
+Validation: `npm run check:overlays` passed five parser/replacement checks and retained all five real-capture skips; `npm run check:preview` passed all seven parser/preview checks; `npm run build` passed TypeScript and production build; `BROWSER_CHANNEL=msedge npm run check:reports` passed the synthetic overlay and all six reports across ten viewports. Capture evidence, fixture labeling, focused selection, and complete-suite defaults are unchanged. The review's skill-setup note is outside this focused revision.

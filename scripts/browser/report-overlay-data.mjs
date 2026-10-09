@@ -1,11 +1,19 @@
 import { readFile, readdir } from "node:fs/promises";
 
+const reportDataScript = /(<script\b[^>]*\bid=["']meerkatData["'][^>]*>)([\s\S]*?)(<\/script>)/i;
+
 export function parseReportData(html) {
-  const embedded = html.match(/<script\b[^>]*\bid=["']meerkatData["'][^>]*>([\s\S]*?)<\/script>/i);
+  const embedded = html.match(reportDataScript);
   if (!embedded) throw new Error("Missing meerkatData report JSON");
-  const data = JSON.parse(embedded[1]);
+  const data = JSON.parse(embedded[2]);
   if (!Array.isArray(data)) throw new Error("Report data must be an array");
   return data;
+}
+
+export function replaceReportData(html, data) {
+  // Validate the original block so replacement cannot conceal malformed report data.
+  parseReportData(html);
+  return html.replace(reportDataScript, (_, start, _original, end) => start + JSON.stringify(data) + end);
 }
 
 export function inspectOverlayData(html) {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { parseReportData } from "./report-overlay-data.mjs";
+import { parseReportData, replaceReportData } from "./report-overlay-data.mjs";
 
 // Route a synthetic screenshot into the real report generator; capture files stay unchanged.
 export default async function checkOverlayFixture(page) {
@@ -24,8 +24,7 @@ export default async function checkOverlayFixture(page) {
     graph.screenshots = graph.screenshotBins.map(bin => ({
       timeInMs: graph.xdataStart + graph.xdataStep * bin, base64: thumbnail, height: 45,
     }));
-    const fixtureHtml = html.replace(/(<script\b[^>]*\bid=["']meerkatData["'][^>]*>)[\s\S]*?(<\/script>)/i,
-      (_, start, end) => start + JSON.stringify(data) + end);
+    const fixtureHtml = replaceReportData(html, data);
     await route.fulfill({ response, body: fixtureHtml });
   });
 
