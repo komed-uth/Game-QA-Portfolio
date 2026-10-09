@@ -82,6 +82,16 @@ export default async function checkPhotoChanges(page) {
       assert(await open.isDisabled(), 'Slow load blocks caption opening');
       assert.equal(await viewer.locator('.evidence-image-button').count(), 0, 'Loading has no activatable main photo');
       assert.equal((await viewer.boundingBox()).height, size.height, 'Loading keeps viewer height');
+      await viewer.evaluate(element => {
+        window.photoAnimations = [];
+        element.addEventListener('animationstart', event => {
+          if (event.animationName.startsWith('gallery-photo-')) window.photoAnimations.push(event.animationName);
+        });
+      });
+      await previews.nth(1).click(); await ready(gallery, sources[1]);
+      assert.deepEqual(await page.evaluate(() => window.photoAnimations), ['gallery-photo-in'],
+        'A new photo selected from loading still fades in');
+      await previews.nth(2).click(); await gallery.getByRole('status').waitFor();
       await previews.first().click();
       assert.equal(await viewer.locator('iframe').count(), 1, 'Video immediately cancels a held photo');
       await previews.nth(1).click(); await ready(gallery, sources[1]);
@@ -106,8 +116,11 @@ export default async function checkPhotoChanges(page) {
       await ready(gallery, sources[3]);
       await open.click();
       assert.equal(await page.locator('dialog img').getAttribute('src'), sources[3], 'Retried photo opens for inspection');
+      await page.getByRole('button', { name: 'Next screenshot' }).click();
       await page.getByRole('button', { name: 'Close evidence' }).click();
       await page.locator('dialog').waitFor({ state: 'detached' });
+      await ready(gallery, sources[1]);
+      assert(await open.evaluate(e => e === document.activeElement), 'Early modal close restores opener after the photo fade');
       await previews.first().click();
     } finally {
       release();

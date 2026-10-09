@@ -55,6 +55,7 @@ export default async function check(page) {
                 assert(await p.evaluate(() => document.querySelector('dialog').contains(document.activeElement)));
             }
             await close(i === 1 ? 'button' : i === 2 ? 'backdrop' : 'escape');
+            await galleryReady(g);
             assert(await trigger.evaluate(e => e === document.activeElement));
         }
         const action = g.locator('.evidence-open');

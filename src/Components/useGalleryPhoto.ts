@@ -10,14 +10,17 @@ type PhotoState = {
 export default function useGalleryPhoto(source: string | null) {
   const [photo, setPhoto] = useState<PhotoState>({ source: null, phase: "ready" });
   const displayed = useRef<string | null>(null);
+  const previousSource = useRef<string | null>(null);
   const finishFade = useRef<(name: string) => void>(() => {});
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const fade = !!source && !!displayed.current && !reducedMotion.matches;
-    let outgoingFinished = !fade;
+    const fadeIn = !!source && !!previousSource.current && !reducedMotion.matches;
+    const fadeOut = fadeIn && !!displayed.current;
+    previousSource.current = source;
+    let outgoingFinished = !fadeOut;
     let loaded = false;
     let failed = false;
     let incomingStarted = false;
@@ -31,7 +34,7 @@ export default function useGalleryPhoto(source: string | null) {
       } else if (loaded) {
         incomingStarted = true;
         displayed.current = source;
-        setPhoto({ source, phase: fade && !reducedMotion.matches ? "fading-in" : "ready" });
+        setPhoto({ source, phase: fadeIn && !reducedMotion.matches ? "fading-in" : "ready" });
       } else {
         displayed.current = null;
         setPhoto({ source: null, phase: "loading" });
@@ -53,7 +56,7 @@ export default function useGalleryPhoto(source: string | null) {
       displayed.current = null;
       setPhoto({ source: null, phase: "ready" });
     } else {
-      setPhoto(fade ? { source: displayed.current, phase: "fading-out" } : { source: null, phase: "loading" });
+      setPhoto(fadeOut ? { source: displayed.current, phase: "fading-out" } : { source: null, phase: "loading" });
       image.onload = async () => {
         try {
           await image.decode();
