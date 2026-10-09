@@ -26,3 +26,24 @@ test("an occupied preview port rejects without probing the existing server", asy
     await new Promise(resolve => existingServer.close(resolve));
   }
 });
+
+test("concurrent owned previews allocate distinct available ports", async () => {
+  const children = [];
+  try {
+    children.push(await startPreview(0));
+    children.push(await startPreview(0));
+    assert.notEqual(children[0].url, children[1].url);
+    for (const child of children) {
+      assert.match(child.url, /^http:\/\/127\.0\.0\.1:\d+\/$/);
+      const response = await fetch(child.url);
+      assert.equal(response.status, 200);
+      assert.match(await response.text(), /<html/);
+    }
+  } finally {
+    await Promise.all(children.map(async child => {
+      const exited = once(child, "exit");
+      child.kill();
+      await exited;
+    }));
+  }
+});

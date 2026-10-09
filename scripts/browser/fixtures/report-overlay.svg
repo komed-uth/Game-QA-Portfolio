@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#16211a"/>
+  <rect x="24" y="24" width="912" height="492" rx="12" fill="none" stroke="#98ff98" stroke-width="4"/>
+  <path d="M480 48V492M48 270H912" stroke="#48584e" stroke-width="2"/>
+  <text x="480" y="250" fill="#98ff98" text-anchor="middle" font-size="40">Synthetic report overlay</text>
+  <text x="480" y="305" fill="#dbe4de" text-anchor="middle" font-size="24">Test fixture — no capture evidence</text>
+</svg>
