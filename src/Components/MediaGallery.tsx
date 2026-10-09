@@ -1,6 +1,7 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 import EvidenceModal from "./EvidenceModal";
+import GameplayPreviewStrip from "./GameplayPreviewStrip";
 
 export type MediaGalleryItem = {
   type: "video" | "image";
@@ -72,7 +73,7 @@ export default function MediaGallery({
     suppressClick.current = true;
     const distance = event.clientX - start.x;
     const threshold = Math.max(40, Math.min(64, event.currentTarget.clientWidth * 0.12));
-    if (Math.abs(distance) >= threshold) select(selected + (distance < 0 ? -1 : 1));
+    if (Math.abs(distance) >= threshold) select(selected + (distance < 0 ? 1 : -1));
   }
 
   const swipeHandlers = {
@@ -145,70 +146,7 @@ export default function MediaGallery({
         </figcaption>
       </figure>
 
-      <div
-        className="gallery-swipe-strip gallery-swipe-surface"
-        role="group"
-        aria-label="Swipe or choose a media preview"
-        {...swipeHandlers}
-      >
-        <div className="gallery-thumbnails">
-          {media.map((thumbnail, index) => (
-            <button
-              key={thumbnail.label}
-              type="button"
-              className="gallery-thumbnail"
-              aria-label={"Show " + thumbnail.label.toLowerCase()}
-              aria-pressed={selected === index}
-              onClick={() => select(index)}
-            >
-              <img src={thumbnail.source} alt="" draggable={false} />
-              <span>{thumbnail.type === "video" ? "▶ Video" : thumbnail.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="gallery-controls">
-        <button
-          type="button"
-          className="gallery-arrow"
-          onClick={() => select(selected - 1)}
-          aria-label={galleryName + " previous media"}
-        >
-          ‹
-        </button>
-        <div className="gallery-navigation">
-          <div className="gallery-dots" role="group" aria-label="Choose media slide">
-            {media.map((slide, index) => (
-              <button
-                key={slide.label}
-                type="button"
-                className="gallery-dot"
-                aria-label={
-                  "Go to slide " +
-                  (index + 1) +
-                  " of " +
-                  media.length +
-                  ": " +
-                  slide.label
-                }
-                aria-pressed={selected === index}
-                onClick={() => select(index)}
-              >
-                <span aria-hidden="true" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <button
-          type="button"
-          className="gallery-arrow"
-          onClick={() => select(selected + 1)}
-          aria-label={galleryName + " next media"}
-        >
-          ›
-        </button>
-      </div>
+      <GameplayPreviewStrip galleryName={galleryName} media={media} selected={selected} onSelect={select} />
       {open && activeItem.type === "image" && <EvidenceModal
         title={projectName + " · " + activeItem.label} source={activeItem.source} alt={activeItem.alt}
         onClose={() => setOpen(false)}

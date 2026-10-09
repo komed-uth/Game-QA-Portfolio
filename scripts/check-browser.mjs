@@ -1,5 +1,7 @@
 import { startPreview } from "./browser/preview-server.mjs";
 import { chromium } from "playwright";
+import checkPreviewFixtures from "./browser/gameplay-preview-fixtures.mjs";
+import checkGameplay from "./browser/gameplay-previews.mjs";
 import checkEvidence from "./browser/evidence-modal.mjs";
 import checkInteractions from "./browser/evidence-interactions.mjs";
 import checkReports from "./browser/report-interactions.mjs";
@@ -12,7 +14,7 @@ if (args.some(arg => arg !== "--reports-only")) {
 }
 const reportsOnly = args.includes("--reports-only");
 const checks = reportsOnly ? [checkOverlayFixture, checkReports] :
-  [checkEvidence, checkInteractions, checkOverlayFixture, checkReports];
+  [checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports];
 const externalUrl = process.env.PORTFOLIO_URL;
 let url = externalUrl;
 let server;
@@ -29,6 +31,7 @@ try {
   }
   browser = await chromium.launch({
     headless: true,
+    ignoreDefaultArgs: ["--hide-scrollbars"],
     ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {}),
   });
   for (const check of checks) {
