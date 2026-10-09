@@ -130,8 +130,11 @@ export default async function check(page) {
     for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840],
         [840, 360], [1200, 800], [800, 1200], [899, 700], [901, 700]]) {
         await page.setViewportSize({ width, height });
-        const controls = await page.locator('.report-controls').boundingBox();
-        const output = await page.locator('.report-output').boundingBox();
+        // Measure both regions in one frame; resize can move the page's scroll anchor.
+        const { controls, output } = await page.locator('.regulus-showcase').evaluate(section => ({
+            controls: section.querySelector('.report-controls').getBoundingClientRect().toJSON(),
+            output: section.querySelector('.report-output').getBoundingClientRect().toJSON(),
+        }));
         if (width > 900) assert(controls.x + controls.width <= output.x + 1, 'Desktop controls precede preview on the left');
         else assert(controls.y + controls.height <= output.y + 1, 'Narrow controls precede preview vertically');
         for (const label of labels) {
