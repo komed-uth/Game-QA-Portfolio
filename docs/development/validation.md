@@ -8,10 +8,11 @@ From the repository root:
 npm ci
 npx playwright install chromium
 npm run build
+npm run check:preview
 npm run check:browser
 ```
 
-The browser command starts an isolated Vite production preview on port 4175, runs the visitor-facing checks, and closes its browser and preview on success or failure. Build first so the checks inspect current source. Set `PORTFOLIO_URL` to check an already running preview instead. Set `BROWSER_CHANNEL=msedge` to use installed Microsoft Edge; the default is Playwright Chromium.
+The preview-startup check holds a port open and verifies that startup rejects it without probing the existing server. The browser command starts an isolated Vite production preview on port 4175, runs the visitor-facing checks, and closes its browser and preview on success or failure. Readiness requires the spawned Vite process's own listening confirmation; another server on that port cannot satisfy it. Build first so the checks inspect current source. Set `PORTFOLIO_URL` to check an already running preview instead. Set `BROWSER_CHANNEL=msedge` to use installed Microsoft Edge; the default is Playwright Chromium.
 
 The pull-request workflow runs the build and these checks on Linux. It installs Chromium and its OS dependencies. The standalone scripts cover screenshot opening/navigation, swipes, all six reports, scroll memory, dismissal, focus, 44px gallery actions, exit/reduced-motion animations and ten responsive viewports.
 
