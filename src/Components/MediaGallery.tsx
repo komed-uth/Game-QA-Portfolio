@@ -1,5 +1,7 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
+import EvidenceModal from "./EvidenceModal";
+
 export type MediaGalleryItem = {
   type: "video" | "image";
   source: string;
@@ -23,6 +25,7 @@ export default function MediaGallery({
   media,
 }: MediaGalleryProps) {
   const [selected, setSelected] = useState(0);
+  const [open, setOpen] = useState(false);
   const item = media[selected];
   const gesture = useRef<{
     id: number;
@@ -91,6 +94,13 @@ export default function MediaGallery({
   if (!item) return null;
 
   const activeItem = item;
+  function navigateScreenshot(direction: number) {
+    let index = selected;
+    do { index = (index + direction + media.length) % media.length; }
+    while (media[index].type !== "image");
+    select(index);
+  }
+  const screenshotCount = media.filter((entry) => entry.type === "image").length;
 
   return (
     <div
@@ -102,7 +112,6 @@ export default function MediaGallery({
       <figure className="gallery-figure">
         <div
           className={"gallery-viewer" + (activeItem.type === "image" ? " gallery-swipe-surface" : "")}
-          key={selected}
           {...(activeItem.type === "image" ? swipeHandlers : {})}
         >
           {activeItem.type === "video" ? (
@@ -117,28 +126,21 @@ export default function MediaGallery({
               allowFullScreen
             />
           ) : (
-            <a
-              href={activeItem.source}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
               draggable={false}
               aria-label={"Open full-size " + activeItem.label.toLowerCase() + " screenshot"}
             >
-              <img src={activeItem.source} alt={activeItem.alt} draggable={false} />
-            </a>
+              <img key={activeItem.source} src={activeItem.source} alt={activeItem.alt} draggable={false} />
+            </button>
           )}
         </div>
         <figcaption className="gallery-caption">
           <span aria-live="polite" aria-atomic="true">
             {selected + 1} / {media.length} · {activeItem.label}
           </span>
-          <a
-            href={activeItem.type === "video" ? videoUrl : activeItem.source}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {activeItem.type === "video" ? "Watch on YouTube ↗" : "Open full-size image ↗"}
-          </a>
+          {activeItem.type === "video" ? (
+            <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
+          ) : <button type="button" className="evidence-open" onClick={() => setOpen(true)}>Open full-size image</button>}
         </figcaption>
       </figure>
 
@@ -206,6 +208,11 @@ export default function MediaGallery({
           ›
         </button>
       </div>
+      {open && activeItem.type === "image" && <EvidenceModal
+        title={projectName + " · " + activeItem.label} source={activeItem.source} alt={activeItem.alt}
+        onClose={() => setOpen(false)}
+        onPrevious={screenshotCount > 1 ? () => navigateScreenshot(-1) : undefined}
+        onNext={screenshotCount > 1 ? () => navigateScreenshot(1) : undefined} />}
     </div>
   );
 }
