@@ -88,6 +88,24 @@ Ripgrep is installed persistently through WinGet for this Windows user (`BurntSu
 
 ## Gameplay photo progression
 
-Both multi-item gameplay showcases offer Pause slideshow / Resume slideshow. Ready photos advance after five seconds, following the ordered media list back to video. Loading, failure, hover, focus (including the video iframe), dragging, offscreen/hidden state, and existing modal inspection suspend the countdown. Clearing all reasons starts a fresh interval; explicit Pause persists across selection during the visit. Reduced motion starts paused; explicit Resume retains immediate transitions. Video completion advancement belongs to ticket #27; this slice never times out video.
+Both multi-item gameplay showcases offer Pause slideshow / Resume slideshow. Ready photos advance after 2.5 seconds, following the ordered media list back to video. Loading, failure, hover, focus (including the video iframe), dragging, offscreen/hidden state, and existing modal inspection suspend the countdown. Clearing all reasons starts a fresh interval; explicit Pause persists across selection during the visit. Reduced motion starts paused; explicit Resume retains immediate transitions. Video completion advancement belongs to ticket #27; this slice never times out video.
 
 The complete and focused gameplay suites include rendered slideshow checks with Playwright's paused browser clock; readiness polling advances render frames while dwell assertions use controlled time. They exercise both photo sequences, manual interval reset, active reselection, paused selection, independent timers, slow loading beyond one dwell, failure/Retry, combined hover/focus and visibility reasons, pointer release outside the gallery, native touch panning through pointer cancellation until actual finger release, offscreen/resumption, native modal close, reduced motion, and route reset. Hidden-tab event handling uses controlled document visibility in the rendered browser; it is not physical background-tab/device certification. Existing checks retain real mouse/touch browsing, scrollbar dragging, ten responsive viewports, photo fades, and representative list fixtures. Third-party autoplay remains subject to the browser/provider.
+
+## Focused photo and evidence checks
+
+Run `npm run check:photos` for the manual photo lifecycle in both gameplay showcases. Run `npm run check:evidence` for image/report evidence inspection and its interaction checks. These use `--photos-only` and `--evidence-only` in the same runner as the complete suite; selectors remain mutually exclusive. `npm run check:browser` remains the CI default.
+
+## Browser-run diagnostics
+
+Every check prints START and PASS/FAIL with elapsed time. Failed checks save `trace.zip` and `failure.json` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the original assertion, page URL, focused element and selected gameplay media. Successful traces are discarded. The trace records the runner-owned context; temporary fixture contexts retain their existing independent lifecycle. Artifact-write failures are reported while preserving the original assertion.
+
+Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads browser failure evidence with seven-day retention. Only `.scratch/browser-checks/` is uploaded; this directory is Git-ignored.
+
+`npm run check:runner` verifies selector routing, invalid arguments before startup, real Playwright trace capture, failure cleanup and edit detection. CI runs it after installing Chromium.
+
+## Validation input stability
+
+The runner fingerprints source, check scripts, public evidence, the production build, report originals and relevant package/build configuration before loading checks, and compares their contents after the run. Changed, added, removed or renamed inputs produce OBSOLETE with the affected paths and a rebuild/rerun instruction. An obsolete assertion remains available as the error cause; obsolete runs never print the final portfolio PASS.
+
+Diagnostics, dependencies and documentation are excluded. This is a comparison of starting and ending file contents: timestamp-only changes and edits restored to identical bytes are not detected. Build current source before checking it, and keep validation inputs unchanged until the run completes. With `PORTFOLIO_URL`, this still checks local input stability rather than attesting to remote site contents.
