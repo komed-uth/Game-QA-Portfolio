@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { waitForPhoto } from "./gallery-photo-ready.mjs";
 
 async function drag(page, locator, from, to) {
   await locator.scrollIntoViewIfNeeded();
@@ -103,6 +104,7 @@ export default async function checkGameplay(page) {
         await page.keyboard.press('ArrowRight');
         await page.keyboard.press('Space');
         assert((await gallery.locator('.gallery-caption').innerText()).includes('2 / 4'));
+        await waitForPhoto(gallery);
         const image=gallery.locator('.gallery-viewer img');
         await image.evaluate(e => e.decode());
         assert.equal(await image.evaluate(e => getComputedStyle(e).objectFit), 'contain');

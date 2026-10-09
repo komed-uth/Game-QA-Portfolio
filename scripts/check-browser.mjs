@@ -2,6 +2,7 @@ import { startPreview } from "./browser/preview-server.mjs";
 import { chromium } from "playwright";
 import checkPreviewFixtures from "./browser/gameplay-preview-fixtures.mjs";
 import checkGameplay from "./browser/gameplay-previews.mjs";
+import checkPhotoChanges from "./browser/gameplay-photos.mjs";
 import checkEvidence from "./browser/evidence-modal.mjs";
 import checkInteractions from "./browser/evidence-interactions.mjs";
 import checkReports from "./browser/report-interactions.mjs";
@@ -10,11 +11,11 @@ import { checkOverlayReadiness } from "./browser/report-overlay-data.mjs";
 
 const suites = new Map([
   [undefined, { label: "complete portfolio suite", result: "portfolio", reports: true,
-    checks: [checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports] }],
+    checks: [checkPhotoChanges, checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports] }],
   ["--reports-only", { label: "reports and overlay fixture", result: "report", reports: true,
     checks: [checkOverlayFixture, checkReports] }],
   ["--gameplay-only", { label: "gameplay", result: "gameplay", reports: false,
-    checks: [checkGameplay, checkPreviewFixtures] }],
+    checks: [checkPhotoChanges, checkGameplay, checkPreviewFixtures] }],
 ]);
 const args = process.argv.slice(2);
 const suite = suites.get(args[0]);

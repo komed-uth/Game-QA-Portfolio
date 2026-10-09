@@ -1,7 +1,8 @@
-import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 import EvidenceModal from "./EvidenceModal";
 import GameplayPreviewStrip from "./GameplayPreviewStrip";
+import useGalleryPhoto from "./useGalleryPhoto";
 
 export type MediaGalleryItem = {
   type: "video" | "image";
@@ -28,6 +29,30 @@ export default function MediaGallery({
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
   const item = media[selected];
+  const selectedRef = useRef(0);
+  const photo = useGalleryPhoto(item?.type === "image" ? item.source : null);
+  const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
+  const imageButton = useRef<HTMLButtonElement>(null);
+  const captionButton = useRef<HTMLButtonElement>(null);
+  const photoOpener = useRef<"image" | "caption">("image");
+  const restoreFocus = useRef(false);
+  useEffect(() => {
+    if (open || !restoreFocus.current) return;
+    const active = document.activeElement;
+    const canRestore = active === document.body || active?.closest("dialog");
+    if (!canRestore) { restoreFocus.current = false; return; }
+    if (!photoReady) return;
+    restoreFocus.current = false;
+    const opener = photoOpener.current === "image" ? imageButton.current : captionButton.current;
+    opener?.focus({ preventScroll: true });
+  }, [open, photoReady]);
+  function openPhoto(opener: "image" | "caption") {
+    if (!photoReady) return;
+    photoOpener.current = opener;
+    restoreFocus.current = false;
+    setOpen(true);
+  }
+  const displayedItem = media.find(entry => entry.type === "image" && entry.source === photo.source);
   const gesture = useRef<{
     id: number;
     x: number;
@@ -37,7 +62,11 @@ export default function MediaGallery({
   const suppressClick = useRef(false);
 
   function select(index: number) {
-    setSelected((index + media.length) % media.length);
+    const next = (index + media.length) % media.length;
+    if (next === selectedRef.current) return;
+    selectedRef.current = next;
+    gesture.current = null;
+    setSelected(next);
   }
 
   function startSwipe(event: PointerEvent<HTMLDivElement>) {
@@ -128,12 +157,22 @@ export default function MediaGallery({
               allowFullScreen
             />
           ) : (
-            <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
-              draggable={false}
-              aria-label={"Open full-size " + activeItem.label.toLowerCase() + " screenshot"}
-            >
-              <img key={activeItem.source} src={activeItem.source} alt={activeItem.alt} draggable={false} />
-            </button>
+            <>
+              {displayedItem && <button type="button"
+                className={"evidence-image-button gallery-photo " + photo.phase}
+                ref={imageButton} onClick={() => openPhoto("image")}
+                onAnimationEnd={event => photo.finishFade(event.animationName)}
+                disabled={!photoReady} draggable={false}
+                aria-label={"Open full-size " + activeItem.label.toLowerCase() + " screenshot"}
+              >
+                <img key={photo.source} src={displayedItem.source} alt={displayedItem.alt} draggable={false} />
+              </button>}
+              {photo.phase === "failed" ? <div className="gallery-photo-status" role="alert">
+                <p>Could not load this photo.</p>
+                <button type="button" className="gallery-arrow" onClick={photo.retry}>Retry</button>
+                <a href={activeItem.source} target="_blank" rel="noopener noreferrer">Open original file ↗</a>
+              </div> : !displayedItem && <div className="gallery-photo-status" role="status">Loading photo…</div>}
+            </>
           )}
         </div>
         <figcaption className="gallery-caption">
@@ -142,14 +181,14 @@ export default function MediaGallery({
           </span>
           {activeItem.type === "video" ? (
             <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
-          ) : <button type="button" className="evidence-open" onClick={() => setOpen(true)}>Open full-size image</button>}
+          ) : <button ref={captionButton} type="button" className="evidence-open" disabled={!photoReady} onClick={() => openPhoto("caption")}>Open full-size image</button>}
         </figcaption>
       </figure>
 
       <GameplayPreviewStrip galleryName={galleryName} media={media} selected={selected} onSelect={select} />
       {open && activeItem.type === "image" && <EvidenceModal
         title={projectName + " · " + activeItem.label} source={activeItem.source} alt={activeItem.alt}
-        onClose={() => setOpen(false)}
+        onClose={() => { restoreFocus.current = true; setOpen(false); }}
         onPrevious={screenshotCount > 1 ? () => navigateScreenshot(-1) : undefined}
         onNext={screenshotCount > 1 ? () => navigateScreenshot(1) : undefined} />}
     </div>

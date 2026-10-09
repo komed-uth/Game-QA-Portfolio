@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { waitForPhoto as galleryReady } from "./gallery-photo-ready.mjs";
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
     const p = page;
@@ -35,12 +36,14 @@ export default async function check(page) {
         for (let i = 1; i < 4; i++) {
             await g.locator('.gallery-thumbnail').nth(i).click();
             assert.equal(await d.count(), 0);
+            await galleryReady(g);
             const expected = await g.locator('.gallery-viewer img').getAttribute('src');
             const trigger = g.locator('.evidence-image-button');
             await trigger.click();
             assert.equal(await d.locator('img').getAttribute('src'), expected);
             assert.equal(await d.locator('a').getAttribute('href'), expected);
             await d.getByRole('button', { name: 'Next screenshot' }).click();
+            await galleryReady(g);
             assert.equal(await g.locator('.gallery-viewer img').getAttribute('src'), await d.locator('img').getAttribute('src'));
             await p.keyboard.press('ArrowLeft');
             assert.equal(await d.locator('img').getAttribute('src'), expected);
@@ -52,6 +55,7 @@ export default async function check(page) {
                 assert(await p.evaluate(() => document.querySelector('dialog').contains(document.activeElement)));
             }
             await close(i === 1 ? 'button' : i === 2 ? 'backdrop' : 'escape');
+            await galleryReady(g);
             assert(await trigger.evaluate(e => e === document.activeElement));
         }
         const action = g.locator('.evidence-open');
@@ -131,6 +135,7 @@ export default async function check(page) {
         // Image inspection must fit too: screenshot controls wrap on phones.
         for (const g of await p.locator('.game-gallery').all()) {
             await g.locator('.gallery-thumbnail').nth(1).click();
+            await galleryReady(g);
             const selections = await p.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(
                 elements => elements.map(element => element.getAttribute('aria-label')));
             await g.locator('.evidence-open').click();
