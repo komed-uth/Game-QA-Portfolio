@@ -101,7 +101,7 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
   useEffect(() => {
     if (count < 2 || !ready || paused || suspended) return;
-    const timer = setTimeout(() => advanceRef.current(), 2500);
+    const timer = setTimeout(() => advanceRef.current(), 6500);
     return () => clearTimeout(timer);
   }, [selected, ready, count, paused, suspended]);
 
