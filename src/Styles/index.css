@@ -841,7 +841,7 @@ footer {
     white-space: normal;
   }
 }
-.evidence-open {
+.evidence-open, .gallery-slideshow {
   min-height: 44px;
   border: 0;
   padding: 0;
@@ -986,7 +986,7 @@ footer {
   max-width: none;
   height: auto;
 }
-.evidence-modal :focus-visible, .evidence-open:focus-visible, .evidence-image-button:focus-visible, .report-preview:focus-visible {
+.evidence-modal :focus-visible, .evidence-open:focus-visible, .gallery-slideshow:focus-visible, .evidence-image-button:focus-visible, .report-preview:focus-visible {
   outline: 3px solid var(--green);
   outline-offset: -3px;
 }

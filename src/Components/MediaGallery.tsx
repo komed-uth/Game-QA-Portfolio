@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 
 import EvidenceModal from "./EvidenceModal";
 import GameplayPreviewStrip from "./GameplayPreviewStrip";
 import useGalleryPhoto from "./useGalleryPhoto";
+import useGallerySlideshow from "./useGallerySlideshow";
 
 export type MediaGalleryItem = {
   type: "video" | "image";
@@ -32,6 +33,7 @@ export default function MediaGallery({
   const selectedRef = useRef(0);
   const photo = useGalleryPhoto(item?.type === "image" ? item.source : null);
   const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
+  const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, advance: () => select(selectedRef.current + 1) });
   const imageButton = useRef<HTMLButtonElement>(null);
   const captionButton = useRef<HTMLButtonElement>(null);
   const photoOpener = useRef<"image" | "caption">("image");
@@ -135,6 +137,7 @@ export default function MediaGallery({
 
   return (
     <div
+      ref={slideshow.gallery}
       className="game-gallery"
       role="region"
       aria-roledescription="carousel"
@@ -182,6 +185,7 @@ export default function MediaGallery({
           {activeItem.type === "video" ? (
             <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
           ) : <button ref={captionButton} type="button" className="evidence-open" disabled={!photoReady} onClick={() => openPhoto("caption")}>Open full-size image</button>}
+          {media.length > 1 && <button type="button" className="gallery-slideshow" onClick={slideshow.toggle}>{slideshow.paused ? "Resume slideshow" : "Pause slideshow"}</button>}
         </figcaption>
       </figure>
 

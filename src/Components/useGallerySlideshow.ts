@@ -1,0 +1,87 @@
+import { useEffect, useRef, useState } from "react";
+
+// Inspection reasons are independent: clearing one must not clear another.
+export default function useGallerySlideshow({ selected, ready, count, inspecting, advance }: {
+  selected: number;
+  ready: boolean;
+  count: number;
+  inspecting: boolean;
+  advance: () => void;
+}) {
+  const gallery = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [inspection, setInspection] = useState({ hover: false, focus: false, dragging: false, visible: false, hidden: document.hidden });
+  const advanceRef = useRef(advance);
+  advanceRef.current = advance;
+
+  useEffect(() => {
+    const element = gallery.current;
+    if (!element) return;
+    let pointer: number | null = null;
+    let focusCheck: ReturnType<typeof setTimeout> | undefined;
+    const update = (reason: keyof typeof inspection, value: boolean) =>
+      setInspection(current => current[reason] === value ? current : { ...current, [reason]: value });
+    const focus = () => update("focus", element.contains(document.activeElement));
+    const deferFocus = () => { clearTimeout(focusCheck); focusCheck = setTimeout(focus, 0); };
+    const enter = (event: globalThis.PointerEvent) => { if (event.pointerType !== "touch") update("hover", true); };
+    const leave = () => update("hover", false);
+    const down = (event: globalThis.PointerEvent) => {
+      if (!event.isPrimary || event.button !== 0) return;
+      pointer = event.pointerId;
+      update("dragging", true);
+    };
+    const up = (event: globalThis.PointerEvent) => {
+      if (pointer !== event.pointerId) return;
+      pointer = null;
+      update("dragging", false);
+    };
+    const blur = () => {
+      pointer = null;
+      update("dragging", false);
+      deferFocus(); // Includes focus transferred into a cross-origin video iframe.
+    };
+    const visibility = () => update("hidden", document.hidden);
+    const observer = new IntersectionObserver(entries => update("visible", entries[0].isIntersecting));
+    observer.observe(element);
+    focus();
+    element.addEventListener("pointerenter", enter);
+    element.addEventListener("pointerleave", leave);
+    element.addEventListener("pointerdown", down, true);
+    element.addEventListener("focusin", focus);
+    element.addEventListener("focusout", deferFocus);
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
+    window.addEventListener("blur", blur);
+    window.addEventListener("focus", focus);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      clearTimeout(focusCheck);
+      observer.disconnect();
+      element.removeEventListener("pointerenter", enter);
+      element.removeEventListener("pointerleave", leave);
+      element.removeEventListener("pointerdown", down, true);
+      element.removeEventListener("focusin", focus);
+      element.removeEventListener("focusout", deferFocus);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", up, true);
+      window.removeEventListener("blur", blur);
+      window.removeEventListener("focus", focus);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, []);
+
+  // Native dialogs can disappear without a pointerleave on their ancestor.
+  // Reconcile hover when inspection changes so closing outside cannot latch it.
+  useEffect(() => {
+    const hover = !!gallery.current?.matches(":hover") && window.matchMedia("(any-hover: hover)").matches;
+    setInspection(current => current.hover === hover ? current : { ...current, hover });
+  }, [inspecting]);
+  const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
+  useEffect(() => {
+    if (count < 2 || !ready || paused || suspended) return;
+    const timer = setTimeout(() => advanceRef.current(), 5000);
+    return () => clearTimeout(timer);
+  }, [selected, ready, count, paused, suspended]);
+
+  return { gallery, paused, toggle: () => setPaused(value => !value) };
+}
