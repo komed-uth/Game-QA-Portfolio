@@ -21,6 +21,8 @@ jobs:
         run: npm ci
       - name: Build portfolio
         run: npm run build
+      - name: Check preview startup
+        run: npm run check:preview
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Check rendered portfolio
