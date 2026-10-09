@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+// Visitor-facing checks against the rendered portfolio, retained from ticket #20.
+export default async function check(page) {
+    const p = page;
+    await p.setViewportSize({ width: 390, height: 845 });
+    const g = p.locator('.game-gallery').first();
+    await g.locator('.gallery-thumbnail').nth(1).click();
+    const selectionBeforeSwipe = await g.locator('.gallery-thumbnail[aria-pressed=true]').getAttribute('aria-label');
+    const surface = g.locator('.gallery-viewer');
+    await surface.scrollIntoViewIfNeeded();
+    const box = await surface.boundingBox();
+    await p.mouse.move(box.x + box.width * .7, box.y + box.height / 2);
+    await p.mouse.down();
+    await p.mouse.move(box.x + box.width * .2, box.y + box.height / 2, { steps: 12 });
+    await p.mouse.up();
+    assert.equal(await p.locator('dialog').count(), 0);
+    assert.equal(await g.locator('.gallery-thumbnail[aria-pressed=true]').count(), 1);
+    assert.notEqual(await g.locator('.gallery-thumbnail[aria-pressed=true]').getAttribute('aria-label'), selectionBeforeSwipe);
+    await g.locator('.gallery-thumbnail').nth(1).click();
+    await g.locator('.evidence-image-button').click();
+    const d = p.locator('dialog');
+    await d.locator('img').evaluate(img => img.decode());
+    assert.equal(await d.locator('img').evaluate(e => getComputedStyle(e).objectFit), 'contain');
+    await p.keyboard.press('Escape');
+    await d.waitFor({ state: 'detached' });
+    await p.setViewportSize({ width: 1366, height: 768 });
+    await p.locator('.report-preview').click();
+    const f = await (await d.locator('iframe').elementHandle()).contentFrame();
+    await f.waitForLoadState();
+    await f.locator('.toggleImage').first().click();
+    assert.equal(await d.count(), 1);
+    await f.locator('a').last().focus();
+    await p.keyboard.press('Tab');
+    assert(await d.locator('a').evaluate(e => e === document.activeElement));
+    await p.keyboard.press('Tab');
+    assert(await d.getByRole('button', { name: 'Close evidence' }).evaluate(e => e === document.activeElement));
+    await p.keyboard.press('Shift+Tab');
+    assert(await d.locator('a').evaluate(e => e === document.activeElement));
+    const pop = p.waitForEvent('popup');
+    await d.locator('a').click();
+    const original = await pop;
+    assert(original.url().includes('S10_Very_High_Fixed'));
+    await original.close();
+    assert.equal(await d.count(), 1);
+    await d.getByRole('button', { name: 'Close evidence' }).click();
+    await d.waitFor({ state: 'detached' });
+    console.log('PASS: swipe suppresses opening, phone image fit, report toggle, iframe focus boundaries and actual original-file tab');
+}
