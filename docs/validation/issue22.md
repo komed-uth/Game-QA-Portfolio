@@ -21,3 +21,9 @@ The compact report preview and shared modal were already on main. This change sa
 ## Limits
 
 The supplied reports contain empty high-resolution screenshot path lists. Their chart-to-image overlay path cannot be certified end to end with the supplied data; the original report scripts remain intact. Documentation-tab tests validate their destination and portfolio behavior using a stubbed response, not the availability of the external website. Viewport checks are not physical-device certification.
+
+## Full-suite result and review
+
+- `npm run check:preview`: passed (occupied-port startup rejection).
+- `BROWSER_CHANNEL=msedge npm run check:browser`: passed the full existing browser suite, including all seven evidence images, independent galleries and video selection, screenshot navigation, touch/keyboard opening, dismissal, scroll locking, transitions, reduced motion, independent report positions, and the expanded report checks above.
+- Fixed-point review against `ee91402ed21d86be8da12ba061479aed818b499b`: independent Sol 6.1 high-effort Standards and Spec reviews. Standards suggested pairing expected report labels and filenames; resolved with one test-local mapping. Spec found no actionable mismatch. Final result: Standards 0 unresolved; Spec 0 unresolved.

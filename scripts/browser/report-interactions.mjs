@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 
-const labels = ['Very High', 'High', 'Medium', 'Low', 'Very Low', 'Overall'];
-const files = ['S10_Very_High_Fixed.html', 'S10_High_Fixed.html', 'S10_Medium_Fixed.html',
-    'S10_Low_Fixed.html', 'S10_Very_Low_Fixed.html', 'overall-performance-report.png'];
+const files = {
+    'Very High': 'S10_Very_High_Fixed.html',
+    High: 'S10_High_Fixed.html',
+    Medium: 'S10_Medium_Fixed.html',
+    Low: 'S10_Low_Fixed.html',
+    'Very Low': 'S10_Very_Low_Fixed.html',
+    Overall: 'overall-performance-report.png',
+};
+const labels = Object.keys(files);
 
 // Ticket #22 checks use the existing rendered portfolio surface and browser runner.
 export default async function check(page) {
@@ -24,14 +30,14 @@ export default async function check(page) {
         assert((await dialog.locator('h2').textContent()).includes(label));
         assert.equal(await original.getAttribute('target'), '_blank');
         assert((await original.getAttribute('rel')).includes('noopener'));
-        assert((await original.getAttribute('href')).endsWith(files[labels.indexOf(label)]));
+        assert((await original.getAttribute('href')).endsWith(files[label]));
         if (label === 'Overall') {
             await dialog.locator('img').evaluate(image => image.decode());
             return null;
         }
         const frame = await (await dialog.locator('iframe').elementHandle()).contentFrame();
         await frame.waitForLoadState();
-        assert(new URL(frame.url()).pathname.endsWith(files[labels.indexOf(label)]));
+        assert(new URL(frame.url()).pathname.endsWith(files[label]));
         return frame;
     }
 
@@ -160,7 +166,7 @@ export default async function check(page) {
         await original.click();
         const popup = await popupPromise;
         await popup.waitForLoadState();
-        assert(new URL(popup.url()).pathname.endsWith(files[labels.indexOf(label)]));
+        assert(new URL(popup.url()).pathname.endsWith(files[label]));
         await popup.close();
         await close();
     }
