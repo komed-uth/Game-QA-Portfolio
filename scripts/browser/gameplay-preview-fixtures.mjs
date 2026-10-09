@@ -1,6 +1,45 @@
 import assert from "node:assert/strict";
 import { build } from "vite";
 
+async function checkScrollInterruption(page, gallery) {
+  await page.setViewportSize({width:390,height:845});
+  const strip=gallery.locator('.gallery-thumbnails');
+  const previews=gallery.locator('.gallery-thumbnail');
+  for (const motion of ['no-preference','reduce']) {
+    await page.emulateMedia({reducedMotion:motion});
+    await previews.first().click();
+    await strip.evaluate(e=>e.scrollTo({left:0,behavior:'instant'}));
+    await previews.first().focus();
+    await strip.scrollIntoViewIfNeeded();
+    const box=await strip.boundingBox();
+    const y=box.y+20;
+    await page.mouse.move(box.x+box.width*.2,y);
+    // Record observable scroll geometry at the actual pointerdown, not earlier.
+    await strip.evaluate(e=>e.addEventListener('pointerdown',()=>{
+      e.dataset.scrollAtPress=String(e.scrollLeft);
+      e.dataset.maxAtPress=String(e.scrollWidth-e.clientWidth);
+    },{once:true}));
+    await page.keyboard.press('End');
+    if (motion === 'no-preference') {
+      await page.waitForFunction(()=>{
+        const e=document.querySelector('.regulus-showcase .gallery-thumbnails');
+        return e.scrollLeft>0 && e.scrollLeft<e.scrollWidth-e.clientWidth-1;
+      });
+    }
+    await page.mouse.down();
+    await page.mouse.move(box.x+box.width*.8,y,{steps:12});
+    await page.mouse.up();
+    const press=await strip.evaluate(e=>({left:Number(e.dataset.scrollAtPress),max:Number(e.dataset.maxAtPress)}));
+    if (motion === 'no-preference') assert(press.left>0 && press.left<press.max-1,'Pointer presses while long-strip scrolling is pending');
+    else assert(Math.abs(press.left-press.max)<=1,'Reduced motion reaches destination immediately within browser rounding');
+    const afterDrag=await strip.evaluate(e=>e.scrollLeft);
+    assert(afterDrag<press.left,'Pointer drag changes the pending destination');
+    await page.waitForTimeout(700);
+    assert.equal(await strip.evaluate(e=>e.scrollLeft),afterDrag,'Obsolete scroll destination never resumes');
+    assert.equal(await previews.first().getAttribute('aria-pressed'),'true','Interrupting browsing never selects');
+  }
+}
+
 // Build representative lists in memory and serve only to isolated test contexts.
 // The actual portfolio, other showcase, and production media files stay intact.
 export default async function checkPreviewFixtures(page) {
@@ -53,6 +92,7 @@ export default async function checkPreviewFixtures(page) {
         await fixturePage.setViewportSize({width:1366,height:768});
         assert.equal(await previews.last().getAttribute('aria-pressed'),'true');
         assert(await fixturePage.evaluate(()=>document.documentElement.scrollWidth <= innerWidth));
+        await checkScrollInterruption(fixturePage,gallery);
       }
       assert.equal(await fixturePage.locator('.video-project .gallery-thumbnail').count(),4,'Other showcase is unchanged');
     } finally { await context.close(); }
@@ -83,5 +123,5 @@ export default async function checkPreviewFixtures(page) {
     assert.equal(await touchPage.locator('dialog').count(),0);
     await session.detach();
   } finally {await touchContext.close();}
-  console.log('PASS: temporary empty/single/long portfolio lists, group context, hidden selection, resize, native touch strip and vertical page scrolling');
+  console.log('PASS: temporary empty/single/long portfolio lists, group context, hidden selection, resize, native touch strip, vertical page scrolling and verified normal/reduced scroll interruption');
 }

@@ -8,23 +8,27 @@ import checkReports from "./browser/report-interactions.mjs";
 import checkOverlayFixture from "./browser/report-overlay-fixture.mjs";
 import { checkOverlayReadiness } from "./browser/report-overlay-data.mjs";
 
+const suites = new Map([
+  [undefined, { label: "complete portfolio suite", result: "portfolio", reports: true,
+    checks: [checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports] }],
+  ["--reports-only", { label: "reports and overlay fixture", result: "report", reports: true,
+    checks: [checkOverlayFixture, checkReports] }],
+  ["--gameplay-only", { label: "gameplay", result: "gameplay", reports: false,
+    checks: [checkGameplay, checkPreviewFixtures] }],
+]);
 const args = process.argv.slice(2);
-if (args.length > 1 || args.some(arg => !["--reports-only", "--gameplay-only"].includes(arg))) {
+const suite = suites.get(args[0]);
+if (args.length > 1 || !suite) {
   throw new Error("Usage: node scripts/check-browser.mjs [--reports-only | --gameplay-only]");
 }
-const reportsOnly = args.includes("--reports-only");
-const gameplayOnly = args.includes("--gameplay-only");
-const scope = reportsOnly ? "reports and overlay fixture" : gameplayOnly ? "gameplay" : "complete portfolio suite";
-const checks = gameplayOnly ? [checkGameplay, checkPreviewFixtures] : reportsOnly ? [checkOverlayFixture, checkReports] :
-  [checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports];
 const externalUrl = process.env.PORTFOLIO_URL;
 let url = externalUrl;
 let server;
 let browser;
 
 // Inspect capture data before report exploration; gameplay has no report dependency.
-if (!gameplayOnly) await checkOverlayReadiness();
-console.log(`CHECKS: ${scope}`);
+if (suite.reports) await checkOverlayReadiness();
+console.log(`CHECKS: ${suite.label}`);
 try {
   if (!externalUrl) {
     server = await startPreview();
@@ -36,7 +40,7 @@ try {
     ignoreDefaultArgs: ["--hide-scrollbars"],
     ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {}),
   });
-  for (const check of checks) {
+  for (const check of suite.checks) {
     const context = await browser.newContext();
     try {
       const page = await context.newPage();
@@ -46,7 +50,7 @@ try {
       await context.close();
     }
   }
-  console.log(`PASS: rendered ${gameplayOnly ? "gameplay" : reportsOnly ? "report" : "portfolio"} browser checks`);
+  console.log(`PASS: rendered ${suite.result} browser checks`);
 } finally {
   await browser?.close();
   server?.kill();

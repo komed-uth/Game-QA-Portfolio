@@ -142,8 +142,8 @@ export default async function checkGameplay(page) {
       const strip=gallery.locator('.gallery-thumbnails');
       await drag(page,strip,[.2,.3],[.8,.3]);
       await waitForScroll(page);
-      assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Pointer browsing interrupts older scrolling');
-      assert.equal(await previews.first().getAttribute('aria-pressed'), 'true', 'Interrupting scroll does not select');
+      assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Pointer browsing works after keyboard navigation');
+      assert.equal(await previews.first().getAttribute('aria-pressed'), 'true', 'Pointer browsing does not select');
     }
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
