@@ -29,6 +29,9 @@ export default function EvidenceModal({ title, source, kind = "image", alt = "",
   function close() {
     if (closingRef.current) return;
     saveFramePosition.current?.();
+    if (kind === "summary" && viewport.current) {
+      onPositionChange?.({ left: viewport.current.scrollLeft, top: viewport.current.scrollTop });
+    }
     closingRef.current = true;
     setClosing(true);
     timer.current = setTimeout(() => callbacks.current.onClose(),
