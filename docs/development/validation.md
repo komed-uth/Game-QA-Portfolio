@@ -16,7 +16,7 @@ The preview-startup check holds a port open and verifies that startup rejects it
 
 The pull-request workflow runs the build and these checks on Linux. It installs Chromium and its OS dependencies. The standalone scripts cover screenshot opening/navigation, swipes, all six reports, scroll memory, dismissal, focus, 44px gallery actions, exit/reduced-motion animations and ten responsive viewports.
 
-Report-owned high-resolution image overlays reference files outside the supplied evidence. Their full path needs those fixtures before it can be certified. Charts, toggles and report links are checked with the supplied reports. Viewport checks are not physical-device certification.
+Report-owned high-resolution image overlays reference files outside the supplied evidence. Their full path needs those fixtures before it can be certified. Charts, chart tooltips, toggles, documentation tabs, iframe link-focused dismissal, all six original tabs, and report layouts across ten viewports are checked with the supplied reports. External documentation responses are stubbed; destination URLs and modal behavior are verified. Overall is also checked for two-axis position restoration after immediate dismissal. Viewport checks are not physical-device certification.
 
 ## Publishing readiness
 
