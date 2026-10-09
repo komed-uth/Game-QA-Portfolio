@@ -9,20 +9,22 @@ import checkOverlayFixture from "./browser/report-overlay-fixture.mjs";
 import { checkOverlayReadiness } from "./browser/report-overlay-data.mjs";
 
 const args = process.argv.slice(2);
-if (args.some(arg => arg !== "--reports-only")) {
-  throw new Error("Usage: node scripts/check-browser.mjs [--reports-only]");
+if (args.length > 1 || args.some(arg => !["--reports-only", "--gameplay-only"].includes(arg))) {
+  throw new Error("Usage: node scripts/check-browser.mjs [--reports-only | --gameplay-only]");
 }
 const reportsOnly = args.includes("--reports-only");
-const checks = reportsOnly ? [checkOverlayFixture, checkReports] :
+const gameplayOnly = args.includes("--gameplay-only");
+const scope = reportsOnly ? "reports and overlay fixture" : gameplayOnly ? "gameplay" : "complete portfolio suite";
+const checks = gameplayOnly ? [checkGameplay, checkPreviewFixtures] : reportsOnly ? [checkOverlayFixture, checkReports] :
   [checkGameplay, checkPreviewFixtures, checkEvidence, checkInteractions, checkOverlayFixture, checkReports];
 const externalUrl = process.env.PORTFOLIO_URL;
 let url = externalUrl;
 let server;
 let browser;
 
-// Inspect capture data before starting a browser or exploring report interactions.
-await checkOverlayReadiness();
-console.log(`CHECKS: ${reportsOnly ? "reports and overlay fixture" : "complete portfolio suite"}`);
+// Inspect capture data before report exploration; gameplay has no report dependency.
+if (!gameplayOnly) await checkOverlayReadiness();
+console.log(`CHECKS: ${scope}`);
 try {
   if (!externalUrl) {
     server = await startPreview();
@@ -44,7 +46,7 @@ try {
       await context.close();
     }
   }
-  console.log(`PASS: rendered ${reportsOnly ? "report" : "portfolio"} browser checks`);
+  console.log(`PASS: rendered ${gameplayOnly ? "gameplay" : reportsOnly ? "report" : "portfolio"} browser checks`);
 } finally {
   await browser?.close();
   server?.kill();

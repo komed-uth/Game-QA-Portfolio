@@ -15,7 +15,8 @@
     "check:browser": "node scripts/check-browser.mjs",
     "check:reports": "node scripts/check-browser.mjs --reports-only",
     "check:overlays": "node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs",
-    "check:preview": "node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs"
+    "check:preview": "node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs scripts/browser/check-selection.test.mjs",
+    "check:gameplay": "node scripts/check-browser.mjs --gameplay-only"
   },
   "dependencies": {
     "react": "^18.3.1",
