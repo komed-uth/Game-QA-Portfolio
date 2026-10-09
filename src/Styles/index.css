@@ -353,50 +353,9 @@ nav a.active {
   user-select: none;
   -webkit-user-drag: none;
 }
-.gallery-swipe-strip {
-  display: block;
-  min-height: 44px;
-  padding: 8px;
-  margin-top: 8px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-align: center;
-  user-select: none;
-}
-.gallery-navigation {
-  flex: 1;
-  min-width: 0;
-}
-.gallery-dots {
-  display: flex;
-  justify-content: center;
-}
-.gallery-dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-}
-.gallery-dot span {
-  width: 8px;
-  height: 8px;
-  border: 1px solid var(--muted);
-  border-radius: 50%;
-}
-.gallery-dot[aria-pressed="true"] span {
-  width: 20px;
-  border-radius: 5px;
-  border-color: var(--green);
-  background: var(--green);
-}
+.gallery-preview-strip { margin-top: 12px; min-width: 0; }
+.gallery-controls { justify-content: space-between; }
+.gallery-arrow:disabled { opacity: 0.4; cursor: default; }
 .gallery-arrow {
   flex: 0 0 44px;
   height: 44px;
@@ -408,11 +367,23 @@ nav a.active {
   cursor: pointer;
 }
 .gallery-thumbnails {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  flex: 1;
+  position: relative;
+  display: flex;
   min-width: 0;
   gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  padding-bottom: 6px;
+  user-select: none;
+}
+.gallery-thumbnails::-webkit-scrollbar { height: 12px; }
+.gallery-thumbnails::-webkit-scrollbar-track { background: #19221d; border-radius: 6px; }
+.gallery-thumbnails::-webkit-scrollbar-thumb { background: var(--green); border-radius: 6px; }
+.gallery-thumbnail { flex: 0 0 calc((100% - 24px) / 4); }
+.gallery-thumbnail:focus-visible, .gallery-arrow:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: -3px;
 }
 .gallery-thumbnail {
   min-width: 0;
@@ -455,6 +426,7 @@ nav a.active {
   to { opacity: 1; }
 }
 @media (max-width: 640px) {
+  .gallery-thumbnail { flex-basis: calc((100% - 24px) / 3.35); }
   .gallery-controls { justify-content: space-between; }
   .gallery-thumbnail span { font-size: 0.65rem; }
 }
