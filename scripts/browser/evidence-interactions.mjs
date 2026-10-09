@@ -16,7 +16,16 @@ export default async function check(page) {
     assert.equal(await p.locator('dialog').count(), 0);
     assert.equal(await g.locator('.gallery-thumbnail[aria-pressed=true]').count(), 1);
     assert.notEqual(await g.locator('.gallery-thumbnail[aria-pressed=true]').getAttribute('aria-label'), selectionBeforeSwipe);
+    // A vertical drag scrolls rather than opening the selected screenshot.
     await g.locator('.gallery-thumbnail').nth(1).click();
+    await surface.scrollIntoViewIfNeeded();
+    const verticalBox = await surface.boundingBox();
+    await p.mouse.move(verticalBox.x + verticalBox.width / 2, verticalBox.y + verticalBox.height * .3);
+    await p.mouse.down();
+    await p.mouse.move(verticalBox.x + verticalBox.width / 2, verticalBox.y + verticalBox.height * .7, { steps: 8 });
+    await p.mouse.up();
+    assert.equal(await p.locator('dialog').count(), 0, 'Vertical drags must not open evidence');
+    assert.equal(await g.locator('.gallery-thumbnail[aria-pressed=true]').getAttribute('aria-label'), selectionBeforeSwipe);
     await g.locator('.evidence-image-button').click();
     const d = p.locator('dialog');
     await d.locator('img').evaluate(img => img.decode());
