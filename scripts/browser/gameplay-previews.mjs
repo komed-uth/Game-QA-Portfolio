@@ -57,6 +57,15 @@ export default async function checkGameplay(page) {
         assert(await strip.evaluate(e => e.scrollLeft > 0), 'Mouse drag browses previews');
         assert.equal(await selected(gallery), initial, 'Dragging does not select');
         assert.equal(await page.locator('dialog').count(), 0);
+        await strip.evaluate(e => e.scrollLeft = 0);
+        const releasedBox = await strip.boundingBox();
+        await page.mouse.move(releasedBox.x + releasedBox.width * .5, releasedBox.y + 20);
+        await page.mouse.down();
+        await page.mouse.move(releasedBox.x + releasedBox.width * .5, releasedBox.y - 15);
+        await page.mouse.up();
+        await page.mouse.move(releasedBox.x + releasedBox.width * .2, releasedBox.y + 20);
+        await page.mouse.move(releasedBox.x + releasedBox.width * .8, releasedBox.y + 20, { steps: 8 });
+        assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Release outside strip ends mouse browsing');
         // Native scrollbar track/thumb remain draggable below the previews.
         await strip.evaluate(e => e.scrollLeft = 0);
         const scrollbarBox = await strip.boundingBox();
@@ -101,6 +110,23 @@ export default async function checkGameplay(page) {
     }
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No page horizontal overflow');
   }
+  await page.setViewportSize({width:390,height:845});
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  for (const gallery of await page.locator('.game-gallery').all()) {
+    const previews=gallery.locator('.gallery-thumbnail');
+    await previews.first().click();
+    await waitForScroll(page);
+    await previews.first().focus();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Home');
+    await waitForScroll(page);
+    assert(await previews.first().evaluate(e => {
+      const bounds=e.getBoundingClientRect(), strip=e.parentElement.getBoundingClientRect();
+      return e === document.activeElement && bounds.left >= strip.left-1 && bounds.right <= strip.right+1;
+    }), 'Latest keyboard target cancels obsolete smooth scrolling');
+    assert.equal(await previews.first().getAttribute('aria-pressed'), 'true', 'Rapid focus navigation does not select');
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const galleries=await page.locator('.game-gallery').all();
   const secondSelection=await selected(galleries[1]);
   await galleries[0].locator('.gallery-thumbnail').last().click();

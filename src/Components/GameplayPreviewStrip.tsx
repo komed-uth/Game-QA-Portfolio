@@ -33,6 +33,8 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
     const right = left + preview.offsetWidth;
     if (left < element.scrollLeft) scrollTo(left);
     else if (right > element.scrollLeft + element.clientWidth) scrollTo(right - element.clientWidth);
+    // A newer visible target must cancel any older smooth-scroll destination.
+    else scrollTo(element.scrollLeft);
   }
 
   useEffect(() => {
@@ -75,6 +77,10 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
   }
 
   function moveDrag(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" && !(event.buttons & 1)) {
+      drag.current = null;
+      return;
+    }
     const start = drag.current;
     if (!start || start.id !== event.pointerId) return;
     const dx = event.clientX - start.x;
