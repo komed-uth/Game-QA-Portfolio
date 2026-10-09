@@ -56,6 +56,7 @@ export default function MediaGallery({
     const dx = Math.abs(event.clientX - start.x);
     const dy = Math.abs(event.clientY - start.y);
     if (!start.direction && Math.max(dx, dy) > 12) {
+      suppressClick.current = true;
       start.direction = dx > dy * 1.2 ? "horizontal" : "vertical";
       if (start.direction === "horizontal") {
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -80,13 +81,13 @@ export default function MediaGallery({
     onPointerUp: finishSwipe,
     onPointerCancel: () => {
       gesture.current = null;
-      suppressClick.current = false;
     },
     onClickCapture: (event: MouseEvent<HTMLDivElement>) => {
       if (suppressClick.current) {
+        suppressClick.current = false;
+        if (event.detail === 0) return;
         event.preventDefault();
         event.stopPropagation();
-        suppressClick.current = false;
       }
     },
   };
