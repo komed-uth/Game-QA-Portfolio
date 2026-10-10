@@ -117,3 +117,9 @@ Diagnostics, dependencies and documentation are excluded. This is a comparison o
 ## Focused slideshow checks
 
 Run `npm run check:slideshow` (or `node scripts/check-browser.mjs --slideshow-only`) for slideshow progression and inspection safeguards in both gameplay showcases, including its native-touch scenario. This selects only the slideshow check; it does not build the longer-list fixtures or run the photo, responsive browsing, or report suites. Build current source first. The full `npm run check:browser` suite remains the CI gate, and all focus selectors are mutually exclusive.
+
+## Placeholder project showcases
+
+Run `npm run check:placeholders` for the Invictus: Lost Soul image-only showcase. This check is also included in the complete and focused gameplay suites. It verifies placeholder fields, all five local designed panels, thumbnail selection and browsing, modal wrapping/synchronization/focus, existing gallery/report selection independence, keyboard and native touch interactions, vertical page scrolling, and eleven responsive viewports in both motion modes, including 899, 900, and 901px. It uses the published paused-clock readiness utilities for the 6.5-second slideshow, inspection suspension, manual reset, live reduced motion, delayed loading, failure, and Retry checks.
+
+The existing video-and-image regression scenarios remain scoped to Regulus and Father, Son & Holy Guns; image-only behavior has its own rendered-homepage check. SVG label checks confirm project and mock text in the served panels, alongside decoded images and complete framing. Review representative main-image/modal renders for visual acceptance. Mock panels do not certify gameplay evidence, and native-touch browser checks are not physical-device certification. No website deployment is part of ticket #58.

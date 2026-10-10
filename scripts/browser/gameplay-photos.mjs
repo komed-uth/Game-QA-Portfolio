@@ -4,7 +4,7 @@ import { waitForPhoto as ready } from "./gallery-photo-ready.mjs";
 
 export default async function checkPhotoChanges(page) {
   await page.setViewportSize({ width: 1366, height: 768 });
-  const galleries = await page.locator('.game-gallery').all();
+  const galleries = await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all();
   for (const gallery of galleries) {
     const previews = gallery.locator('.gallery-thumbnail');
     const sources = await previews.locator('img').evaluateAll(elements => elements.map(e => e.getAttribute('src')));
@@ -73,7 +73,7 @@ export default async function checkPhotoChanges(page) {
   // Hold real image responses on the rendered page, including thumbnail requests.
   // Each gallery runs independently with its own slow, failed and retried photos.
   for (let galleryIndex = 0; galleryIndex < galleries.length; galleryIndex++) {
-    const gallery = page.locator('.game-gallery').nth(galleryIndex);
+    const gallery = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').nth(galleryIndex);
     const sources = await gallery.locator('.gallery-thumbnail img').evaluateAll(elements => elements.map(e => e.getAttribute('src')));
     const slowUrl = new URL(sources[2], page.url()).href;
     const failedUrl = new URL(sources[3], page.url()).href;
@@ -119,7 +119,7 @@ export default async function checkPhotoChanges(page) {
       assert.equal(await original.getAttribute('href'), sources[3]);
       assert.equal(await original.getAttribute('target'), '_blank');
       assert.equal((await viewer.boundingBox()).height, size.height, 'Failure keeps viewer height');
-      const other = page.locator('.game-gallery').nth(1 - galleryIndex);
+      const other = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').nth(1 - galleryIndex);
       assert.equal(await other.locator('iframe').count(), 1, 'Loading/failure stays within the chosen gallery');
       await previews.nth(1).click(); await ready(gallery, sources[1]);
       await previews.nth(3).click(); await gallery.getByRole('alert').waitFor();
