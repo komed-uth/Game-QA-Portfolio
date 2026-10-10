@@ -32,6 +32,47 @@ export default async function check(page) {
         await d.locator('img').click();
         assert.equal(await d.count(), 1, 'Inside image interaction keeps the modal open');
     }
+    const capture = p.locator('.capture-media');
+    const captureOpener = capture.getByRole('button', {
+        name: 'Open full-size Microsoft PIX capture for Vecchio Furioso', exact: true,
+    });
+    const captureAlt = 'Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline';
+    async function checkCaptureLayout() {
+        await captureOpener.scrollIntoViewIfNeeded();
+        await capture.locator('img').evaluate(img => img.decode());
+        assert.equal((await capture.innerText()).trim(), '', 'PIX capture has no caption, action text or inspection note');
+        assert.equal(await capture.locator('figcaption, .evidence-open, .report-note').count(), 0);
+        assert.equal(await capture.getByRole('button').count(), 1, 'Main capture is the only inspection action');
+        assert.equal(await capture.locator('img').getAttribute('alt'), captureAlt);
+        const figureBox = await capture.boundingBox();
+        const openerBox = await captureOpener.boundingBox();
+        const imageBox = await capture.locator('img').boundingBox();
+        assert(openerBox.width >= 44 && openerBox.height >= 44, 'Main capture retains a usable touch target');
+        assert(Math.abs(figureBox.height - openerBox.height) < 1, 'Removed rows leave no reserved spacing');
+        assert(Math.abs(imageBox.height - openerBox.height) < 1 && Math.abs(imageBox.width - openerBox.width) < 1,
+            'Capture fills its opener without clipping');
+        const ratio = await capture.locator('img').evaluate(img => img.naturalWidth / img.naturalHeight);
+        assert(Math.abs(imageBox.width / imageBox.height - ratio) < .01, 'Complete capture keeps its original aspect ratio');
+        const detailsBox = await p.locator('.pc-project .project-info').boundingBox();
+        if (p.viewportSize().width <= 900) {
+            assert(figureBox.y >= detailsBox.y + detailsBox.height, 'Narrow-screen capture follows project details');
+        } else {
+            assert(figureBox.x >= detailsBox.x + detailsBox.width && Math.abs(figureBox.y - detailsBox.y) < 1,
+                'Desktop capture stays beside project details');
+        }
+        assert(await p.locator('.pc-project').getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' }).isVisible());
+        assert.equal(await p.locator('.pc-project .game-gallery, .pc-project .gallery-thumbnail').count(), 0);
+        assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Capture creates no page overflow');
+    }
+    async function checkCaptureContent() {
+        assert.equal(await d.getAttribute('aria-labelledby') !== null, true);
+        assert(await p.getByRole('dialog', { name: 'Vecchio Furioso · Microsoft PIX capture', exact: true }).isVisible());
+        assert.equal(await d.locator('img').getAttribute('src'), await capture.locator('img').getAttribute('src'));
+        assert.equal(await d.locator('img').getAttribute('alt'), captureAlt);
+        assert.equal(await d.locator('a').getAttribute('href'), await capture.locator('img').getAttribute('src'));
+        assert.equal(await d.getByRole('button', { name: /screenshot/ }).count(), 0);
+        assert.equal(await p.evaluate(() => document.documentElement.style.overflow), 'hidden');
+    }
     for (const g of await p.locator('.game-gallery').all()) {
         for (let i = 1; i < 4; i++) {
             await g.locator('.gallery-thumbnail').nth(i).click();
@@ -66,9 +107,12 @@ export default async function check(page) {
         await g.locator('.gallery-thumbnail').first().click();
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
     }
-    await p.locator('.capture-media .evidence-image-button').click();
+    await checkCaptureLayout();
+    await captureOpener.click();
+    await checkCaptureContent();
     assert.equal(await d.getByRole('button', { name: 'Next screenshot' }).count(), 0);
     await close();
+    assert(await captureOpener.evaluate(element => element === document.activeElement));
     await p.locator('.capture-media .evidence-image-button').click();
     await p.waitForTimeout(250);
     const exitAnimation = await d.evaluate(async (element) => {
@@ -78,8 +122,12 @@ export default async function check(page) {
     });
     assert.equal(exitAnimation, 'evidence-exit', 'Closing must start a distinct exit animation');
     await d.waitFor({ state: 'detached' });
-    await p.locator('.capture-media .evidence-open').click();
+    await captureOpener.focus();
+    await p.keyboard.press('Space');
+    await checkCaptureContent();
     await close('escape');
+    assert(await captureOpener.evaluate(element => element === document.activeElement));
+    assert.notEqual(await p.evaluate(() => document.documentElement.style.overflow), 'hidden');
     console.log('PASS: all seven evidence images, actions, originals, navigation/video skip, focus, dismissal and background lock');
     let summaryPosition;
     const labels = ['Very High', 'High', 'Medium', 'Low', 'Very Low', 'Overall'];
@@ -151,10 +199,20 @@ export default async function check(page) {
                 'Screenshot browsing wraps without changing the other project');
             await close();
         }
-        await p.locator('.capture-media .evidence-open').click();
+        await checkCaptureLayout();
+        await captureOpener.focus();
+        // Tab away and back makes keyboard focus visible after pointer inspection.
+        await p.keyboard.press('Tab');
+        await p.keyboard.press('Shift+Tab');
+        assert(await captureOpener.evaluate(element => element === document.activeElement &&
+            element.matches(':focus-visible') && getComputedStyle(element).outlineStyle !== 'none' &&
+            parseFloat(getComputedStyle(element).outlineWidth) > 0), 'Main capture has visible keyboard focus');
+        await p.keyboard.press('Enter');
+        await checkCaptureContent();
         await checkImageFit();
         assert.equal(await d.getByRole('button', { name: /screenshot/ }).count(), 0);
-        await close();
+        await close('backdrop');
+        assert(await captureOpener.evaluate(element => element === document.activeElement), 'Capture restores focus after resizing');
         await p.locator('.report-preview').click();
         const box = await d.boundingBox();
         assert(box.x >= 8 && box.y >= 8 && box.x + box.width <= width - 8 && box.y + box.height <= height - 8);
