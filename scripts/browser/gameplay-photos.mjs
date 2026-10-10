@@ -24,11 +24,18 @@ export default async function checkPhotoChanges(page) {
       element.addEventListener('animationstart', recordAnimation);
       element.addEventListener('animationend', recordAnimation);
     });
-    // Select in-page so the first frame can be inspected without click scheduling delays.
-    await previews.nth(2).evaluate(element => element.click());
-    assert.equal(await previews.nth(2).getAttribute('aria-pressed'), 'true');
-    assert((await gallery.locator('.gallery-caption').innerText()).includes('3 / 4'));
-    assert(await open.isDisabled(), 'Open is blocked during transition');
+    // Capture the first frame together: separate browser calls can outlast the 250ms fades.
+    const transition = await previews.nth(2).evaluate(element => new Promise(resolve => {
+      element.click();
+      requestAnimationFrame(() => {
+        const gallery = element.closest('.game-gallery');
+        resolve({ selected: element.getAttribute('aria-pressed'), caption: gallery.querySelector('.gallery-caption').innerText,
+          openingBlocked: gallery.querySelector('.gallery-caption .evidence-open').disabled });
+      });
+    }));
+    assert.equal(transition.selected, 'true');
+    assert(transition.caption.includes('3 / 4'));
+    assert(transition.openingBlocked, 'Open is blocked during transition');
     await ready(gallery, sources[2]);
     const animations = await page.evaluate(() => window.photoAnimations);
     assert.deepEqual(animations.filter(a => a.type === 'animationstart').map(a => [a.name, a.duration, a.transform]), [
