@@ -25,5 +25,16 @@ jobs:
         run: npm run check:preview
       - name: Install browser
         run: npx playwright install --with-deps chromium
+      - name: Check browser runner diagnostics
+        run: npm run check:runner
       - name: Check rendered portfolio
         run: npm run check:browser
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-check-failures
+          path: .scratch/browser-checks/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7

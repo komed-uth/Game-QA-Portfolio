@@ -1,3 +1,4 @@
+import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 import { build } from "vite";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
@@ -56,8 +57,7 @@ export default async function checkPreviewFixtures(page) {
     const output = Array.isArray(result) ? result[0].output : result.output;
     const entry = output.find(file => file.type === "chunk" && file.isEntry);
     assert(entry, "Fixture entry produced");
-    const context = await browser.newContext({ viewport: {width:390,height:845}, reducedMotion: "reduce" });
-    try {
+    await withBrowserContext(browser, { viewport: {width:390,height:845}, reducedMotion: "reduce" }, async context => {
       await context.route('**/assets/index-*.js', route => route.fulfill({contentType:'text/javascript',body:entry.code}));
       const fixturePage=await context.newPage();
       await fixturePage.goto(page.url());
@@ -107,10 +107,9 @@ export default async function checkPreviewFixtures(page) {
         await checkScrollInterruption(fixturePage,gallery);
       }
       assert.equal(await fixturePage.locator('.video-project .gallery-thumbnail').count(),4,'Other showcase is unchanged');
-    } finally { await context.close(); }
+    });
   }
-  const touchContext=await browser.newContext({viewport:{width:390,height:845},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
-  try {
+  await withBrowserContext(browser, {viewport:{width:390,height:845},hasTouch:true,isMobile:true,reducedMotion:'reduce'}, async touchContext => {
     const touchPage=await touchContext.newPage();await touchPage.goto(page.url());
     const gallery=touchPage.locator('.game-gallery').first();
     const strip=gallery.locator('.gallery-thumbnails');await strip.scrollIntoViewIfNeeded();
@@ -134,6 +133,6 @@ export default async function checkPreviewFixtures(page) {
     assert.equal(await gallery.locator('iframe').count(),1);
     assert.equal(await touchPage.locator('dialog').count(),0);
     await session.detach();
-  } finally {await touchContext.close();}
+  });
   console.log('PASS: temporary empty/single/long portfolio lists, group context, hidden selection, resize, native touch strip, vertical page scrolling and verified normal/reduced scroll interruption');
 }

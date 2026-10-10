@@ -1,4 +1,6 @@
+import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
+const photoDwellMs = 6500;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
 async function installPausedClock(page) {
   await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
@@ -41,8 +43,8 @@ export default async function checkSlideshow(page) {
     // Let browser rendering and passive effects settle before advancing its clock.
     await page.clock.runFor(32);
     await page.waitForTimeout(100);
-    await page.clock.fastForward(2000);
-    await isSelected(gallery, from, 'A ready/resumed photo receives a full 2.5-second interval');
+    await page.clock.fastForward(photoDwellMs - 500);
+    await isSelected(gallery, from, `A ready/resumed photo receives a full ${photoDwellMs / 1000}-second interval`);
     await page.clock.fastForward(700);
     await isSelected(gallery, to, 'Eligible photo advances in media order');
   }
@@ -105,13 +107,13 @@ export default async function checkSlideshow(page) {
     await isSelected(galleries.nth(1 - index), 0, 'Other gallery selection is independent');
 
     await photo(gallery, 1);
-    await page.clock.fastForward(1000);
+    await page.clock.fastForward(photoDwellMs * 0.6);
     await photo(gallery, 2);
     await fullInterval(gallery, 2, 3);
     await photo(gallery, 1);
-    await page.clock.fastForward(1000);
+    await page.clock.fastForward(photoDwellMs * 0.6);
     await gallery.locator('.gallery-thumbnail').nth(1).evaluate(e => e.click());
-    await page.clock.fastForward(1700);
+    await page.clock.fastForward(photoDwellMs * 0.4 + 300);
     await isSelected(gallery, 2, 'Active reselection does not restart dwell');
 
     await photo(gallery, 1);
@@ -125,7 +127,7 @@ export default async function checkSlideshow(page) {
     await fullInterval(gallery, 2, 3);
 
     await photo(gallery, 1);
-    await page.clock.fastForward(1000);
+    await page.clock.fastForward(photoDwellMs * 0.6);
     await gallery.locator('.gallery-thumbnail').nth(1).hover();
     await gallery.locator('.gallery-thumbnail').nth(2).focus();
     await page.keyboard.press('Shift');
@@ -220,8 +222,7 @@ export default async function checkSlideshow(page) {
   }
 
   // Native panning cancels pointer delivery while the finger remains down.
-  const touchContext = await page.context().browser().newContext({ viewport: {width:390,height:845}, hasTouch:true, isMobile:true });
-  try {
+  await withBrowserContext(page.context().browser(), { viewport: {width:390,height:845}, hasTouch:true, isMobile:true }, async touchContext => {
     const touchPage = await touchContext.newPage();
     await touchPage.goto(page.url());
     await installPausedClock(touchPage);
@@ -232,7 +233,7 @@ export default async function checkSlideshow(page) {
       await waitForPhoto(gallery);
       await touchPage.clock.runFor(32);
       await touchPage.waitForTimeout(100);
-      await touchPage.clock.fastForward(2000);
+      await touchPage.clock.fastForward(photoDwellMs - 500);
       assert.equal(await gallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Tap starts a fresh full interval');
       await touchPage.clock.fastForward(700);
       assert.equal(await gallery.locator('.gallery-thumbnail').nth(2).getAttribute('aria-pressed'), 'true', 'Tapped photo advances without tapping another showcase');
@@ -263,12 +264,12 @@ export default async function checkSlideshow(page) {
     assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Finger still down suspends progression after pointercancel');
     await session.send('Input.dispatchTouchEvent', {type:'touchEnd',touchPoints:[]});
     await touchPage.waitForTimeout(100);
-    await touchPage.clock.fastForward(2000);
+    await touchPage.clock.fastForward(photoDwellMs - 500);
     assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Touch release receives a fresh interval');
     await touchPage.clock.fastForward(700);
     assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(2).getAttribute('aria-pressed'), 'true', 'Progression resumes after actual touch release');
     await session.detach();
-  } finally { await touchContext.close(); }
+  });
   await page.bringToFront();
 
   // Both timers run on the same visible portfolio while one gallery stays paused.

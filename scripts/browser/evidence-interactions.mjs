@@ -1,3 +1,4 @@
+import { withBrowserContext } from './run-browser-check.mjs';
 import assert from 'node:assert/strict';
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
@@ -53,10 +54,9 @@ export default async function check(page) {
     assert.equal(await d.count(), 1);
     await d.getByRole('button', { name: 'Close evidence' }).click();
     await d.waitFor({ state: 'detached' });
-    const touchContext = await p.context().browser().newContext({
+    await withBrowserContext(p.context().browser(), {
         viewport: { width: 390, height: 845 }, hasTouch: true, isMobile: true,
-    });
-    try {
+    }, async touchContext => {
         const touchPage = await touchContext.newPage();
         await touchPage.goto(p.url());
         const gallery = touchPage.locator('.game-gallery').first();
@@ -82,9 +82,7 @@ export default async function check(page) {
         await touchPage.keyboard.press('Escape');
         await touchPage.locator('dialog').waitFor({ state: 'detached' });
         await session.detach();
-    } finally {
-        await touchContext.close();
-    }
+    });
     console.log('PASS: vertical touch scrolling preserves keyboard image opening');
     console.log('PASS: swipe suppresses opening, phone image fit, report toggle, iframe focus boundaries and actual original-file tab');
 }
