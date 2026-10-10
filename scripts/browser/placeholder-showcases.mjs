@@ -153,6 +153,8 @@ export default async function checkPlaceholders(page) {
   }
   await closeModal(page);
   await waitForPhoto(gallery);
+  await previews.first().click();
+  await waitForPhoto(gallery, sources[0]);
   await gallery.getByRole('button', { name: /scroll previews forward/ }).click();
   assert.equal(await selected(gallery), 0, 'Preview controls browse without selecting');
   const strip = gallery.locator('.gallery-thumbnails');
