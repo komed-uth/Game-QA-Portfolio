@@ -76,7 +76,6 @@ export default function RegulusShowcase() {
         projectName={project.name}
         galleryName="Regulus the Advent media"
         videoId={videoId}
-        videoUrl={"https://youtu.be/" + videoId}
         media={media}
       />
       <ReportViewer />

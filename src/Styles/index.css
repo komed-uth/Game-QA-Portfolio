@@ -315,20 +315,6 @@ nav a.active {
   padding: 14px 20px;
   color: var(--green);
 }
-.gallery-caption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px 16px;
-  margin-top: 12px;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.gallery-caption a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
 .gallery-controls {
   display: flex;
   align-items: center;
@@ -375,6 +361,7 @@ nav a.active {
   outline-offset: -3px;
 }
 .gallery-thumbnail {
+  position: relative;
   min-width: 0;
   min-height: 44px;
   padding: 3px;
@@ -390,11 +377,26 @@ nav a.active {
   aspect-ratio: 16 / 9;
   object-fit: cover;
 }
-.gallery-thumbnail span {
-  display: block;
-  font-size: 0.7rem;
-  padding: 5px 0 2px;
-  overflow-wrap: anywhere;
+.gallery-video-indicator {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  background: #10200ced;
+  border-radius: 50%;
+  padding: 4px 8px;
+  line-height: 1.2;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 .gallery-thumbnail[aria-pressed="true"] {
   border-color: var(--green);
@@ -417,7 +419,6 @@ nav a.active {
 @media (max-width: 640px) {
   .gallery-thumbnail { flex-basis: calc((100% - 24px) / 3.35); }
   .gallery-controls { justify-content: space-between; }
-  .gallery-thumbnail span { font-size: 0.65rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gallery-viewer { animation: none; }
@@ -793,7 +794,7 @@ footer {
     grid-row: auto;
   }
 }
-.evidence-open, .gallery-slideshow {
+.evidence-open {
   min-height: 44px;
   border: 0;
   padding: 0;
@@ -932,7 +933,7 @@ footer {
   max-width: none;
   height: auto;
 }
-.evidence-modal :focus-visible, .evidence-open:focus-visible, .gallery-slideshow:focus-visible, .evidence-image-button:focus-visible, .report-preview:focus-visible {
+.evidence-modal :focus-visible, .evidence-open:focus-visible, .evidence-image-button:focus-visible, .report-preview:focus-visible {
   outline: 3px solid var(--green);
   outline-offset: -3px;
 }

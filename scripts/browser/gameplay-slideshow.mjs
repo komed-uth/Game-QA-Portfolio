@@ -61,14 +61,6 @@ export default async function checkSlideshow(page) {
     await fullInterval(gallery, 1, 2);
     await waitForPhoto(gallery);
 
-    await gallery.getByRole('button', { name: 'Pause slideshow', exact: true }).click();
-    await page.mouse.move(0, 0);
-    await page.clock.fastForward(7000);
-    await isSelected(gallery, 2, 'Pointer activation still honors explicit Pause');
-    await gallery.getByRole('button', { name: 'Resume slideshow', exact: true }).click();
-    await page.mouse.move(0, 0);
-    await fullInterval(gallery, 2, 3);
-
     await gallery.locator('.gallery-thumbnail').nth(1).click();
     await waitForPhoto(gallery);
     await page.mouse.move(0, 0);
@@ -87,11 +79,11 @@ export default async function checkSlideshow(page) {
     await page.mouse.move(0, 0);
     await fullInterval(gallery, 2, 3);
   }
-  console.log('PASS: real mouse photo selection and Resume work without forced blur; keyboard inspection stays paused');
+  console.log('PASS: real mouse photo selection resumes without forced blur; keyboard inspection stays suspended');
   for (let index = 0; index < 2; index++) {
     await page.reload();
     const gallery = galleries.nth(index);
-    assert.equal(await gallery.getByRole('button', { name: 'Pause slideshow', exact: true }).count(), 1);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
     await photo(gallery, 1);
     await fullInterval(gallery, 1, 2);
     await waitForPhoto(gallery);
@@ -115,16 +107,6 @@ export default async function checkSlideshow(page) {
     await gallery.locator('.gallery-thumbnail').nth(1).evaluate(e => e.click());
     await page.clock.fastForward(photoDwellMs * 0.4 + 300);
     await isSelected(gallery, 2, 'Active reselection does not restart dwell');
-
-    await photo(gallery, 1);
-    await gallery.getByRole('button', { name: 'Pause slideshow', exact: true }).click();
-    await photo(gallery, 2);
-    await page.clock.fastForward(10000);
-    await isSelected(gallery, 2, 'Explicit Pause survives manual selection');
-    assert.equal(await galleries.nth(1 - index).getByRole('button', { name: 'Pause slideshow', exact: true }).count(), 1);
-    await gallery.getByRole('button', { name: 'Resume slideshow', exact: true }).click();
-    await releaseInspection();
-    await fullInterval(gallery, 2, 3);
 
     await photo(gallery, 1);
     await page.clock.fastForward(photoDwellMs * 0.6);
@@ -182,7 +164,7 @@ export default async function checkSlideshow(page) {
     await page.evaluate(() => delete document.hidden);
 
     await photo(gallery, 1);
-    await gallery.locator('.gallery-caption .evidence-open').first().click();
+    await gallery.locator('.gallery-viewer .evidence-image-button').first().click();
     await page.mouse.move(0, 0);
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Modal inspection suspends progression');
@@ -281,35 +263,57 @@ export default async function checkSlideshow(page) {
   });
   await page.bringToFront();
 
-  // Both timers run on the same visible portfolio while one gallery stays paused.
+  // Both galleries remain visible; inspecting one never suspends the other.
   await page.setViewportSize({ width: 1366, height: 6000 });
   await page.reload();
   await photo(galleries.first(), 1);
-  await galleries.first().getByRole('button', { name: 'Pause slideshow', exact: true }).evaluate(e => e.click());
   await photo(galleries.nth(1), 1);
+  await galleries.first().locator('.gallery-thumbnail').nth(1).hover();
   await fullInterval(galleries.nth(1), 1, 2);
-  await isSelected(galleries.first(), 1, 'Pausing one gallery does not suspend the other timer');
+  await isSelected(galleries.first(), 1, 'Hover inspection stays local to its gallery');
+  await releaseInspection();
+  await fullInterval(galleries.first(), 1, 2);
+
+  // Manual selection in one gallery cannot reset the other's running dwell.
+  await photo(galleries.first(), 1);
+  await photo(galleries.nth(1), 1);
+  await page.clock.fastForward(photoDwellMs * .6);
+  await photo(galleries.first(), 2);
+  await page.clock.fastForward(photoDwellMs * .4 + 300);
+  await isSelected(galleries.nth(1), 2, 'Other gallery keeps its original dwell after manual selection');
+  await isSelected(galleries.first(), 2, 'Manual selection receives its own fresh dwell');
   await page.setViewportSize({ width: 1366, height: 768 });
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
-  const gallery = galleries.first();
-  await photo(gallery, 1);
-  assert.equal(await gallery.getByRole('button', { name: 'Resume slideshow', exact: true }).count(), 1);
-  await page.clock.fastForward(7000);
-  await isSelected(gallery, 1, 'Reduced motion defaults paused');
-  await gallery.getByRole('button', { name: 'Resume slideshow', exact: true }).click();
-  await releaseInspection();
-  await fullInterval(gallery, 1, 2);
-  await waitForPhoto(gallery);
-  assert.equal(await gallery.locator('.gallery-photo').evaluate(e => getComputedStyle(e).animationName), 'none');
+  for (const gallery of await galleries.all()) {
+    await photo(gallery, 1);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+    await page.clock.fastForward(20000);
+    await isSelected(gallery, 1, 'Reduced motion disables automatic progression without Resume');
+    await photo(gallery, 2);
+    assert.equal(await gallery.locator('.gallery-photo').evaluate(e => getComputedStyle(e).animationName), 'none');
+    await page.clock.fastForward(20000);
+    await isSelected(gallery, 2, 'Reduced motion still permits manual photo selection');
+  }
+  // A preference change during the visit cancels an already-running countdown.
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await photo(galleries.first(), 1);
+  await page.clock.fastForward(photoDwellMs * .6);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Media-query change events arrive on browser rendering frames. Settle them
+  // before jumping the paused clock, just as fresh-dwell assertions do above.
+  await page.clock.runFor(32);
+  await page.waitForTimeout(100);
+  await page.clock.fastForward(20000);
+  await isSelected(galleries.first(), 1, 'Live reduced-motion preference suspends an active countdown');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await fullInterval(galleries.first(), 1, 2);
   await page.reload();
   await photo(galleries.first(), 1);
-  await galleries.first().getByRole('button', { name: 'Pause slideshow', exact: true }).click();
   await page.getByRole('link', { name: /QA approach/ }).first().click();
   await page.goBack();
   await isSelected(galleries.first(), 0, 'Route return resets video-first selection');
-  assert.equal(await galleries.first().getByRole('button', { name: 'Pause slideshow', exact: true }).count(), 1);
-  console.log('PASS: both slideshow sequences, full dwell/reset/reselection, video retention, pause independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset');
+  assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+  console.log('PASS: both slideshow sequences, full dwell/reset/reselection, video retention, timer independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset');
 }
