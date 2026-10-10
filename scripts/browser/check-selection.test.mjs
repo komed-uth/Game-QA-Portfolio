@@ -3,19 +3,24 @@ import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { selectSuite } from './check-suites.mjs';
 
-const modes = [undefined, '--reports-only', '--gameplay-only', '--photos-only', '--evidence-only', '--slideshow-only'];
-const expected = [
-  ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures', 'evidence-modal', 'evidence-interactions', 'overlay-fixture', 'report-interactions'],
-  ['overlay-fixture', 'report-interactions'], ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'],
-  ['photos'], ['evidence-modal', 'evidence-interactions'], ['slideshow'],
+const cases = [
+  { mode: undefined, checks: ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures',
+    'evidence-modal', 'evidence-interactions', 'overlay-fixture', 'report-interactions'], reports: true },
+  { mode: '--reports-only', checks: ['overlay-fixture', 'report-interactions'], reports: true },
+  { mode: '--gameplay-only', checks: ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'], reports: false },
+  { mode: '--photos-only', checks: ['photos'], reports: false },
+  { mode: '--evidence-only', checks: ['evidence-modal', 'evidence-interactions'], reports: true },
+  { mode: '--slideshow-only', checks: ['slideshow'], reports: false },
 ];
-for (const [index, mode] of modes.entries()) {
+for (const { mode, checks, reports } of cases) {
   test(`${mode ?? 'default'} selects the intended checks`, () => {
-    assert.deepEqual(selectSuite(mode ? [mode] : []).checks.map(check => check.name), expected[index]);
-    assert.equal(selectSuite(mode ? [mode] : []).reports, ![2, 3, 5].includes(index));
+    const suite = selectSuite(mode ? [mode] : []);
+    assert.deepEqual(suite.checks.map(check => check.name), checks);
+    assert.equal(suite.reports, reports);
   });
 }
-const invalid = [['--unknown'], ...modes.slice(1).flatMap(left => modes.slice(1).map(right => [left, right]))];
+const modes = cases.map(({ mode }) => mode).filter(mode => mode !== undefined);
+const invalid = [['--unknown'], ...modes.flatMap(left => modes.map(right => [left, right]))];
 for (const args of invalid) {
   test(`${args.join(' ')} fails before readiness or browser startup`, () => {
     const result = spawnSync(process.execPath, ['scripts/check-browser.mjs', ...args], { encoding: 'utf8' });
