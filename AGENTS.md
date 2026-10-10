@@ -15,3 +15,7 @@ Use the default labels `needs-triage`, `needs-info`, `ready-for-agent`, `ready-f
 ### Domain docs
 
 This is a single-context repo with a root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
+
+### Sandcastle
+
+When selecting or dispatching an issue through Sandcastle, read `docs/development/sandcastle.md`.
