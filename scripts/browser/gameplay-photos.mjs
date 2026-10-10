@@ -9,7 +9,7 @@ export default async function checkPhotoChanges(page) {
     const previews = gallery.locator('.gallery-thumbnail');
     const sources = await previews.locator('img').evaluateAll(elements => elements.map(e => e.getAttribute('src')));
     const viewer = gallery.locator('.gallery-viewer');
-    const open = gallery.locator('.gallery-caption .evidence-open');
+    const open = gallery.locator('.gallery-viewer .evidence-image-button');
     await previews.nth(1).click();
     await ready(gallery, sources[1]);
     const before = await viewer.boundingBox();
@@ -27,7 +27,7 @@ export default async function checkPhotoChanges(page) {
     // Select in-page so the first frame can be inspected without click scheduling delays.
     await previews.nth(2).evaluate(element => element.click());
     assert.equal(await previews.nth(2).getAttribute('aria-pressed'), 'true');
-    assert((await gallery.locator('.gallery-caption').innerText()).includes('3 / 4'));
+    assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('3 / 4'));
     assert(await open.isDisabled(), 'Open is blocked during transition');
     await ready(gallery, sources[2]);
     const animations = await page.evaluate(() => window.photoAnimations);
@@ -79,12 +79,12 @@ export default async function checkPhotoChanges(page) {
       await page.reload({ waitUntil: 'domcontentloaded' });
       const previews = gallery.locator('.gallery-thumbnail');
       const viewer = gallery.locator('.gallery-viewer');
-      const open = gallery.locator('.gallery-caption .evidence-open');
+      const open = gallery.locator('.gallery-viewer .evidence-image-button');
       await previews.nth(1).click(); await ready(gallery, sources[1]);
       const size = await viewer.boundingBox();
       await previews.nth(2).click();
       await gallery.getByRole('status').waitFor();
-      assert(await open.isDisabled(), 'Slow load blocks caption opening');
+      assert.equal(await open.count(), 0, 'Slow load has no main-image opener');
       assert.equal(await viewer.locator('.evidence-image-button').count(), 0, 'Loading has no activatable main photo');
       assert.equal((await viewer.boundingBox()).height, size.height, 'Loading keeps viewer height');
       await viewer.evaluate(element => {
@@ -107,7 +107,7 @@ export default async function checkPhotoChanges(page) {
       await previews.nth(2).click(); await ready(gallery, sources[2]);
       await previews.nth(3).click();
       await gallery.getByRole('alert').waitFor();
-      assert(await open.isDisabled());
+      assert.equal(await open.count(), 0, 'Failure has no main-image opener');
       const original = gallery.getByRole('link', { name: 'Open original file' });
       assert.equal(await original.getAttribute('href'), sources[3]);
       assert.equal(await original.getAttribute('target'), '_blank');

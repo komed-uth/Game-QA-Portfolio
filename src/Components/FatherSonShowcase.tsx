@@ -52,7 +52,6 @@ export default function FatherSonShowcase() {
         projectName={fatherSonProject.name}
         galleryName="Father, Son & Holy Guns media"
         videoId={fatherSonProject.videoId}
-        videoUrl={fatherSonProject.videoUrl}
         media={media}
       />
     </section>

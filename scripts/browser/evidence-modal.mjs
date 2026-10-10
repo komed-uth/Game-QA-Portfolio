@@ -58,10 +58,12 @@ export default async function check(page) {
             await galleryReady(g);
             assert(await trigger.evaluate(e => e === document.activeElement));
         }
-        const action = g.locator('.evidence-open');
-        assert((await action.boundingBox()).height >= 44, 'Gallery Open action must be at least 44px high');
-        await action.click();
+        const action = g.locator('.evidence-image-button');
+        assert((await action.boundingBox()).height >= 44, 'Main photo remains a usable inspection target');
+        await action.focus();
+        await p.keyboard.press('Enter');
         await close();
+        await galleryReady(g);
         assert(await action.evaluate(element => element === document.activeElement));
         await g.locator('.gallery-thumbnail').first().click();
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
@@ -138,7 +140,7 @@ export default async function check(page) {
             await galleryReady(g);
             const selections = await p.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(
                 elements => elements.map(element => element.getAttribute('aria-label')));
-            await g.locator('.evidence-open').click();
+            await g.locator('.evidence-image-button').click();
             await checkImageFit();
             const sources = await g.locator('.gallery-thumbnail img').evaluateAll(
                 elements => elements.slice(1).map(element => element.getAttribute('src')));

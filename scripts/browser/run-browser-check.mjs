@@ -31,7 +31,7 @@ async function captureFailure(context, error, run) {
           const phase = ['ready', 'loading', 'failed', 'fading-out', 'fading-in'].find(value => photo?.classList.contains(value));
           return {
             name: gallery.getAttribute('aria-label'),
-            caption: gallery.querySelector('.gallery-caption')?.textContent.trim(),
+            selectionAnnouncement: gallery.querySelector('[aria-live="polite"]')?.textContent.trim(),
             selectedMedia: selected ? { index: previews.indexOf(selected), label: selected.getAttribute('aria-label'),
               source: selected.querySelector('img')?.getAttribute('src') } : null,
             hovered: gallery.matches(':hover'), focusWithin: gallery.contains(document.activeElement),
