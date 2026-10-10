@@ -292,6 +292,10 @@ export default async function checkSlideshow(page) {
   await photo(galleries.first(), 1);
   await page.clock.fastForward(photoDwellMs * .6);
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Media-query change events arrive on browser rendering frames. Settle them
+  // before jumping the paused clock, just as fresh-dwell assertions do above.
+  await page.clock.runFor(32);
+  await page.waitForTimeout(100);
   await page.clock.fastForward(20000);
   await isSelected(galleries.first(), 1, 'Live reduced-motion preference suspends an active countdown');
   await page.emulateMedia({ reducedMotion: 'no-preference' });

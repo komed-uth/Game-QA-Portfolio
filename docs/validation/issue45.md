@@ -35,3 +35,9 @@ Independent GPT-6.1 Sol high-effort review of the same diff against ticket #45 a
 ## Merge risk
 
 Two-way door: revert the change to restore the previous presentation and explicit pause controls. Blast radius: gameplay. Removing persistent user Pause/Resume is the owner's specified behavior; temporary inspection suspension does not establish autoplay accessibility conformance. Physical devices/provider autoplay and missing report-owned capture images remain outside browser certification.
+
+## Pre-merge CI follow-up
+
+The initial GitHub Linux run failed the live reduced-motion assertion. A focused rendered-page reproduction caught the identical symptom in 5/8 attempts: the native media-query change event arrived only after the paused browser clock jumped forward 20 seconds, allowing the existing countdown to fire first. Letting browser rendering frames and passive effects settle using the suite's existing 32ms clock/100ms wall-time pattern yielded 8/8 passing attempts. The original focused slideshow suite then passed. The change is confined to test synchronization; production gallery code and the reduced-motion assertion are unchanged.
+
+Current published main is integrated before the final CI run so the separately merged Vecchio/footer changes and shorter-homepage offscreen checks are preserved. Final GitHub validation and merge status are recorded on the PR and ticket.
