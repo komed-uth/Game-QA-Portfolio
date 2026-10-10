@@ -19,7 +19,13 @@
     "check:gameplay": "node scripts/check-browser.mjs --gameplay-only",
     "check:photos": "node scripts/check-browser.mjs --photos-only",
     "check:evidence": "node scripts/check-browser.mjs --evidence-only",
-    "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs"
+    "precheck:runner": "npm run check:sandcastle",
+    "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs",
+    "sandcastle": "tsx .sandcastle/main.ts",
+    "sandcastle:doctor": "tsx .sandcastle/main.ts --doctor",
+    "sandcastle:smoke": "tsx .sandcastle/main.ts --smoke",
+    "sandcastle:build-image": "tsx .sandcastle/main.ts --build-image",
+    "check:sandcastle": "tsc -p .sandcastle/tsconfig.json && node --import tsx --test .sandcastle/policy.test.ts"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -32,7 +38,10 @@
     "@vitejs/plugin-react": "^5.0.0",
     "playwright": "1.62.1",
     "typescript": "^5.9.2",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "@ai-hero/sandcastle": "0.12.0",
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
