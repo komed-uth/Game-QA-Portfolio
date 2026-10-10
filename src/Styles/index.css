@@ -202,9 +202,6 @@ nav a.active {
   align-items: start;
   margin-bottom: 56px;
 }
-.regulus-showcase {
-  --report-status-space: 36px;
-}
 .project-info,
 .work-in-progress > div,
 .about-intro > div {
@@ -223,12 +220,9 @@ nav a.active {
 }
 .regulus-showcase > .report-controls {
   grid-column: 1;
-  padding-top: var(--report-status-space);
 }
 .regulus-showcase > .report-output {
   grid-column: 2;
-  position: relative;
-  padding-top: var(--report-status-space);
 }
 .store-links {
   display: flex;
@@ -565,16 +559,16 @@ nav a.active {
   align-items: center;
   min-height: 44px;
 }
-.report-status {
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin: 20px 0 12px;
-}
-.report-output > .report-status {
+.visually-hidden {
   position: absolute;
-  inset: 0 0 auto;
-  margin: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
+  border: 0;
 }
 .report-viewer {
   display: block;
@@ -827,18 +821,10 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .regulus-showcase {
-    --report-status-space: 0px;
-  }
   .regulus-showcase > .report-controls,
   .regulus-showcase > .report-output {
     grid-column: 1;
     grid-row: auto;
-  }
-  .report-output > .report-status {
-    position: static;
-    margin: 20px 0 12px;
-    white-space: normal;
   }
 }
 .evidence-open, .gallery-slideshow {
@@ -879,12 +865,6 @@ footer {
   background: #16211a;
   color: var(--green);
   cursor: zoom-in;
-}
-.report-preview span:first-child {
-  font-size: 1.5rem;
-}
-.report-preview span:nth-child(2) {
-  color: var(--muted);
 }
 .evidence-modal {
   position: fixed;
