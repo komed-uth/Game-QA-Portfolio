@@ -71,7 +71,9 @@ export async function checkHomepageFooter(page) {
   await page.keyboard.press('Enter');
   await page.getByRole('heading', { name: 'Planned gameplay coverage' }).waitFor();
   await checkFooter(page);
-  await page.goto(new URL('./unknown-portfolio-route', homeUrl).href);
+  const fallbackUrl = new URL(homeUrl);
+  fallbackUrl.hash = '/unknown-portfolio-route';
+  await page.goto(fallbackUrl.href);
   await checkHomepage(page);
   await page.goto(homeUrl);
 }
