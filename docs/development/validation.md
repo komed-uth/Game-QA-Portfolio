@@ -56,6 +56,10 @@ When transplanting commits onto remote history, compare the resulting file tree 
 
 This session's sandbox failed before commands and browser-control tools started, with `helper_unknown_error: setup refresh had errors`. Commands worked through approved escalated execution. Repository changes cannot repair that host startup failure; diagnose the host runtime separately. Use approved tool execution without changing sandbox protections.
 
+## Bounded tool discovery
+
+Discover matching tool names first, then read the metadata/schema for the one selected tool. Keep descriptions out of inventory output and bound the number of matches; narrow the query when it is still broad. For dynamic tool discovery, project matches to names before printing rather than printing complete tool objects. When a host startup fails with the documented sandbox error, use the approved execution fallback above.
+
 ## Searching generated reports
 
 Report HTML contains long embedded data and minified scripts. Keep search output bounded:
@@ -98,7 +102,7 @@ Run `npm run check:photos` for the manual photo lifecycle in both gameplay showc
 
 ## Browser-run diagnostics
 
-Every check prints START, then checks input stability before reporting PASS/FAIL with elapsed time. Failed checks save `trace.zip` and `failure.json` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the original assertion, page URL, focused element and selected gameplay media. Successful traces are discarded. The runner and temporary mobile/fixture contexts share failure capture through `withBrowserContext`. The saved trace and page diagnostics come from the innermost failing context before it closes; propagated errors keep that evidence. Artifact-write failures are reported while preserving the original assertion.
+Every check prints START, then checks input stability before reporting PASS/FAIL with elapsed time. Failed checks save `trace.zip`, `failure.json`, and a viewport `screenshot.png` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the named check and assertion scenario, page URL, focused element, selected gameplay media, photo phase/readiness and load dimensions, DOM hover/focus, document visibility, viewport/scroll position, and gallery bounds/intersection. These are observable browser snapshots, not internal timer or suspension-state probes. Screenshot or page-state collection failures are recorded in the JSON while the original assertion and trace are preserved. Successful traces are discarded. The runner and temporary mobile/fixture contexts share failure capture through `withBrowserContext`. The saved trace and page diagnostics come from the innermost failing context before it closes; propagated errors keep that evidence. Artifact-write failures are reported while preserving the original assertion.
 
 Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads browser failure evidence with seven-day retention. Only `.scratch/browser-checks/` is uploaded; this directory is Git-ignored.
 
@@ -109,3 +113,7 @@ Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR 
 The runner fingerprints source, check scripts, public evidence, the production build, report originals and relevant package/build configuration before loading checks, and compares their contents before each check result and after the run. Changed, added, removed or renamed inputs produce OBSOLETE with the affected paths and a rebuild/rerun instruction. An obsolete assertion remains available as the error cause; an obsolete check emits neither its ordinary PASS nor FAIL, and obsolete runs never print the final portfolio PASS.
 
 Diagnostics, dependencies and documentation are excluded. This is a comparison of starting and ending file contents: timestamp-only changes and edits restored to identical bytes are not detected. Build current source before checking it, and keep validation inputs unchanged until the run completes. With `PORTFOLIO_URL`, this still checks local input stability rather than attesting to remote site contents.
+
+## Focused slideshow checks
+
+Run `npm run check:slideshow` (or `node scripts/check-browser.mjs --slideshow-only`) for slideshow progression and inspection safeguards in both gameplay showcases, including its native-touch scenario. This selects only the slideshow check; it does not build the longer-list fixtures or run the photo, responsive browsing, or report suites. Build current source first. The full `npm run check:browser` suite remains the CI gate, and all focus selectors are mutually exclusive.

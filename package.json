@@ -17,6 +17,7 @@
     "check:overlays": "node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs",
     "check:preview": "node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs scripts/browser/check-selection.test.mjs",
     "check:gameplay": "node scripts/check-browser.mjs --gameplay-only",
+    "check:slideshow": "node scripts/check-browser.mjs --slideshow-only",
     "check:photos": "node scripts/check-browser.mjs --photos-only",
     "check:evidence": "node scripts/check-browser.mjs --evidence-only",
     "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs"
