@@ -45,17 +45,6 @@ export default function PcPerformanceProject() {
             loading="lazy"
           />
         </button>
-        <figcaption>
-          <span>{pcProject.imageCaption}</span>
-          <button type="button" className="text-link evidence-open" onClick={() => setOpen(true)}
-          >
-            Open full-size capture
-          </button>
-        </figcaption>
-        <p className="report-note">
-          Open the full-size capture to inspect the event list and timeline
-          labels.
-        </p>
       </figure>
       {open && <EvidenceModal title="Vecchio Furioso · Microsoft PIX capture"
         source={assetUrl(pcProject.image)} alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
