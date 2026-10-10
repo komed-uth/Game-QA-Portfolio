@@ -65,6 +65,15 @@ export default async function checkPreviewFixtures(page) {
       const gallery=fixturePage.getByRole('region',{name:'Regulus the Advent media',exact:true});
       if (fixture === "empty") {
         assert.equal(await gallery.count(),0,'Empty list omits gallery');
+        for (const width of [390, 900, 901, 1366, 390]) {
+          await fixturePage.setViewportSize({ width, height: 845 });
+          await fixturePage.evaluate(() => document.fonts.ready);
+          const title = await fixturePage.getByRole('heading', { name: 'Regulus the Advent', exact: true }).boundingBox();
+          const details = await fixturePage.locator('.regulus-showcase .project-details').boundingBox();
+          assert(Math.abs(details.y - title.y - title.height - (width <= 900 ? 24 : 16)) < 1,
+            'Empty media leaves natural heading/details spacing without a reserved row');
+          assert(await fixturePage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        }
       } else if (fixture === "single" || fixture === "single-photo") {
         assert.equal(await gallery.locator('.gallery-thumbnail').count(),1);
         assert.equal(await gallery.locator('.gallery-controls').count(),0);

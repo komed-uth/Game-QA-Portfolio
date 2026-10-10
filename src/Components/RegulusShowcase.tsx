@@ -36,11 +36,19 @@ export default function RegulusShowcase() {
       className="project-grid regulus-showcase"
       aria-labelledby="regulus-showcase-title"
     >
-      <div className="project-info">
+      <header className="project-heading">
         <p className="eyebrow">Project showcase</p>
         <h1 id="regulus-showcase-title" className="project-title">
           {project.name}
         </h1>
+      </header>
+      <MediaGallery
+        projectName={project.name}
+        galleryName="Regulus the Advent media"
+        videoId={videoId}
+        media={media}
+      />
+      <div className="project-info">
         <div className="project-details" aria-label="Project details">
           {project.details.map(({ label, value }) => (
             <div key={label}>
@@ -72,12 +80,6 @@ export default function RegulusShowcase() {
           </a>
         </div>
       </div>
-      <MediaGallery
-        projectName={project.name}
-        galleryName="Regulus the Advent media"
-        videoId={videoId}
-        media={media}
-      />
       <ReportViewer />
     </section>
   );

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { checkHomepageFooter } from './homepage-footer.mjs';
 import { waitForPhoto as galleryReady } from "./gallery-photo-ready.mjs";
+import { checkProjectLayout, checkShowcaseResizeAndKeyboard } from './project-showcase-layout.mjs';
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
     const p = page;
@@ -55,10 +56,13 @@ export default async function check(page) {
         const ratio = await capture.locator('img').evaluate(img => img.naturalWidth / img.naturalHeight);
         assert(Math.abs(imageBox.width / imageBox.height - ratio) < .01, 'Complete capture keeps its original aspect ratio');
         const detailsBox = await p.locator('.pc-project .project-info').boundingBox();
+        const headingBox = await p.getByRole('heading', { name: 'Vecchio Furioso', exact: true }).boundingBox();
         if (p.viewportSize().width <= 900) {
-            assert(figureBox.y >= detailsBox.y + detailsBox.height, 'Narrow-screen capture follows project details');
+            assert(figureBox.y >= headingBox.y + headingBox.height && detailsBox.y >= figureBox.y + figureBox.height,
+                'Narrow-screen capture follows heading and precedes project details');
         } else {
-            assert(figureBox.x >= detailsBox.x + detailsBox.width && Math.abs(figureBox.y - detailsBox.y) < 1,
+            const eyebrowBox = await p.locator('.pc-project .eyebrow').boundingBox();
+            assert(figureBox.x >= detailsBox.x + detailsBox.width && Math.abs(figureBox.y - eyebrowBox.y) < 1,
                 'Desktop capture stays beside project details');
         }
         assert(await p.locator('.pc-project').getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' }).isVisible());
@@ -111,6 +115,7 @@ export default async function check(page) {
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
     }
     await checkCaptureLayout();
+    await checkProjectLayout(p);
     await captureOpener.click();
     await checkCaptureContent();
     assert.equal(await d.getByRole('button', { name: 'Next screenshot' }).count(), 0);
@@ -181,8 +186,9 @@ export default async function check(page) {
     await frame.waitForLoadState();
     assert.equal(await frame.evaluate(() => scrollY), 0);
     await close();
-    for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840], [840, 360], [1200, 800], [800, 1200], [899, 700], [901, 700]]) {
+    for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840], [840, 360], [1200, 800], [800, 1200], [899, 700], [900, 700], [901, 700]]) {
         await p.setViewportSize({ width, height });
+        await checkProjectLayout(p);
         // Image inspection must fit too: screenshot controls wrap on phones.
         for (const g of await p.locator('.game-gallery').all()) {
             await g.locator('.gallery-thumbnail').nth(1).click();
@@ -224,10 +230,11 @@ export default async function check(page) {
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         await checkHomepageFooter(p);
     }
+    await checkShowcaseResizeAndKeyboard(p);
     await p.emulateMedia({ reducedMotion: 'reduce' });
     await p.locator('.capture-media .evidence-image-button').click();
     assert.equal(await d.evaluate(e => getComputedStyle(e).animationName), 'none');
     await close();
-    console.log('PASS: reload reset, ten responsive viewports, outside margins, no page overflow and reduced motion');
+    console.log('PASS: reload reset, eleven responsive viewports including exactly 900px, project/media ordering, outside margins, no page overflow and reduced motion');
     console.log('PASS: homepage teaser removal, compact shared footer, About/fallback routes, pointer/keyboard navigation and store destinations at ten viewports');
 }
