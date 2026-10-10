@@ -270,11 +270,6 @@ nav a.active {
     transform: none;
   }
 }
-.store-credits {
-  flex-basis: 100%;
-  font-size: 0.7rem;
-  line-height: 1.6;
-}
 .game-gallery {
   min-width: 0;
 }
@@ -600,19 +595,6 @@ nav a.active {
   color: var(--muted);
   margin: 14px 0 0;
 }
-.work-in-progress {
-  border-top: 1px solid var(--line);
-  margin-top: 48px;
-  padding: 36px 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: 48px;
-}
-.work-in-progress p:not(.eyebrow) {
-  font-size: 0.98rem;
-  color: var(--muted);
-  margin: 14px 0;
-}
 .status-badge {
   display: inline-block;
   padding: 5px 10px;
@@ -718,9 +700,6 @@ footer {
     gap: 28px;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-  .work-in-progress {
-    gap: 28px;
-  }
   .workflow-list {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -730,8 +709,7 @@ footer {
   }
 }
 @media (max-width: 900px) {
-  .project-grid,
-  .work-in-progress {
+  .project-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
   }
@@ -754,8 +732,7 @@ footer {
   nav {
     gap: 24px;
   }
-  .project-grid,
-  .work-in-progress {
+  .project-grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }

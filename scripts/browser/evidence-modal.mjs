@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkHomepageFooter } from './homepage-footer.mjs';
 import { waitForPhoto as galleryReady } from "./gallery-photo-ready.mjs";
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
@@ -161,10 +162,12 @@ export default async function check(page) {
         assert(await d.getByRole('button', { name: 'Close evidence' }).isVisible());
         await close();
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await checkHomepageFooter(p);
     }
     await p.emulateMedia({ reducedMotion: 'reduce' });
     await p.locator('.capture-media .evidence-image-button').click();
     assert.equal(await d.evaluate(e => getComputedStyle(e).animationName), 'none');
     await close();
     console.log('PASS: reload reset, ten responsive viewports, outside margins, no page overflow and reduced motion');
+    console.log('PASS: homepage teaser removal, compact shared footer, About/fallback routes, pointer/keyboard navigation and store destinations at ten viewports');
 }
