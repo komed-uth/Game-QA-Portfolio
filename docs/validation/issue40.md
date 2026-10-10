@@ -10,7 +10,7 @@ Main then changed the dwell to 2.5 seconds in `fd6dcefec437def25ee8172adef5825c6
 
 After review, integrated main at `d4224cd`, preserving the pointer-focus fix from PR #44 and main's newer 6.5-second dwell. Retained its real mouse/touch regressions inside the shared context wrapper and aligned interval assertions.
 
-Final comparison base: `d4224cd`.
+Final comparison base: `d4224cd`. After integration, the production build, all 38 runner tests and the complete focused gameplay suite passed, including real mouse/touch selection, 6.5-second dwell, photo lifecycle, ten viewports and fixtures.
 
 ## Evidence
 
@@ -24,6 +24,8 @@ Final comparison base: `d4224cd`.
 - `npm run build`: TypeScript and the Vite production build passed. Application source, evidence assets and dependencies are unchanged.
 
 ## Review follow-up
+
+- After main integration, a real-time photo check measured 66ms between delivered animation-start events despite correct CSS durations and ordering. It now verifies start/end event order and browser-reported elapsed durations (100/150ms), preserving the timing requirement without a scheduling-sensitive wall-clock threshold.
 
 - The revised complete rendered suite passed all eight checks with unchanged-input acceptance; all 38 runner tests and 29 preview tests passed.
 

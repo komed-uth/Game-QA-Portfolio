@@ -15,12 +15,14 @@ export default async function checkPhotoChanges(page) {
     const before = await viewer.boundingBox();
     await viewer.evaluate(element => {
       window.photoAnimations = [];
-      element.addEventListener('animationstart', event => {
+      const recordAnimation = event => {
         if (!event.animationName.startsWith('gallery-photo-')) return;
-        window.photoAnimations.push({ name: event.animationName, time: performance.now(),
+        window.photoAnimations.push({ name: event.animationName, type: event.type, elapsed: event.elapsedTime,
           duration: getComputedStyle(event.target).animationDuration,
           transform: getComputedStyle(event.target).transform });
-      });
+      };
+      element.addEventListener('animationstart', recordAnimation);
+      element.addEventListener('animationend', recordAnimation);
     });
     // Select in-page so the first frame can be inspected without click scheduling delays.
     await previews.nth(2).evaluate(element => element.click());
@@ -29,10 +31,13 @@ export default async function checkPhotoChanges(page) {
     assert(await open.isDisabled(), 'Open is blocked during transition');
     await ready(gallery, sources[2]);
     const animations = await page.evaluate(() => window.photoAnimations);
-    assert.deepEqual(animations.map(a => [a.name, a.duration, a.transform]), [
+    assert.deepEqual(animations.filter(a => a.type === 'animationstart').map(a => [a.name, a.duration, a.transform]), [
       ['gallery-photo-out', '0.1s', 'none'], ['gallery-photo-in', '0.15s', 'none'],
     ], 'Ordered photo fades use 100/150ms and no zoom');
-    assert(animations[1].time - animations[0].time >= 70, 'Incoming fade follows outgoing fade');
+    assert.deepEqual(animations.map(a => [a.name, a.type, a.elapsed]), [
+      ['gallery-photo-out', 'animationstart', 0], ['gallery-photo-out', 'animationend', 0.1],
+      ['gallery-photo-in', 'animationstart', 0], ['gallery-photo-in', 'animationend', 0.15],
+    ], 'Outgoing fade completes before incoming fade; both finish their CSS durations');
     const after = await viewer.boundingBox();
     assert.equal(after.width, before.width); assert.equal(after.height, before.height);
     const count = animations.length;
