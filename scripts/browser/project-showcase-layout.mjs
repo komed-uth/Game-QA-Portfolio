@@ -124,6 +124,17 @@ export async function checkShowcaseResizeAndKeyboard(page) {
         await page.keyboard.press('Tab');
         await visibleFocus(page, preview);
       }
+      // Let focus-driven browsing reach its visible end before traversing arrows.
+      await page.waitForFunction(name => {
+        const gallery = [...document.querySelectorAll('.game-gallery')].find(element => element.getAttribute('aria-label') === name);
+        const strip = gallery.querySelector('.gallery-thumbnails');
+        const last = strip.lastElementChild.getBoundingClientRect();
+        const bounds = strip.getBoundingClientRect();
+        const forward = gallery.querySelector('[aria-label$="scroll previews forward"]');
+        const overflowing = strip.scrollWidth > strip.clientWidth + 1;
+        return last.left >= bounds.left - 1 && last.right <= bounds.right + 1 &&
+          (overflowing ? forward?.disabled : !forward);
+      }, await gallery.getAttribute('aria-label'));
       // Phone arrows may appear/disappear as keyboard focus reveals previews.
       let leftGallery = false;
       for (let step = 0; step < 3; step++) {
@@ -137,6 +148,8 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       if (index === 0) {
         await page.keyboard.press('Tab');
         await visibleFocus(page, page.getByRole('link', { name: 'Regulus the Advent on Google Play (opens in a new tab)' }));
+        await page.keyboard.press('Tab');
+        await visibleFocus(page, page.locator('.report-preview'));
         await page.keyboard.press('Tab');
         await visibleFocus(page, page.getByRole('button', { name: 'Very High', exact: true }));
       }

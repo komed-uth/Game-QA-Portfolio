@@ -60,4 +60,16 @@ This is a reversible presentation change, limited to the three project showcases
 
 Real report-owned capture overlays remain uncertified because the supplied five reports have empty screenshot path lists. The existing synthetic overlay fixture covers modal integration only. Viewport/touch simulation is not physical-device certification.
 
-The work uses an isolated branch from synchronized main and leaves the original checkout's unrelated local work intact. No merge or deployment was performed.
+The work uses an isolated branch from synchronized main and leaves the original checkout's unrelated local work intact. No merge or deployment was performed during the initial implementation.
+
+## Integration before the authorized merge
+
+The owner subsequently authorized merging PR #66 and closing #52. While its original CI passed, main advanced to `c26ac9ca9b49c23766f362adf6f23e87edf56da2` through PR #64/ticket #53. The overlapping CSS required synchronization before #66 could merge.
+
+The resolution keeps #53's report block and its preview-first mobile reading/keyboard sequence. The complete report block receives #52's desktop row/gap placement and natural mobile stacking after project details/store links. Report content and report-interaction checks are imported unchanged from published main. The #52 keyboard assertion now traverses the report preview before quality choices after the store links.
+
+The focused combined layout/keyboard check passed at 390, 900, 901 and 1366px, including resize selections and modal focus restoration. A transient focus mismatch in the first focused run did not recur on the unchanged diagnostic rerun. The check now waits for the last preview to be fully visible and browsing controls to reach their observable end before Tab traversal; two subsequent focused runs passed.
+
+Integrated production/TypeScript build and preview validation (39 tests) passed. Complete integrated browser validation and updated CI must finish before merging.
+
+Current visual evidence: [integrated phone](images/issue52/integrated-after-phone.png), [integrated desktop](images/issue52/integrated-after-desktop.png). Original before/after screenshots above document the initial #52 slice before #53 landed.
