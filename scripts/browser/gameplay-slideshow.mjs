@@ -1,3 +1,4 @@
+import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 const photoDwellMs = 2500;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
@@ -181,8 +182,7 @@ export default async function checkSlideshow(page) {
   }
 
   // Native panning cancels pointer delivery while the finger remains down.
-  const touchContext = await page.context().browser().newContext({ viewport: {width:390,height:845}, hasTouch:true, isMobile:true });
-  try {
+  await withBrowserContext(page.context().browser(), { viewport: {width:390,height:845}, hasTouch:true, isMobile:true }, async touchContext => {
     const touchPage = await touchContext.newPage();
     await touchPage.goto(page.url());
     await installPausedClock(touchPage);
@@ -215,7 +215,7 @@ export default async function checkSlideshow(page) {
     await touchPage.clock.fastForward(700);
     assert.equal(await touchGallery.locator('.gallery-thumbnail').nth(2).getAttribute('aria-pressed'), 'true', 'Progression resumes after actual touch release');
     await session.detach();
-  } finally { await touchContext.close(); }
+  });
   await page.bringToFront();
 
   // Both timers run on the same visible portfolio while one gallery stays paused.

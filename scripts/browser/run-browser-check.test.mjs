@@ -5,7 +5,8 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { chromium } from 'playwright';
-import { runBrowserCheck } from './run-browser-check.mjs';
+import { inflateRawSync } from 'node:zlib';
+import { runBrowserCheck, withBrowserContext } from './run-browser-check.mjs';
 import { withStableInputs } from './stable-inputs.mjs';
 
 let browser; let server; let url;
@@ -56,12 +57,70 @@ test('unwritable artifact destinations preserve the original check failure', asy
   assert.equal(browser.contexts().length, 0);
 });
 
-test('a successful real browser check becomes obsolete when its source changes', async t => {
-  const root = await fixture(t);
-  await mkdir(path.join(root, 'src'));
-  const source = path.join(root, 'src', 'gallery.ts'); await writeFile(source, 'before');
-  await assert.rejects(withStableInputs(() => runBrowserCheck(browser, url, { name: 'edited', check: async page => {
-    await page.locator('#opener').click(); await writeFile(source, 'after');
-  } }, { artifactDirectory: path.join(root, '.scratch', 'browser-checks'), log: () => {} }), root), /OBSOLETE/);
+// Read archive entries through ZIP's central directory (Playwright uses deflate).
+function traceText(zip) {
+  let end = zip.length - 22;
+  while (zip.readUInt32LE(end) !== 0x06054b50) end--;
+  let offset = zip.readUInt32LE(end + 16);
+  const texts = [];
+  for (let index = 0; index < zip.readUInt16LE(end + 10); index++) {
+    const length = zip.readUInt16LE(offset + 28);
+    const name = zip.subarray(offset + 46, offset + 46 + length).toString();
+    const local = zip.readUInt32LE(offset + 42);
+    const start = local + 30 + zip.readUInt16LE(local + 26) + zip.readUInt16LE(local + 28);
+    const data = zip.subarray(start, start + zip.readUInt32LE(offset + 20));
+    if (name.endsWith('.trace')) texts.push((zip.readUInt16LE(offset + 10) === 8 ? inflateRawSync(data) : data).toString());
+    offset += 46 + length + zip.readUInt16LE(offset + 30) + zip.readUInt16LE(offset + 32);
+  }
+  return texts.join('\n');
+}
+
+test('child context failures retain child actions and DOM before cleanup', async t => {
+  const directory = await fixture(t);
+  const original = new Error('child assertion');
+  await assert.rejects(runBrowserCheck(browser, url, { name: 'child', check: async () => {
+    await withBrowserContext(browser, { isMobile: true, hasTouch: true }, async context => {
+      const page = await context.newPage();
+      await page.goto(`${url}/child`);
+      await page.setContent('<button id="child-only">Child evidence</button>');
+      await page.locator('#child-only').click();
+      throw original;
+    });
+  } }, { artifactDirectory: directory, log: () => {} }), error => error === original);
+  const [folder] = await readdir(directory);
+  const diagnostics = JSON.parse(await readFile(path.join(directory, folder, 'failure.json'), 'utf8'));
+  assert.equal(diagnostics.url, `${url}/child`);
+  assert.match(diagnostics.page.activeElement, /child-only/);
+  const events = traceText(await readFile(path.join(directory, folder, 'trace.zip')));
+  assert.match(events, /"method":"click"/);
+  assert.match(events, /#child-only/);
+  assert.match(events, /Child evidence/);
   assert.equal(browser.contexts().length, 0);
 });
+
+test('handled child failures discard their artifacts when the check succeeds', async t => {
+  const directory = await fixture(t);
+  await runBrowserCheck(browser, url, { name: 'handled', check: async () => {
+    await assert.rejects(withBrowserContext(browser, {}, async () => { throw new Error('expected'); }));
+  } }, { artifactDirectory: directory, log: () => {} });
+  assert.deepEqual(await readdir(directory), []);
+  assert.equal(browser.contexts().length, 0);
+});
+
+for (const fails of [false, true]) {
+  test(`edited ${fails ? 'failing' : 'successful'} checks report no ordinary result`, async t => {
+    const root = await fixture(t); const logs = []; const original = new Error('obsolete assertion');
+    await mkdir(path.join(root, 'src'));
+    const source = path.join(root, 'src', 'gallery.ts'); await writeFile(source, 'before');
+    await assert.rejects(withStableInputs(validateInputs => runBrowserCheck(browser, url, { name: 'edited', check: async page => {
+      await page.locator('#opener').click(); await writeFile(source, 'after');
+      if (fails) throw original;
+    } }, { validateInputs, artifactDirectory: path.join(root, '.scratch', 'browser-checks'), log: line => logs.push(line) }), root), error => {
+      assert.match(error.message, /OBSOLETE/);
+      assert.equal(error.cause, fails ? original : undefined);
+      return true;
+    });
+    assert.deepEqual(logs, ['START: edited']);
+    assert.equal(browser.contexts().length, 0);
+  });
+}

@@ -98,7 +98,7 @@ Run `npm run check:photos` for the manual photo lifecycle in both gameplay showc
 
 ## Browser-run diagnostics
 
-Every check prints START and PASS/FAIL with elapsed time. Failed checks save `trace.zip` and `failure.json` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the original assertion, page URL, focused element and selected gameplay media. Successful traces are discarded. The trace records the runner-owned context; temporary fixture contexts retain their existing independent lifecycle. Artifact-write failures are reported while preserving the original assertion.
+Every check prints START, then checks input stability before reporting PASS/FAIL with elapsed time. Failed checks save `trace.zip` and `failure.json` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the original assertion, page URL, focused element and selected gameplay media. Successful traces are discarded. The runner and temporary mobile/fixture contexts share failure capture through `withBrowserContext`. The saved trace and page diagnostics come from the innermost failing context before it closes; propagated errors keep that evidence. Artifact-write failures are reported while preserving the original assertion.
 
 Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads browser failure evidence with seven-day retention. Only `.scratch/browser-checks/` is uploaded; this directory is Git-ignored.
 
@@ -106,6 +106,6 @@ Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR 
 
 ## Validation input stability
 
-The runner fingerprints source, check scripts, public evidence, the production build, report originals and relevant package/build configuration before loading checks, and compares their contents after the run. Changed, added, removed or renamed inputs produce OBSOLETE with the affected paths and a rebuild/rerun instruction. An obsolete assertion remains available as the error cause; obsolete runs never print the final portfolio PASS.
+The runner fingerprints source, check scripts, public evidence, the production build, report originals and relevant package/build configuration before loading checks, and compares their contents before each check result and after the run. Changed, added, removed or renamed inputs produce OBSOLETE with the affected paths and a rebuild/rerun instruction. An obsolete assertion remains available as the error cause; an obsolete check emits neither its ordinary PASS nor FAIL, and obsolete runs never print the final portfolio PASS.
 
 Diagnostics, dependencies and documentation are excluded. This is a comparison of starting and ending file contents: timestamp-only changes and edits restored to identical bytes are not detected. Build current source before checking it, and keep validation inputs unchanged until the run completes. With `PORTFOLIO_URL`, this still checks local input stability rather than attesting to remote site contents.

@@ -31,15 +31,21 @@ async function snapshot(root) {
 
 export async function withStableInputs(run, root = process.cwd()) {
   const before = await snapshot(root);
+  async function validateInputs(failure) {
+    const after = await snapshot(root);
+    const changed = [...new Set([...before.keys(), ...after.keys()])]
+      .filter(file => before.get(file) !== after.get(file)).sort();
+    if (changed.length) {
+      const error = new Error('OBSOLETE: validation inputs changed during this run. Rebuild and rerun.\nChanged inputs:\n' +
+        changed.map(file => `- ${file}`).join('\n'), { cause: failure });
+      error.name = 'ObsoleteInputError';
+      throw error;
+    }
+  }
   let failure;
   let failed = false;
-  try { await run(); } catch (error) { failed = true; failure = error; }
-  const after = await snapshot(root);
-  const changed = [...new Set([...before.keys(), ...after.keys()])]
-    .filter(file => before.get(file) !== after.get(file)).sort();
-  if (changed.length) {
-    throw new Error('OBSOLETE: validation inputs changed during this run. Rebuild and rerun.\nChanged inputs:\n' +
-      changed.map(file => `- ${file}`).join('\n'), { cause: failure });
-  }
+  try { await run(validateInputs); } catch (error) { failed = true; failure = error; }
+  if (failure?.name === 'ObsoleteInputError') throw failure;
+  await validateInputs(failure);
   if (failed) throw failure;
 }

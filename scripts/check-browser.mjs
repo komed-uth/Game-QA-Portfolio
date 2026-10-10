@@ -4,7 +4,7 @@ import { withStableInputs } from './browser/stable-inputs.mjs';
 import { runBrowserCheck } from './browser/run-browser-check.mjs';
 
 const suite = selectSuite(process.argv.slice(2));
-await withStableInputs(async () => {
+await withStableInputs(async validateInputs => {
   // Load checks after the input snapshot so edits cannot validate stale imported code.
   const { chromium } = await import('playwright');
   const externalUrl = process.env.PORTFOLIO_URL;
@@ -27,7 +27,7 @@ await withStableInputs(async () => {
     });
     for (const { name, module } of suite.checks) {
       const { default: check } = await import(new URL(module, new URL('./browser/', import.meta.url)));
-      await runBrowserCheck(browser, url, { name, check });
+      await runBrowserCheck(browser, url, { name, check }, { validateInputs });
     }
   } finally {
     try { await browser?.close(); } finally { server?.kill(); }
