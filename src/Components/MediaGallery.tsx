@@ -16,7 +16,6 @@ type MediaGalleryProps = {
   projectName: string;
   galleryName: string;
   videoId: string;
-  videoUrl: string;
   media: readonly MediaGalleryItem[];
 };
 
@@ -24,7 +23,6 @@ export default function MediaGallery({
   projectName,
   galleryName,
   videoId,
-  videoUrl,
   media,
 }: MediaGalleryProps) {
   const [selected, setSelected] = useState(0);
@@ -35,8 +33,6 @@ export default function MediaGallery({
   const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
   const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, advance: () => select(selectedRef.current + 1) });
   const imageButton = useRef<HTMLButtonElement>(null);
-  const captionButton = useRef<HTMLButtonElement>(null);
-  const photoOpener = useRef<"image" | "caption">("image");
   const restoreFocus = useRef(false);
   useEffect(() => {
     if (open || !restoreFocus.current) return;
@@ -45,12 +41,10 @@ export default function MediaGallery({
     if (!canRestore) { restoreFocus.current = false; return; }
     if (!photoReady) return;
     restoreFocus.current = false;
-    const opener = photoOpener.current === "image" ? imageButton.current : captionButton.current;
-    opener?.focus({ preventScroll: true });
+    imageButton.current?.focus({ preventScroll: true });
   }, [open, photoReady]);
-  function openPhoto(opener: "image" | "caption") {
+  function openPhoto() {
     if (!photoReady) return;
-    photoOpener.current = opener;
     restoreFocus.current = false;
     setOpen(true);
   }
@@ -163,7 +157,7 @@ export default function MediaGallery({
             <>
               {displayedItem && <button type="button"
                 className={"evidence-image-button gallery-photo " + photo.phase}
-                ref={imageButton} onClick={() => openPhoto("image")}
+                ref={imageButton} onClick={openPhoto}
                 onAnimationEnd={event => photo.finishFade(event.animationName)}
                 disabled={!photoReady} draggable={false}
                 aria-label={"Open full-size " + activeItem.label.toLowerCase() + " screenshot"}
@@ -178,17 +172,12 @@ export default function MediaGallery({
             </>
           )}
         </div>
-        <figcaption className="gallery-caption">
-          <span aria-live="polite" aria-atomic="true">
-            {selected + 1} / {media.length} · {activeItem.label}
-          </span>
-          {activeItem.type === "video" ? (
-            <a href={videoUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
-          ) : <button ref={captionButton} type="button" className="evidence-open" disabled={!photoReady} onClick={() => openPhoto("caption")}>Open full-size image</button>}
-          {media.length > 1 && <button type="button" className="gallery-slideshow" onClick={slideshow.toggle}>{slideshow.paused ? "Resume slideshow" : "Pause slideshow"}</button>}
-        </figcaption>
+
       </figure>
 
+      <span className="sr-only" aria-live="polite" aria-atomic="true">
+        {selected + 1} / {media.length} · {activeItem.label}
+      </span>
       <GameplayPreviewStrip galleryName={galleryName} media={media} selected={selected} onSelect={select} />
       {open && activeItem.type === "image" && <EvidenceModal
         title={projectName + " · " + activeItem.label} source={activeItem.source} alt={activeItem.alt}

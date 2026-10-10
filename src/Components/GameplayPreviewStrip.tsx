@@ -116,7 +116,7 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
         aria-pressed={selected === index} onClick={() => { onSelect(index); reveal(index); }}
         onFocus={() => reveal(index)} onKeyDown={event => focusPreview(event, index)} draggable={false}>
         <img src={thumbnail.source} alt="" draggable={false} />
-        <span>{thumbnail.type === "video" ? "▶ Video" : thumbnail.label}</span>
+        {thumbnail.type === "video" && <span className="gallery-video-indicator" aria-hidden="true">▶</span>}
       </button>)}
     </div>
     {media.length > 1 && overflowing && <div className="gallery-controls">

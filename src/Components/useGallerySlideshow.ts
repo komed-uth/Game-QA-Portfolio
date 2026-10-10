@@ -9,7 +9,14 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   advance: () => void;
 }) {
   const gallery = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(preference.matches);
+    update();
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
   const [inspection, setInspection] = useState({ hover: false, focus: false, dragging: false, visible: false, hidden: document.hidden });
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
@@ -100,10 +107,10 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   }, [inspecting]);
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
   useEffect(() => {
-    if (count < 2 || !ready || paused || suspended) return;
+    if (count < 2 || !ready || reducedMotion || suspended) return;
     const timer = setTimeout(() => advanceRef.current(), 6500);
     return () => clearTimeout(timer);
-  }, [selected, ready, count, paused, suspended]);
+  }, [selected, ready, count, reducedMotion, suspended]);
 
-  return { gallery, paused, toggle: () => setPaused(value => !value) };
+  return { gallery };
 }

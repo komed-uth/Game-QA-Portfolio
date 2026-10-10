@@ -26,6 +26,22 @@ export default async function checkGameplay(page) {
         const strip = gallery.locator('.gallery-thumbnails');
         await previews.first().click();
         assert.equal(await previews.count(), 4);
+        assert.equal(await gallery.locator('figcaption').count(), 0, 'Gameplay caption row is removed');
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0, 'No replacement slideshow control');
+        assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 0);
+        assert.equal(await gallery.getByRole('button', { name: 'Open full-size image', exact: true }).count(), 0);
+        assert.deepEqual(await previews.allTextContents(), ['▶', '', '', ''], 'Only the video play indicator remains on previews');
+        assert(await previews.first().getAttribute('aria-label'), 'Video preview keeps its accessible name');
+        const announcement = gallery.locator('[aria-live="polite"]');
+        assert.equal(await announcement.getAttribute('aria-atomic'), 'true');
+        assert(await announcement.evaluate(e => getComputedStyle(e).clipPath === 'inset(50%)'), 'Selection updates remain nonvisual');
+        const layout = await gallery.evaluate(e => {
+          const viewer = e.querySelector('.gallery-viewer').getBoundingClientRect();
+          const strip = e.querySelector('.gallery-preview-strip').getBoundingClientRect();
+          return { gap: strip.top - viewer.bottom, frame: viewer.width / viewer.height };
+        });
+        assert(Math.abs(layout.gap - 12) < 1, 'Only the preview gap remains below the viewer');
+        assert(Math.abs(layout.frame - 16 / 9) < .02, 'Main frame proportions remain intact');
         assert.equal(await gallery.locator('.gallery-dots').count(), 0);
         assert.equal(await gallery.getByRole('button', { name: /previous media|next media/ }).count(), 0);
         const iframe = await gallery.locator('iframe').elementHandle();
@@ -98,13 +114,16 @@ export default async function checkGameplay(page) {
         await page.keyboard.press('ArrowLeft');
         await page.keyboard.press('Enter');
         assert.equal(await selected(gallery), await previews.nth(2).getAttribute('aria-label'));
-        assert((await gallery.locator('.gallery-caption').innerText()).includes('3 / 4'));
+        assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('3 / 4'));
         await page.keyboard.press('Home');
         assert.equal(await selected(gallery), await previews.nth(2).getAttribute('aria-label'));
         await page.keyboard.press('ArrowRight');
         await page.keyboard.press('Space');
-        assert((await gallery.locator('.gallery-caption').innerText()).includes('2 / 4'));
+        assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('2 / 4'));
         await waitForPhoto(gallery);
+        assert.equal(await gallery.locator('figcaption').count(), 0, 'Photo selection does not restore captions');
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+        assert(await previews.nth(1).evaluate(e => getComputedStyle(e).outlineStyle !== 'none'), 'Keyboard preview focus is visible');
         const image=gallery.locator('.gallery-viewer img');
         await image.evaluate(e => e.decode());
         assert.equal(await image.evaluate(e => getComputedStyle(e).objectFit), 'contain');
@@ -134,7 +153,7 @@ export default async function checkGameplay(page) {
       await page.keyboard.press('Enter');
       await waitForScroll(page);
       assert.equal(await previews.first().getAttribute('aria-pressed'), 'true', 'Latest rapid selection wins');
-      assert((await gallery.locator('.gallery-caption').innerText()).includes('1 / 4'));
+      assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('1 / 4'));
       assert(await previews.first().evaluate(e => {
         const bounds=e.getBoundingClientRect(), strip=e.parentElement.getBoundingClientRect();
         return bounds.left >= strip.left-1 && bounds.right <= strip.right+1;
@@ -154,15 +173,15 @@ export default async function checkGameplay(page) {
   await galleries[0].locator('.gallery-thumbnail').last().click();
   const surface=galleries[0].locator('.gallery-viewer');
   await drag(page,surface,[.8,.5],[.2,.5]);
-  assert((await galleries[0].locator('.gallery-caption').innerText()).includes('1 / 4'), 'Left swipe wraps to video');
+  assert((await galleries[0].locator('[aria-live="polite"]').innerText()).includes('1 / 4'), 'Left swipe wraps to video');
   await galleries[0].locator('.gallery-thumbnail').nth(1).click();
   await drag(page,surface,[.2,.5],[.8,.5]);
-  assert((await galleries[0].locator('.gallery-caption').innerText()).includes('1 / 4'), 'Right swipe goes back to video');
+  assert((await galleries[0].locator('[aria-live="polite"]').innerText()).includes('1 / 4'), 'Right swipe goes back to video');
   assert.equal(await selected(galleries[1]),secondSelection, 'Projects remain independent');
   assert.equal(await page.locator('dialog').count(),0,'Swipe never opens image');
   await galleries[0].locator('.gallery-thumbnail').last().click();
   await page.setViewportSize({width:390,height:845});
   await waitForScroll(page);
-  assert((await galleries[0].locator('.gallery-caption').innerText()).includes('4 / 4'), 'Resize retains selection');
+  assert((await galleries[0].locator('[aria-live="polite"]').innerText()).includes('4 / 4'), 'Resize retains selection');
   console.log('PASS: gameplay strip phone peek, finite arrows, drag/wheel/scrollbar browsing, player continuity, keyboard, swipe direction, independence and ten viewports in normal/reduced motion');
 }

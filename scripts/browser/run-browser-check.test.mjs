@@ -136,7 +136,7 @@ test('failure artifacts include observable inspection state and a viewport scree
     const image = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="green"/></svg>';
     await page.setContent(`<div class="game-gallery" aria-label="Ready gallery" style="width:300px;height:150px">
       <div class="gallery-viewer"><button id="inspect" class="gallery-photo ready"><img src='${image}'></button></div>
-      <div class="gallery-caption">2 / 2 · Photo</div>
+      <span aria-live="polite">2 / 2 · Photo</span>
       <button class="gallery-thumbnail" aria-pressed="false">Video</button>
       <button class="gallery-thumbnail" aria-pressed="true" aria-label="Show photo"><img src='${image}'></button>
       </div><div class="game-gallery" aria-label="Loading gallery" style="margin-top:500px;width:300px;height:150px">
@@ -159,7 +159,7 @@ test('failure artifacts include observable inspection state and a viewport scree
   assert.equal(diagnostics.page.visibility.state, 'hidden');
   const [ready, loading] = diagnostics.page.galleries;
   assert.equal(ready.name, 'Ready gallery');
-  assert.equal(ready.caption, '2 / 2 · Photo');
+  assert.equal(ready.selectionAnnouncement, '2 / 2 · Photo');
   assert.equal(ready.selectedMedia.index, 1);
   assert.equal(ready.selectedMedia.label, 'Show photo');
   assert.match(ready.selectedMedia.source, /^data:image\/svg\+xml/);
