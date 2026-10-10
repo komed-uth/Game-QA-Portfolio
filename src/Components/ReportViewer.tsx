@@ -11,23 +11,19 @@ export default function ReportViewer() {
   return <>
     <section className="report-controls" aria-labelledby="report-heading">
       <h2 id="report-heading">Performance reports</h2>
-      <p className="section-description">Choose a quality setting to view its original Performance Advisor report, or Overall for the combined summary.</p>
       <div className="report-toolbar">
         <div className="report-selector" role="group" aria-label="Graphics quality setting">
           {reports.map((report) => <button key={report.filename} type="button" className="report-button"
             aria-pressed={selected.filename === report.filename} onClick={() => setSelected(report)}>{report.label}</button>)}
         </div>
-        <button type="button" className="text-link evidence-open" onClick={() => setOpen(true)}>Open report</button>
+        <button type="button" className="text-link evidence-open" onClick={() => setOpen(true)} aria-label={"Open " + title}>Open report</button>
       </div>
     </section>
-    <section className="report-output" aria-labelledby="report-status">
-      <p id="report-status" className="report-status" aria-live="polite">Viewing {selected.label}{selected.kind === "image" ? " summary" : " · Samsung Galaxy S10"}</p>
+    <section className="report-output" aria-label={title}>
+      <span className="visually-hidden" role="status">Selected report: {title}</span>
       <button type="button" className="report-preview" onClick={() => setOpen(true)} aria-label={"Open " + title}>
-        <span>{selected.label}</span>
-        <span>{selected.kind === "image" ? "Combined performance summary" : "Samsung Galaxy S10 · Performance Advisor"}</span>
-        <span>Open report</span>
+        Open report
       </button>
-      <p className="report-note">Open the report to inspect its full content. Your inspection position is remembered during this visit.</p>
     </section>
     {open && <EvidenceModal title={title} source={url} kind={selected.kind === "image" ? "summary" : "html"}
       alt="Overall FPS comparison for A32, S10, and S21, followed by Performance Advisor capture summaries and frame rate charts"

@@ -10,7 +10,7 @@ const files = {
 };
 const labels = Object.keys(files);
 
-// Ticket #22 checks use the existing rendered portfolio surface and browser runner.
+// Report inspection and ticket #46 cleanup use the existing rendered portfolio surface.
 export default async function check(page) {
     const dialog = page.getByRole('dialog');
     const preview = page.locator('.report-preview');
@@ -23,8 +23,21 @@ export default async function check(page) {
     async function open(label, trigger = preview) {
         await page.getByRole('button', { name: label, exact: true }).click();
         assert.equal(await dialog.count(), 0, 'Quality selection keeps inspection closed');
-        assert(await preview.getAttribute('aria-label').then(name => name.includes(label)));
-        await trigger.click();
+        assert.deepEqual(await page.locator('.report-selector button[aria-pressed="true"]').allTextContents(), [label]);
+        const title = label + (label === 'Overall' ? ' performance summary' : ' quality — Samsung Galaxy S10 Performance Advisor report');
+        assert.equal(await page.getByRole('region', { name: title, exact: true }).count(), 1, 'Report output has selection context independent of removed metadata');
+        assert.equal(await page.locator('.report-output').getByRole('status').textContent(), 'Selected report: ' + title);
+        assert.equal(await preview.textContent().then(text => text.trim()), 'Open report', 'Preview has only its action text');
+        for (const opener of [preview, action]) {
+            assert.equal(await opener.getAttribute('aria-label'), 'Open ' + title, 'Both openers name the selected evidence');
+        }
+        if (trigger === action) {
+            await page.getByRole('button', { name: 'Overall', exact: true }).focus();
+            await page.keyboard.press('Tab');
+            assert(await action.evaluate(element => element === document.activeElement), 'Tab reaches controls opener');
+            assert(await action.evaluate(element => getComputedStyle(element).outlineStyle !== 'none'), 'Keyboard opener has visible focus');
+            await page.keyboard.press('Enter');
+        } else await trigger.click();
         await dialog.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
         assert((await dialog.getAttribute('aria-labelledby'))?.length, 'Inspection has an accessible title');
         assert((await dialog.locator('h2').textContent()).includes(label));
@@ -53,6 +66,18 @@ export default async function check(page) {
     assert.equal(await page.getByRole('button', { name: 'Very High', exact: true }).getAttribute('aria-pressed'), 'true');
     assert.equal(await page.locator('.report-output iframe').count(), 0, 'Preview does not embed an interactive report');
     assert.equal(await page.locator('.report-selector button').count(), 6);
+    assert.deepEqual(await page.locator('.report-selector button').allTextContents(), labels, 'All quality choices retain their order');
+    assert.equal(await page.getByRole('heading', { name: 'Performance reports', exact: true }).count(), 1);
+    assert.equal(await page.locator('.report-controls .section-description, .report-output .report-status, .report-output .report-note').count(), 0,
+        'Introductory paragraph, visible Viewing status and inspection note are removed');
+    assert.equal((await page.locator('.report-controls').innerText()).trim(), ['Performance reports', ...labels, 'Open report'].join('\n'),
+        'Controls retain only heading, quality choices and Open report');
+
+    // Both openers target every selected report; the controls action is keyboard-operated.
+    for (const label of labels) {
+        await open(label, action);
+        await close('escape', action);
+    }
 
     // Documentation links open real browser tabs; stub only their remote destination.
     await page.context().route('https://developer.arm.com/**', route => route.fulfill({
@@ -128,15 +153,31 @@ export default async function check(page) {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
 
     for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840],
-        [840, 360], [1200, 800], [800, 1200], [899, 700], [901, 700]]) {
+        [840, 360], [1200, 800], [800, 1200], [899, 700], [901, 700], [900, 700]]) {
         await page.setViewportSize({ width, height });
+        assert.equal(await page.getByRole('button', { name: 'Overall', exact: true }).getAttribute('aria-pressed'), 'true',
+            'Resizing preserves selected report');
         // Measure both regions in one frame; resize can move the page's scroll anchor.
-        const { controls, output } = await page.locator('.regulus-showcase').evaluate(section => ({
+        const { controls, output, previewBox, heading, selector, storeLinks } = await page.locator('.regulus-showcase').evaluate(section => ({
             controls: section.querySelector('.report-controls').getBoundingClientRect().toJSON(),
             output: section.querySelector('.report-output').getBoundingClientRect().toJSON(),
+            previewBox: section.querySelector('.report-preview').getBoundingClientRect().toJSON(),
+            heading: section.querySelector('#report-heading').getBoundingClientRect().toJSON(),
+            selector: section.querySelector('.report-selector').getBoundingClientRect().toJSON(),
+            storeLinks: section.querySelector('.store-links').getBoundingClientRect().toJSON(),
         }));
         if (width > 900) assert(controls.x + controls.width <= output.x + 1, 'Desktop controls precede preview on the left');
         else assert(controls.y + controls.height <= output.y + 1, 'Narrow controls precede preview vertically');
+        assert(Math.abs(controls.y - heading.y) <= 1, 'Controls no longer reserve a status row');
+        assert(Math.abs(output.y - previewBox.y) <= 1 && Math.abs(output.height - previewBox.height) <= 1,
+            'Preview has no reserved status or inspection-note space');
+        assert(selector.y >= heading.bottom && selector.y - heading.bottom <= 24, 'Choices follow the heading without an obsolete description gap');
+        assert(controls.y >= storeLinks.bottom, 'Reports remain after project details and store links');
+        assert(previewBox.height >= 180, 'Existing preview frame size survives cleanup');
+        for (const control of [...await page.locator('.report-selector button').all(), action, preview]) {
+            const box = await control.boundingBox();
+            assert(box.height >= 44 && box.x >= 0 && box.x + box.width <= width, 'Report controls wrap within page and retain touch targets');
+        }
         for (const label of labels) {
             const frame = await open(label);
             const panel = await dialog.boundingBox();
@@ -156,7 +197,7 @@ export default async function check(page) {
         }
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     }
-    console.log('PASS: all six reports across ten viewports, control ordering, margins, readable internal content and 44px controls');
+    console.log('PASS: report text cleanup, named output/openers, keyboard opening, resize selection, all six reports across ten viewports plus 900px, collapsed spacing and 44px controls');
 
     await page.reload();
     assert.equal(await page.getByRole('button', { name: 'Very High', exact: true }).getAttribute('aria-pressed'), 'true');

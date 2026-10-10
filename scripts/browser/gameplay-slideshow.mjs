@@ -132,9 +132,18 @@ export default async function checkSlideshow(page) {
     await fullInterval(gallery, 1, 2);
 
     await photo(gallery, 1);
-    await gallery.evaluate(e => window.scrollTo(0, e.getBoundingClientRect().bottom + scrollY + 20));
+    await gallery.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      const top = bounds.top + scrollY;
+      // A shorter page may not have enough space to scroll past its last gallery.
+      window.scrollTo(0, top > innerHeight ? top - innerHeight - 20 : bounds.bottom + scrollY + 20);
+    });
     await page.clock.runFor(32);
     await page.waitForTimeout(100);
+    assert(await gallery.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      return bounds.bottom <= 0 || bounds.top >= innerHeight;
+    }), 'Suspension scenario places the gallery fully outside the viewport');
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Offscreen gallery suspends');
     await gallery.scrollIntoViewIfNeeded();
