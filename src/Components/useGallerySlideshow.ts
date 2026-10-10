@@ -18,15 +18,22 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     const element = gallery.current;
     if (!element) return;
     let pointer: number | null = null;
+    let pointerFocus = false;
     let focusCheck: ReturnType<typeof setTimeout> | undefined;
     const update = (reason: keyof typeof inspection, value: boolean) =>
       setInspection(current => current[reason] === value ? current : { ...current, [reason]: value });
-    const focus = () => update("focus", element.contains(document.activeElement));
+    // Pointer clicks retain DOM focus after hover ends. Only keyboard-visible
+    // focus is inspection; switching back to keyboard must reconcile it too.
+    const focus = () => update("focus", element.contains(document.activeElement) && !pointerFocus && !!document.activeElement?.matches(":focus-visible"));
     const deferFocus = () => { clearTimeout(focusCheck); focusCheck = setTimeout(focus, 0); };
+    const keyboard = () => { pointerFocus = false; deferFocus(); };
     const enter = (event: globalThis.PointerEvent) => { if (event.pointerType !== "touch") update("hover", true); };
     const leave = () => update("hover", false);
     const down = (event: globalThis.PointerEvent) => {
       if (!event.isPrimary || event.button !== 0) return;
+      // Clicking an already keyboard-focused control may retain :focus-visible.
+      pointerFocus = true;
+      deferFocus();
       pointer = event.pointerId;
       update("dragging", true);
     };
@@ -65,6 +72,7 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     window.addEventListener("blur", blur);
     window.addEventListener("focus", focus);
     document.addEventListener("visibilitychange", visibility);
+    document.addEventListener("keydown", keyboard, true);
     return () => {
       clearTimeout(focusCheck);
       observer.disconnect();
@@ -80,6 +88,7 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
       window.removeEventListener("blur", blur);
       window.removeEventListener("focus", focus);
       document.removeEventListener("visibilitychange", visibility);
+      document.removeEventListener("keydown", keyboard, true);
     };
   }, []);
 
@@ -92,7 +101,7 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
   useEffect(() => {
     if (count < 2 || !ready || paused || suspended) return;
-    const timer = setTimeout(() => advanceRef.current(), 2500);
+    const timer = setTimeout(() => advanceRef.current(), 6500);
     return () => clearTimeout(timer);
   }, [selected, ready, count, paused, suspended]);
 

@@ -1,6 +1,6 @@
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
-const photoDwellMs = 2500;
+const photoDwellMs = 6500;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
 async function installPausedClock(page) {
   await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
@@ -49,6 +49,45 @@ export default async function checkSlideshow(page) {
     await isSelected(gallery, to, 'Eligible photo advances in media order');
   }
 
+  // Real pointer selection retains DOM focus; it must not require another showcase.
+  for (let index = 0; index < 2; index++) {
+    await page.reload();
+    const gallery = galleries.nth(index);
+    await gallery.locator('.gallery-thumbnail').nth(1).click();
+    await waitForPhoto(gallery);
+    await page.clock.fastForward(7000);
+    await isSelected(gallery, 1, 'Pointer hover still suspends inspection');
+    await page.mouse.move(0, 0);
+    await fullInterval(gallery, 1, 2);
+    await waitForPhoto(gallery);
+
+    await gallery.getByRole('button', { name: 'Pause slideshow', exact: true }).click();
+    await page.mouse.move(0, 0);
+    await page.clock.fastForward(7000);
+    await isSelected(gallery, 2, 'Pointer activation still honors explicit Pause');
+    await gallery.getByRole('button', { name: 'Resume slideshow', exact: true }).click();
+    await page.mouse.move(0, 0);
+    await fullInterval(gallery, 2, 3);
+
+    await gallery.locator('.gallery-thumbnail').nth(1).click();
+    await waitForPhoto(gallery);
+    await page.mouse.move(0, 0);
+    // Switching to keyboard inspection on the same clicked control suspends again.
+    await page.keyboard.press('Shift');
+    await page.clock.runFor(1);
+    await page.waitForTimeout(60);
+    await page.clock.fastForward(7000);
+    await isSelected(gallery, 1, 'Keyboard inspection of pointer-focused media suspends');
+    await page.keyboard.press('ArrowRight');
+    await page.clock.fastForward(7000);
+    await isSelected(gallery, 1, 'Keyboard preview browsing keeps the photo selected');
+    // Clicking the keyboard-focused control switches back without a focusin event.
+    await gallery.locator('.gallery-thumbnail').nth(2).click();
+    await waitForPhoto(gallery);
+    await page.mouse.move(0, 0);
+    await fullInterval(gallery, 2, 3);
+  }
+  console.log('PASS: real mouse photo selection and Resume work without forced blur; keyboard inspection stays paused');
   for (let index = 0; index < 2; index++) {
     await page.reload();
     const gallery = galleries.nth(index);
@@ -91,6 +130,7 @@ export default async function checkSlideshow(page) {
     await page.clock.fastForward(photoDwellMs * 0.6);
     await gallery.locator('.gallery-thumbnail').nth(1).hover();
     await gallery.locator('.gallery-thumbnail').nth(2).focus();
+    await page.keyboard.press('Shift');
     await page.clock.fastForward(7000);
     await isSelected(gallery, 1, 'Hover and focus suspend selection');
     await page.mouse.move(0, 0);
@@ -186,6 +226,20 @@ export default async function checkSlideshow(page) {
     const touchPage = await touchContext.newPage();
     await touchPage.goto(page.url());
     await installPausedClock(touchPage);
+    for (let index = 0; index < 2; index++) {
+      await touchPage.reload();
+      const gallery = touchPage.locator('.game-gallery').nth(index);
+      await gallery.locator('.gallery-thumbnail').nth(1).tap();
+      await waitForPhoto(gallery);
+      await touchPage.clock.runFor(32);
+      await touchPage.waitForTimeout(100);
+      await touchPage.clock.fastForward(photoDwellMs - 500);
+      assert.equal(await gallery.locator('.gallery-thumbnail').nth(1).getAttribute('aria-pressed'), 'true', 'Tap starts a fresh full interval');
+      await touchPage.clock.fastForward(700);
+      assert.equal(await gallery.locator('.gallery-thumbnail').nth(2).getAttribute('aria-pressed'), 'true', 'Tapped photo advances without tapping another showcase');
+    }
+    console.log('PASS: both showcases advance after real touch selection without forced blur');
+    await touchPage.reload();
     const touchGallery = touchPage.locator('.game-gallery').first();
     await touchGallery.locator('.gallery-thumbnail').nth(1).tap();
     await waitForPhoto(touchGallery);

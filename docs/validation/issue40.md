@@ -8,7 +8,9 @@ Main advanced during validation. Integrated PR #39 at `46a40e382cdafac942ad79ddc
 
 Main then changed the dwell to 2.5 seconds in `fd6dcefec437def25ee8172adef5825c6965ed73`. Preserved that application change and updated the clock-based slideshow checks to the current interval.
 
-Final comparison base: `fd6dcefec437def25ee8172adef5825c6965ed73`.
+After review, integrated main at `d4224cd`, preserving the pointer-focus fix from PR #44 and main's newer 6.5-second dwell. Retained its real mouse/touch regressions inside the shared context wrapper and aligned interval assertions.
+
+Final comparison base: `d4224cd`.
 
 ## Evidence
 
