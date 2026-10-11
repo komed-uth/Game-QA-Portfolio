@@ -17,6 +17,11 @@ async function releaseInspection(page) {
   await page.waitForTimeout(100);
 }
 async function dwell(page, gallery, from, to, ready = true) {
+  // Reload and delayed image completion can restore the page's scroll position.
+  // Progression is only eligible while the gallery is visible.
+  await gallery.scrollIntoViewIfNeeded();
+  await page.clock.runFor(32);
+  await page.waitForTimeout(100);
   await page.clock.fastForward(6000);
   assert.equal(await selected(gallery), from, 'A ready/resumed photo gets a full dwell');
   await page.clock.fastForward(700);

@@ -43,6 +43,10 @@ Independent GPT-6.1 Sol review at high effort against ticket #58 and its parent 
 
 Findings: Standards 0; Spec 0 outstanding.
 
+After integrating main `c26ac9c`, both reviewers confirmed no findings against the refreshed baseline. The focused report suite passed (synthetic overlay 15.73 seconds; report interactions 320.35 seconds). A delayed-image dwell check captured a ready gallery outside the viewport after reload scroll restoration; the slideshow correctly remained suspended. The dwell helper now restores visibility and lets browser rendering settle before measuring the published interval, matching the existing slideshow check's prerequisite.
+
+The complete local nine-check suite passed before integration. The complete Linux CI suite also passed on merged head `19ab19f` ([run 38079675489](https://github.com/komed-uth/Game-QA-Portfolio/actions/runs/38079675489)). Both independent GPT-6.1 Sol high-effort reviewers inspected the final visibility prerequisite correction and reported zero findings. Final-head check results are recorded in the pull request.
+
 ## Limits and merge risk
 
 The five supplied HTML reports have empty screenshot path lists. Real report capture overlays are therefore skipped; synthetic overlay coverage checks integration without certifying real capture evidence. Browser viewports, native touch emulation, and controlled document visibility do not certify physical devices or actual background-tab scheduling. Verified project facts and real project media still need the owner's input.
