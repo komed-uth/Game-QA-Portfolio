@@ -14,6 +14,8 @@
     "preview": "vite preview",
     "check:browser": "node scripts/check-browser.mjs",
     "check:reports": "node scripts/check-browser.mjs --reports-only",
+    "check:report-layout": "node scripts/check-browser.mjs --report-layout-only",
+    "check:workstation": "node scripts/check-workstation.mjs",
     "check:overlays": "node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs",
     "check:preview": "node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs scripts/browser/check-selection.test.mjs",
     "check:gameplay": "node scripts/check-browser.mjs --gameplay-only",
@@ -21,7 +23,7 @@
     "check:placeholders": "node scripts/check-browser.mjs --placeholders-only",
     "check:photos": "node scripts/check-browser.mjs --photos-only",
     "check:evidence": "node scripts/check-browser.mjs --evidence-only",
-    "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs"
+    "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/capture-region.test.mjs scripts/check-workstation.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
