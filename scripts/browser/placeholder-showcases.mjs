@@ -291,17 +291,23 @@ async function checkProject(page, projectName) {
     assert(await touchPage.evaluate(y => scrollY > y, before), 'Vertical photo gesture scrolls the page');
     assert.equal(await selected(touchGallery), 1);
     // A tap during native scroll momentum stops scrolling instead of activating.
-    // Chromium can still suppress a tap's compatibility click after scrollY
-    // stops changing. Wait through that gesture window before inspection.
+    // Wait for a quiet page before testing the separate inspection gesture.
     let lastScroll = await touchPage.evaluate(() => scrollY), quietSince = Date.now();
     const scrollDeadline = Date.now() + 5000;
-    while (Date.now() - quietSince < 750) {
+    while (Date.now() - quietSince < 250) {
       assert(Date.now() < scrollDeadline, 'Native vertical scrolling settles before inspection');
       await touchPage.waitForTimeout(50);
       const currentScroll = await touchPage.evaluate(() => scrollY);
       if (currentScroll !== lastScroll) quietSince = Date.now();
       lastScroll = currentScroll;
     }
+    // Chromium may consume the first touch after a canceled native pan even
+    // after scrollY settles. End that interaction on the noninteractive gutter
+    // before testing a distinct image activation, rather than retrying it.
+    assert(await touchPage.evaluate(() => !document.elementFromPoint(2, 2)?.closest('button, a, iframe, input')));
+    await touchPage.touchscreen.tap(2, 2);
+    await touchPage.waitForTimeout(100);
+    assert.equal(await touchPage.locator('dialog').count(), 0, 'Ending native scroll does not open inspection');
     await touchGallery.locator('.evidence-image-button').tap();
     await touchPage.getByRole('dialog').waitFor();
     await closeModal(touchPage, 'button');
