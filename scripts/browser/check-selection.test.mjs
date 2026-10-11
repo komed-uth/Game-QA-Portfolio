@@ -4,11 +4,12 @@ import { test } from 'node:test';
 import { selectSuite } from './check-suites.mjs';
 
 const cases = [
-  { mode: undefined, checks: ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures',
+  { mode: undefined, checks: ['placeholder-showcases', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures',
     'evidence-modal', 'evidence-interactions', 'report-layout', 'overlay-fixture', 'report-interactions'], reports: true },
   { mode: '--reports-only', checks: ['report-layout', 'overlay-fixture', 'report-interactions'], reports: true },
   { mode: '--report-layout-only', checks: ['report-layout'], reports: false },
-  { mode: '--gameplay-only', checks: ['slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'], reports: false },
+  { mode: '--gameplay-only', checks: ['placeholder-showcases', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'], reports: false },
+  { mode: '--placeholders-only', checks: ['placeholder-showcases'], reports: false },
   { mode: '--photos-only', checks: ['photos'], reports: false },
   { mode: '--evidence-only', checks: ['evidence-modal', 'evidence-interactions'], reports: true },
   { mode: '--slideshow-only', checks: ['slideshow'], reports: false },

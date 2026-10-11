@@ -21,7 +21,7 @@ export default async function checkGameplay(page) {
     await page.emulateMedia({ reducedMotion: motion });
     for (const [width, height] of [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[901,700],[1366,768],[1920,1080]]) {
       await page.setViewportSize({ width, height });
-      for (const gallery of await page.locator('.game-gallery').all()) {
+      for (const gallery of await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all()) {
         const previews = gallery.locator('.gallery-thumbnail');
         const strip = gallery.locator('.gallery-thumbnails');
         await previews.first().click();
@@ -134,7 +134,7 @@ export default async function checkGameplay(page) {
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No page horizontal overflow');
     }
     await page.setViewportSize({width:390,height:845});
-    for (const gallery of await page.locator('.game-gallery').all()) {
+    for (const gallery of await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all()) {
       const previews=gallery.locator('.gallery-thumbnail');
       await previews.first().click();
       await waitForScroll(page);
@@ -168,7 +168,7 @@ export default async function checkGameplay(page) {
     }
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const galleries=await page.locator('.game-gallery').all();
+  const galleries=await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all();
   const secondSelection=await selected(galleries[1]);
   await galleries[0].locator('.gallery-thumbnail').last().click();
   const surface=galleries[0].locator('.gallery-viewer');
