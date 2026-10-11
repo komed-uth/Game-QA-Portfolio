@@ -37,13 +37,13 @@ async function checkHomepage(page) {
   }
   assert.equal(await main.getByRole('link', { name: /Explore the QA approach/ }).count(), 0);
   assert.deepEqual(await main.locator('.project-title').allTextContents(),
-    ['Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso'], 'Project showcase order remains intact');
+    ['Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso', 'Invictus: Lost Soul'], 'Project showcase order remains intact');
   assert.deepEqual(await main.locator('.store-links a').evaluateAll(links => links.map(link => link.href)), [
     'https://apps.apple.com/th/app/regulus-the-advent/id6739992769',
     'https://play.google.com/store/apps/details?id=com.jj.regulus.android&hl=en',
     'https://store.steampowered.com/app/4524580/Vecchio_Furioso/',
   ], 'Project store destinations remain intact');
-  const last = await main.locator('article').last().boundingBox();
+  const last = await main.locator('.project-grid').last().boundingBox();
   const footer = await page.getByRole('contentinfo').boundingBox();
   const gap = footer.y - last.y - last.height;
   assert(gap >= 0 && gap <= 80, 'Project showcases lead into the footer without a reserved teaser gap');

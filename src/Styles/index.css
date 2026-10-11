@@ -226,6 +226,21 @@ nav a.active {
   grid-column: 2;
   grid-row: 1 / span 2;
 }
+.placeholder-project {
+  border-top: 1px solid var(--line);
+  padding-top: 36px;
+  gap: 20px 48px;
+  grid-template-areas: "heading gallery" "details gallery";
+  grid-template-rows: auto 1fr;
+}
+.placeholder-project-heading { grid-area: heading; min-width: 0; overflow-wrap: anywhere; }
+.placeholder-project > .project-details { grid-area: details; min-width: 0; overflow-wrap: anywhere; }
+.project-grid.placeholder-project > .game-gallery { grid-area: gallery; }
+.placeholder-project .project-title,
+.placeholder-project .eyebrow { color: var(--project-accent); }
+@media (max-width: 900px) {
+  .placeholder-project { grid-template-areas: "heading" "gallery" "details"; grid-template-rows: auto; }
+}
 .project-category {
   font-size: 1.1rem;
   color: var(--muted);

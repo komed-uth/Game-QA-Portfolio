@@ -78,7 +78,7 @@ export default async function check(page) {
         assert.equal(await d.getByRole('button', { name: /screenshot/ }).count(), 0);
         assert.equal(await p.evaluate(() => document.documentElement.style.overflow), 'hidden');
     }
-    for (const g of await p.locator('.game-gallery').all()) {
+    for (const g of await p.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all()) {
         for (let i = 1; i < 4; i++) {
             await g.locator('.gallery-thumbnail').nth(i).click();
             assert.equal(await d.count(), 0);
@@ -190,7 +190,7 @@ export default async function check(page) {
         await p.setViewportSize({ width, height });
         await checkProjectLayout(p);
         // Image inspection must fit too: screenshot controls wrap on phones.
-        for (const g of await p.locator('.game-gallery').all()) {
+        for (const g of await p.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all()) {
             await g.locator('.gallery-thumbnail').nth(1).click();
             await galleryReady(g);
             const selections = await p.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(

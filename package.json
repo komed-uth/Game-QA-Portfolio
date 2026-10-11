@@ -18,6 +18,7 @@
     "check:preview": "node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs scripts/browser/check-selection.test.mjs",
     "check:gameplay": "node scripts/check-browser.mjs --gameplay-only",
     "check:slideshow": "node scripts/check-browser.mjs --slideshow-only",
+    "check:placeholders": "node scripts/check-browser.mjs --placeholders-only",
     "check:photos": "node scripts/check-browser.mjs --photos-only",
     "check:evidence": "node scripts/check-browser.mjs --evidence-only",
     "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs"

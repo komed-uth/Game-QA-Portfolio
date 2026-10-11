@@ -15,7 +15,7 @@ export type MediaGalleryItem = {
 type MediaGalleryProps = {
   projectName: string;
   galleryName: string;
-  videoId: string;
+  videoId?: string;
   media: readonly MediaGalleryItem[];
 };
 
