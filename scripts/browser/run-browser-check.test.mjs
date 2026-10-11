@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { chromium } from 'playwright';
 import { inflateRawSync } from 'node:zlib';
-import { runBrowserCheck, withBrowserContext } from './run-browser-check.mjs';
+import { reportProgress, runBrowserCheck, withBrowserContext } from './run-browser-check.mjs';
 import { withStableInputs } from './stable-inputs.mjs';
 
 let browser; let server; let url;
@@ -212,4 +212,43 @@ test('closing the failed page still preserves failure JSON and trace', async t =
   assert.equal(diagnostics.screenshotError, 'No open page available for screenshot');
   assert.equal((await readFile(path.join(directory, folder, 'trace.zip'))).subarray(0, 2).toString(), 'PK');
   assert.equal(browser.contexts().length, 0);
+});
+
+test('report progress records elapsed context and selected evidence in failure diagnostics', async t => {
+  const directory = await fixture(t); const logs = []; const original = new Error('report frame failed');
+  await assert.rejects(runBrowserCheck(browser, url, { name: 'report-state', check: async page => {
+    await page.setContent(`<div class="report-selector"><button aria-pressed="true">High</button></div>
+      <section class="report-output" aria-label="High report"><button class="report-preview" aria-label="Open High report">Open report</button></section>
+      <div class="report-controls"><button class="evidence-open" aria-label="Open High report">Open report</button></div>
+      <dialog open><h2>High report</h2><iframe src="about:blank"></iframe></dialog>`);
+    reportProgress('Inspect report', { viewport: { width: 900, height: 700 }, report: 'High', opener: 'preview' });
+    throw original;
+  } }, { artifactDirectory: directory, log: line => logs.push(line) }), error => error === original);
+  assert.match(logs[1], /^PROGRESS: report-state .*"report":"High".* \(\d+\.\d+s\)$/);
+  const [folder] = await readdir(directory);
+  const diagnostics = JSON.parse(await readFile(path.join(directory, folder, 'failure.json'), 'utf8'));
+  assert.deepEqual(diagnostics.scenario.progress, {
+    phase: 'Inspect report', viewport: { width: 900, height: 700 }, report: 'High', opener: 'preview',
+  });
+  assert.deepEqual(diagnostics.page.report, {
+    selected: ['High'], outputName: 'High report', openerNames: ['Open High report', 'Open High report'],
+    modalTitle: 'High report', iframeSource: 'about:blank',
+  });
+  assert.equal(browser.contexts().length, 0);
+});
+
+test('progress stays scoped to its check and does not create successful artifacts', async t => {
+  const directory = await fixture(t); const logs = [];
+  await runBrowserCheck(browser, url, { name: 'progress-success', check: async () => {
+    reportProgress('Layout', { report: 'Overall' });
+  } }, { artifactDirectory: directory, log: line => logs.push(line) });
+  assert.equal(logs.length, 3);
+  assert.match(logs[1], /^PROGRESS: progress-success /);
+  assert.match(logs[2], /^PASS: progress-success /);
+  const original = new Error('next check');
+  await assert.rejects(runBrowserCheck(browser, url, { name: 'next', check: async () => { throw original; } },
+    { artifactDirectory: directory, log: () => {} }), error => error === original);
+  const [folder] = await readdir(directory);
+  const diagnostics = JSON.parse(await readFile(path.join(directory, folder, 'failure.json'), 'utf8'));
+  assert.equal(diagnostics.scenario.progress, undefined, 'Previous progress does not leak into the next check');
 });

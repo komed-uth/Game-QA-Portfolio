@@ -56,6 +56,12 @@ When transplanting commits onto remote history, compare the resulting file tree 
 
 This session's sandbox failed before commands and browser-control tools started, with `helper_unknown_error: setup refresh had errors`. Commands worked through approved escalated execution. Repository changes cannot repair that host startup failure; diagnose the host runtime separately. Use approved tool execution without changing sandbox protections.
 
+Windows WinGet launchers may also fail with `ResourceUnavailable`, `No application is associated with the specified file`, or access-denied errors even when GitHub CLI and ripgrep are installed. Git fetch can fail separately because `.git/FETCH_HEAD` is protected. Run the preflight once in the intended execution context; for these host failures use approved execution, then retain the working result for the session. Actual missing tools, expired authentication and network failures need their own diagnosis. Keep credentials and permissions under the owner's control.
+
+## Workstation preflight
+
+Run `npm run check:workstation` from the intended checkout before exploration. It needs Node and npm but no installed project dependencies. It checks Git and ripgrep launchers, obtains only the GitHub login through `gh api user`, and verifies Git metadata write access with an empty temporary directory that it removes. It changes no history, configuration, credentials or permissions and installs nothing. A missing capability produces a nonzero exit and a pointer to the execution guidance above. Successful account access confirms identity, not repository write permission or fresh remote history; follow the synchronization and publishing steps separately.
+
 ## Bounded tool discovery
 
 Discover matching tool names first, then read the metadata/schema for the one selected tool. Keep descriptions out of inventory output and bound the number of matches; narrow the query when it is still broad. For dynamic tool discovery, project matches to names before printing rather than printing complete tool objects. When a host startup fails with the documented sandbox error, use the approved execution fallback above.
@@ -84,7 +90,11 @@ The last command reports the candidate tree and conflict paths (exit 1 means con
 
 ## Focused report checks and overlay fixture
 
+Use `npm run check:report-layout` (or `node scripts/check-browser.mjs --report-layout-only`) for quick feedback after report layout changes. Build current source first. It checks presentation, all six selection contexts, eleven viewports including both sides of the inclusive 900px boundary, resize continuity, reading and keyboard order, wrapping, 44px controls, spacing and overflow. It opens only the local Overall summary to check keyboard opening and focus restoration from both entry points; it does not load the five HTML reports or inspect their charts, capture overlays or position memory.
+
 Run `npm run check:reports` for report interactions and the synthetic overlay fixture using the same runner as the full suite. The runner also accepts `node scripts/check-browser.mjs --reports-only`. `npm run check:browser` remains the complete suite and is the CI default. Unknown arguments fail before preview/browser startup.
+
+The complete and focused report suites run the quick layout check as well as exhaustive inspection of all six reports across the viewport matrix. During layout iteration use the quick command, then run the complete suite once after the final source change. All selectors are mutually exclusive. Keep validation inputs unchanged during a run.
 
 The synthetic fixture is routed into the existing Very High report in an isolated browser context. It supplies screenshot metadata and a clearly labeled SVG image, then exercises the real chart's middle-click image gesture, image loading, report-owned close/backdrop, portfolio modal retention, and iframe Escape. Its output explicitly identifies fixture coverage. Original HTML reports and capture evidence are unchanged; real capture certification still needs populated screenshot paths and their actual image files.
 
@@ -118,6 +128,8 @@ Every check prints START, then checks input stability before reporting PASS/FAIL
 
 Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads run summaries/logs and any browser failure evidence with seven-day retention, including successful runs. Both `.scratch/browser-runs/` and `.scratch/browser-checks/` are Git-ignored.
 
+Report checks emit PROGRESS checkpoints with elapsed time and current viewport/report/opener context. These identify work in progress, not passing assertions. Failure JSON records the last checkpoint plus the observable selected quality, output/opener names, modal title and iframe source. Other checks retain their existing diagnostics. Input-stability validation still controls the final PASS/FAIL result.
+
 Every browser command prints `RUN EVIDENCE` with a unique `.scratch/browser-runs/run-.../` directory. `output.log` preserves streamed standard output and errors. `progress.jsonl` appends snapshots as the worker reports progress; each complete line is a JSON checkpoint. On completion, `summary.json` is created atomically. Both record the selected suite/checks, starting commit and tracked-change flag, a fingerprint of the validation inputs, check durations/results, and status. The commit identifies history; the fingerprint also identifies uncommitted source and built inputs. External preview runs fingerprint local inputs only.
 
 `passed` requires every selected check and the final input-stability gate to succeed. `failed`, `obsolete`, `interrupted`, and `incomplete` are unsuccessful outcomes. A `running` checkpoint without final completion is unfinished evidence, including after forced termination; individual check passes do not establish a suite pass. Read `summary.json` after a terminal/session interruption; when it is absent, inspect the last complete JSON line in `progress.jsonl`, ignoring any partial final line. Normal interruption requests worker cleanup; abrupt termination may leave only its last checkpoint. Append-only progress avoids replacing a file while a Windows reader has it open.
@@ -125,6 +137,39 @@ Every browser command prints `RUN EVIDENCE` with a unique `.scratch/browser-runs
 `npm run check:runner` verifies selector routing, invalid arguments before startup, real Playwright trace capture, failure cleanup, edit detection, persisted subprocess results/interruption and repeatable report generation. CI runs it after installing Chromium.
 
 Generated public report copies use LF endings through `.gitattributes` and report synchronization, so CRLF original checkouts do not create mixed-ending build output. Synchronization skips copies whose output already matches. Original report files are read without modification. Repeated builds should leave generated tracked copies clean.
+
+The same command also verifies report progress isolation and diagnostics, missing-tool preflight behavior, and full-page screenshot clipping below the current viewport.
+
+## Visual-region captures
+
+Reuse `scripts/browser/capture-region.mjs` for visual evidence. `captureRegion(page, { selectors, path })` waits for fonts, measures the union of the requested regions in document coordinates, and uses full-page clipping so content outside the current viewport is captured. Missing or zero-area regions fail clearly. The helper creates the output directory and leaves browser, context, preview and page cleanup with the caller. Capture a freshly built source and wait for any relevant images or animations before calling it.
+
+For a temporary capture script in `.scratch/`, follow the existing cleanup pattern:
+
+```js
+import { chromium } from 'playwright';
+import { startPreview } from '../scripts/browser/preview-server.mjs';
+import { withBrowserContext } from '../scripts/browser/run-browser-check.mjs';
+import { captureRegion } from '../scripts/browser/capture-region.mjs';
+
+const server = await startPreview();
+let browser;
+try {
+  browser = await chromium.launch({ headless: true });
+  await withBrowserContext(browser, { viewport: { width: 390, height: 845 } }, async context => {
+    const page = await context.newPage();
+    await page.goto(server.url);
+    await captureRegion(page, {
+      selectors: ['#report-heading', '.report-output', '.report-controls'],
+      path: '.scratch/report-phone.png',
+    });
+  });
+} finally {
+  try { await browser?.close(); } finally { server.kill(); }
+}
+```
+
+Use the same helper for before/after builds; baseline construction remains specific to the ticket. The automated regression checks an offscreen union and invalid regions without starting a production preview.
 
 ## Validation input stability
 
