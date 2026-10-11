@@ -417,6 +417,11 @@ async function checkProject(page, projectName) {
     assert.equal(await selected(gallery), 1, 'Loading waits beyond the dwell');
     assert.equal(await opener.count(), 0, 'Loading cannot open inspection');
     release();
+    // The held image also holds the reload's load event. Wait for it and its
+    // scroll restoration before placing the ready gallery for dwell checks.
+    await page.waitForLoadState('load');
+    await page.clock.runFor(64);
+    await page.waitForTimeout(100);
     await waitForClockPhoto(gallery);
     await dwell(page, gallery, 1, 2, false);
     await page.clock.runFor(200);
