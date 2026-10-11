@@ -26,9 +26,9 @@ export default async function checkGameplay(page) {
         const strip = gallery.locator('.gallery-thumbnails');
         await previews.first().click();
         assert.equal(await previews.count(), 4);
-        assert.equal(await gallery.locator('figcaption').count(), 0, 'Gameplay caption row is removed');
-        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0, 'No replacement slideshow control');
-        assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 0);
+        assert.equal(await gallery.locator('figcaption').count(), 1, 'Gameplay caption and counter are restored');
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1, 'Visitor can pause/resume automatic selection');
+        assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 1);
         assert.equal(await gallery.getByRole('button', { name: 'Open full-size image', exact: true }).count(), 0);
         assert.deepEqual(await previews.allTextContents(), ['▶', '', '', ''], 'Only the video play indicator remains on previews');
         assert(await previews.first().getAttribute('aria-label'), 'Video preview keeps its accessible name');
@@ -121,8 +121,8 @@ export default async function checkGameplay(page) {
         await page.keyboard.press('Space');
         assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('2 / 4'));
         await waitForPhoto(gallery);
-        assert.equal(await gallery.locator('figcaption').count(), 0, 'Photo selection does not restore captions');
-        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+        assert.equal(await gallery.locator('figcaption').count(), 1, 'Photo selection retains caption and counter');
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
         assert(await previews.nth(1).evaluate(e => getComputedStyle(e).outlineStyle !== 'none'), 'Keyboard preview focus is visible');
         const image=gallery.locator('.gallery-viewer img');
         await image.evaluate(e => e.decode());

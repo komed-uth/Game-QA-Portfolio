@@ -1,6 +1,6 @@
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
-const photoDwellMs = 6500;
+const photoDwellMs = 5000;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
 export async function installPausedClock(page) {
   await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
@@ -83,7 +83,7 @@ export default async function checkSlideshow(page) {
   for (let index = 0; index < 2; index++) {
     await page.reload();
     const gallery = galleries.nth(index);
-    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
     await photo(gallery, 1);
     await fullInterval(gallery, 1, 2);
     await waitForPhoto(gallery);
@@ -288,7 +288,7 @@ export default async function checkSlideshow(page) {
   await page.reload();
   for (const gallery of await galleries.all()) {
     await photo(gallery, 1);
-    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
     await page.clock.fastForward(20000);
     await isSelected(gallery, 1, 'Reduced motion disables automatic progression without Resume');
     await photo(gallery, 2);
@@ -298,6 +298,7 @@ export default async function checkSlideshow(page) {
   }
   // A preference change during the visit cancels an already-running countdown.
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
   await photo(galleries.first(), 1);
   await page.clock.fastForward(photoDwellMs * .6);
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -308,12 +309,14 @@ export default async function checkSlideshow(page) {
   await page.clock.fastForward(20000);
   await isSelected(galleries.first(), 1, 'Live reduced-motion preference suspends an active countdown');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await galleries.first().getByRole('button', { name: 'Resume slideshow', exact: true }).evaluate(e => e.click());
+  await releaseInspection();
   await fullInterval(galleries.first(), 1, 2);
   await page.reload();
   await photo(galleries.first(), 1);
   await page.getByRole('link', { name: /QA approach/ }).first().click();
   await page.goBack();
   await isSelected(galleries.first(), 0, 'Route return resets video-first selection');
-  assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
+  assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
   console.log('PASS: both slideshow sequences, full dwell/reset/reselection, video retention, timer independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset');
 }

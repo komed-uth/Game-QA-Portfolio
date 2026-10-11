@@ -1,4 +1,5 @@
 const slideshow = { name: 'slideshow', module: './gameplay-slideshow.mjs' };
+const video = { name: 'video', module: './gameplay-video.mjs' };
 const photos = { name: 'photos', module: './gameplay-photos.mjs' };
 const gameplay = { name: 'gameplay-previews', module: './gameplay-previews.mjs' };
 const fixtures = { name: 'gameplay-fixtures', module: './gameplay-preview-fixtures.mjs' };
@@ -11,10 +12,10 @@ const placeholders = { name: 'placeholder-showcases', module: './placeholder-sho
 
 const suites = new Map([
   [undefined, { label: 'complete portfolio suite', result: 'portfolio', reports: true,
-    checks: [placeholders, slideshow, photos, gameplay, fixtures, evidence, interactions, reportLayout, overlays, reports] }],
+    checks: [placeholders, video, slideshow, photos, gameplay, fixtures, evidence, interactions, reportLayout, overlays, reports] }],
   ['--reports-only', { label: 'reports and overlay fixture', result: 'report', reports: true, checks: [reportLayout, overlays, reports] }],
   ['--report-layout-only', { label: 'quick report layout', result: 'report layout', reports: false, checks: [reportLayout] }],
-  ['--gameplay-only', { label: 'gameplay', result: 'gameplay', reports: false, checks: [placeholders, slideshow, photos, gameplay, fixtures] }],
+  ['--gameplay-only', { label: 'gameplay', result: 'gameplay', reports: false, checks: [placeholders, video, slideshow, photos, gameplay, fixtures] }],
   ['--placeholders-only', { label: 'placeholder showcases', result: 'placeholder showcase', reports: false, checks: [placeholders] }],
   ['--slideshow-only', { label: 'slideshow', result: 'slideshow', reports: false, checks: [slideshow] }],
   ['--photos-only', { label: 'photos', result: 'photo', reports: false, checks: [photos] }],
