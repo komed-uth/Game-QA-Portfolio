@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
 // Inspection reasons are independent: clearing one must not clear another.
-export default function useGallerySlideshow({ selected, ready, count, inspecting, advance, controls = false }: {
+export default function useGallerySlideshow({ selected, ready, count, inspecting, advance, videoShowcase = false }: {
   selected: number;
   ready: boolean;
   count: number;
   inspecting: boolean;
   advance: () => void;
-  controls?: boolean;
+  videoShowcase?: boolean;
 }) {
   const gallery = useRef<HTMLDivElement>(null);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -16,12 +16,12 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
       setReducedMotion(preference.matches);
-      if (controls && preference.matches) setPaused(true);
+      if (videoShowcase && preference.matches) setPaused(true);
     };
     update();
     preference.addEventListener("change", update);
     return () => preference.removeEventListener("change", update);
-  }, [controls]);
+  }, [videoShowcase]);
   const [inspection, setInspection] = useState({ hover: false, focus: false, dragging: false, visible: false, hidden: document.hidden });
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
@@ -111,12 +111,12 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     setInspection(current => current.hover === hover ? current : { ...current, hover });
   }, [inspecting]);
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
-  const eligible = count > 1 && !(controls ? paused : reducedMotion) && !suspended;
+  const eligible = count > 1 && !(videoShowcase ? paused : reducedMotion) && !suspended;
   useEffect(() => {
     if (!ready || !eligible) return;
-    const timer = setTimeout(() => advanceRef.current(), controls ? 5000 : 6500);
+    const timer = setTimeout(() => advanceRef.current(), videoShowcase ? 5000 : 6500);
     return () => clearTimeout(timer);
-  }, [selected, ready, eligible, controls]);
+  }, [selected, ready, eligible, videoShowcase]);
 
   return { gallery, eligible, paused, togglePause: () => setPaused(value => !value) };
 }

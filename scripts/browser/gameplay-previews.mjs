@@ -37,10 +37,17 @@ export default async function checkGameplay(page) {
         assert(await announcement.evaluate(e => getComputedStyle(e).clipPath === 'inset(50%)'), 'Selection updates remain nonvisual');
         const layout = await gallery.evaluate(e => {
           const viewer = e.querySelector('.gallery-viewer').getBoundingClientRect();
+          const caption = e.querySelector('figcaption').getBoundingClientRect();
           const strip = e.querySelector('.gallery-preview-strip').getBoundingClientRect();
-          return { gap: strip.top - viewer.bottom, frame: viewer.width / viewer.height };
+          return { gap: strip.top - caption.bottom, captionGap: caption.top - viewer.bottom,
+            frame: viewer.width / viewer.height, captionFits: caption.left >= viewer.left && caption.right <= viewer.right };
         });
-        assert(Math.abs(layout.gap - 12) < 1, 'Only the preview gap remains below the viewer');
+        assert(Math.abs(layout.gap - 12) < 1 && layout.captionGap >= 0, 'Caption and controls precede the preview strip');
+        assert(layout.captionFits, 'Caption row fits within the viewer width');
+        for (const action of await gallery.locator('.gallery-caption button, .gallery-caption a').all()) {
+          const bounds = await action.boundingBox();
+          assert(bounds.width >= 44 && bounds.height >= 44, 'Slideshow and external video actions have 44px targets');
+        }
         assert(Math.abs(layout.frame - 16 / 9) < .02, 'Main frame proportions remain intact');
         assert.equal(await gallery.locator('.gallery-dots').count(), 0);
         assert.equal(await gallery.getByRole('button', { name: /previous media|next media/ }).count(), 0);

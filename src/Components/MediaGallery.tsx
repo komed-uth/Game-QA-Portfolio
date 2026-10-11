@@ -32,7 +32,7 @@ export default function MediaGallery({
   const selectedRef = useRef(0);
   const photo = useGalleryPhoto(item?.type === "image" ? item.source : null);
   const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
-  const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, controls: !!videoId, advance: () => select(selectedRef.current + 1) });
+  const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, videoShowcase: !!videoId, advance: () => select(selectedRef.current + 1) });
   const imageButton = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
   useEffect(() => {
