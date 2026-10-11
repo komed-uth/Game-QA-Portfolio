@@ -3,9 +3,94 @@ import { waitForPhoto } from './gallery-photo-ready.mjs';
 import { installPausedClock, waitForPhoto as waitForClockPhoto } from './gameplay-slideshow.mjs';
 import { withBrowserContext } from './run-browser-check.mjs';
 
-const projectName = 'Invictus: Lost Soul';
-const galleryName = projectName + ' mock images';
+const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
+
+export default async function checkPlaceholders(page) {
+  for (const projectName of projectNames) {
+    await withBrowserContext(page.context().browser(), {}, async context => {
+      const projectPage = await context.newPage();
+      await projectPage.goto(page.url());
+      await checkProject(projectPage, projectName);
+    });
+  }
+  await page.bringToFront();
+  await checkIndependentGalleries(page);
+}
+
+async function checkIndependentGalleries(page) {
+  await page.setViewportSize({ width: 1366, height: 12000 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  const manualGalleries = projectNames.map(name => page.getByRole('region', { name: name + ' mock images', exact: true }));
+  for (let actor = 0; actor < manualGalleries.length; actor++) {
+    const before = await Promise.all(manualGalleries.map(selected));
+    await manualGalleries[actor].locator('.gallery-thumbnail').nth(3).click();
+    await waitForPhoto(manualGalleries[actor]);
+    await manualGalleries[actor].locator('.evidence-image-button').click();
+    await page.keyboard.press('ArrowRight');
+    await closeModal(page);
+    await waitForPhoto(manualGalleries[actor]);
+    for (let i = 0; i < manualGalleries.length; i++) {
+      assert.equal(await selected(manualGalleries[i]), i === actor ? 4 : before[i], 'Thumbnail and modal selection preserve other galleries');
+    }
+  }
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await installPausedClock(page);
+  await page.reload();
+  const galleries = projectNames.map(name => page.getByRole('region', { name: name + ' mock images', exact: true }));
+  const accents = await page.locator('.placeholder-project').evaluateAll(es => es.map(e => getComputedStyle(e).getPropertyValue('--project-accent').trim()));
+  assert.equal(new Set(accents).size, 3, 'Each placeholder project has a distinct accent');
+  assert.equal(await page.locator('.placeholder-project .gallery-thumbnail').count(), 15);
+  for (const gallery of galleries) {
+    await waitForClockPhoto(gallery);
+    assert.equal(await selected(gallery), 0);
+    assert(await gallery.evaluate(e => e.getBoundingClientRect().bottom <= innerHeight), 'Independence checks keep every gallery eligible');
+  }
+  for (let actor = 0; actor < galleries.length; actor++) {
+    await page.reload();
+    for (const gallery of galleries) await waitForClockPhoto(gallery);
+    await releaseInspection(page);
+    await page.clock.fastForward(3900);
+    await galleries[actor].locator('.gallery-thumbnail').nth(3).evaluate(e => e.click());
+    await waitForClockPhoto(galleries[actor]);
+    await releaseInspection(page);
+    await page.clock.fastForward(2900);
+    for (let i = 0; i < galleries.length; i++) {
+      assert.equal(await selected(galleries[i]), i === actor ? 3 : 1, 'Manual selection resets only its own countdown');
+      await waitForClockPhoto(galleries[i]);
+    }
+    await galleries[actor].locator('.evidence-image-button').click();
+    await page.mouse.move(0, 0);
+    await page.clock.fastForward(6700);
+    for (let i = 0; i < galleries.length; i++) {
+      assert.equal(await selected(galleries[i]), i === actor ? 3 : 2, 'Modal inspection suspends only its own slideshow');
+    }
+    await page.keyboard.press('ArrowRight');
+    await page.clock.runFor(32);
+    for (let i = 0; i < galleries.length; i++) {
+      assert.equal(await selected(galleries[i]), i === actor ? 4 : 2, 'Modal navigation changes only its own selected image');
+    }
+    await page.keyboard.press('Escape');
+    await page.clock.runFor(220);
+    await page.locator('dialog').waitFor({ state: 'detached' });
+    await waitForClockPhoto(galleries[actor]);
+    await releaseInspection(page);
+    await page.clock.fastForward(3900);
+    await galleries[actor].locator('.evidence-image-button').hover();
+    await page.clock.runFor(32);
+    await page.clock.fastForward(2900);
+    for (let i = 0; i < galleries.length; i++) {
+      assert.equal(await selected(galleries[i]), i === actor ? 4 : 3, 'Inspection suspension leaves other slideshows progressing');
+    }
+    await releaseInspection(page);
+    await page.clock.fastForward(3900);
+    await waitForClockPhoto(galleries[(actor + 1) % galleries.length]);
+    await page.clock.fastForward(2900);
+    assert.equal(await selected(galleries[actor]), 0, 'Own slideshow wraps without being reset by another slideshow');
+  }
+  console.log('PASS: all fifteen panels and three accents; manual selection, modal navigation/inspection and slideshows retain independent state in every gallery');
+}
 
 async function selected(gallery) {
   return gallery.locator('.gallery-thumbnail').evaluateAll(es => es.findIndex(e => e.getAttribute('aria-pressed') === 'true'));
@@ -44,7 +129,8 @@ async function swipe(page, target, direction) {
   await page.mouse.up();
 }
 
-export default async function checkPlaceholders(page) {
+async function checkProject(page, projectName) {
+  const galleryName = projectName + ' mock images';
   const section = page.getByRole('region', { name: projectName, exact: true });
   const gallery = page.getByRole('region', { name: galleryName, exact: true });
   const previews = gallery.locator('.gallery-thumbnail');
@@ -52,8 +138,9 @@ export default async function checkPlaceholders(page) {
   await section.waitFor();
   assert.equal(await page.getByRole('heading', { name: projectName, exact: true }).count(), 1);
   assert.deepEqual(await page.locator('main .project-title').allTextContents(),
-    ['Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso', projectName]);
-  assert(await section.evaluate(e => e.previousElementSibling.querySelector('h2').textContent.trim() === 'Vecchio Furioso'));
+    ['Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso', ...projectNames]);
+  const preceding = projectNames.indexOf(projectName) === 0 ? 'Vecchio Furioso' : projectNames[projectNames.indexOf(projectName) - 1];
+  assert.equal(await section.evaluate(e => e.previousElementSibling.querySelector('h2').textContent.trim()), preceding);
   assert(await page.locator('footer').last().isVisible(), 'Subsequent footer remains present');
   assert.match(await section.innerText(), /Placeholder project content/);
   for (const field of ['My role', 'Responsibilities', 'Platforms', 'Tools']) {
@@ -122,7 +209,7 @@ export default async function checkPlaceholders(page) {
         }
         await page.keyboard.press('ArrowRight');
         const next = (i + 1) % 5;
-        assert.equal(await dialog.locator('img').getAttribute('src'), sources[next], 'Modal wraps within Invictus');
+        assert.equal(await dialog.locator('img').getAttribute('src'), sources[next], 'Modal wraps within its project');
         await closeModal(page, i % 3 === 0 ? 'button' : i % 3 === 1 ? 'backdrop' : 'escape');
         await waitForPhoto(gallery, sources[next]);
         assert.equal(await selected(gallery), next, 'Modal selection synchronizes to main viewer');
@@ -130,10 +217,10 @@ export default async function checkPlaceholders(page) {
       }
     }
   }
-  assert.equal(await selected(existing.first()), 2, 'Invictus leaves Regulus selection unchanged');
-  assert.equal(await selected(existing.nth(1)), 3, 'Invictus leaves Father Son selection unchanged');
+  assert.equal(await selected(existing.first()), 2, 'This project leaves Regulus selection unchanged');
+  assert.equal(await selected(existing.nth(1)), 3, 'This project leaves Father Son selection unchanged');
   assert.equal(await page.getByRole('button', { name: 'High', exact: true }).getAttribute('aria-pressed'), 'true');
-  console.log('PASS: Invictus content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes');
+  console.log('PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes');
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 845 });
@@ -228,7 +315,7 @@ export default async function checkPlaceholders(page) {
     await session.detach();
   });
   await page.bringToFront();
-  console.log('PASS: Invictus keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection');
+  console.log('PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection');
 
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -264,7 +351,7 @@ export default async function checkPlaceholders(page) {
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.clock.runFor(32);
   await page.waitForTimeout(100);
-  assert(await gallery.evaluate(e => e.getBoundingClientRect().top >= innerHeight), 'Invictus is completely offscreen');
+  assert(await gallery.evaluate(e => e.getBoundingClientRect().top >= innerHeight), 'This project is completely offscreen');
   await page.clock.fastForward(14000);
   assert.equal(await selected(gallery), 0, 'Offscreen image-only gallery suspends');
   await gallery.scrollIntoViewIfNeeded();
@@ -283,7 +370,7 @@ export default async function checkPlaceholders(page) {
   await page.clock.fastForward(20000);
   assert.equal(await selected(gallery), 2, 'Live reduced motion stops image-only progression');
 
-  await page.setViewportSize({ width: 1366, height: 6000 });
+  await page.setViewportSize({ width: 1366, height: 12000 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.reload();
   await existing.first().locator('.gallery-thumbnail').nth(1).evaluate(e => e.click());
@@ -296,16 +383,16 @@ export default async function checkPlaceholders(page) {
   await waitForClockPhoto(gallery);
   await releaseInspection(page);
   await page.clock.fastForward(2900);
-  assert.equal(await selected(existing.first()), 2, 'Invictus selection does not restart another gallery countdown');
-  assert.equal(await selected(gallery), 4, 'Invictus receives its own fresh dwell');
+  assert.equal(await selected(existing.first()), 2, 'This project selection does not restart another gallery countdown');
+  assert.equal(await selected(gallery), 4, 'This project receives its own fresh dwell');
   await existing.first().locator('.gallery-thumbnail').nth(1).evaluate(e => e.click());
   await waitForClockPhoto(existing.first());
   await releaseInspection(page);
   await opener.click();
   await page.mouse.move(0, 0);
   await page.clock.fastForward(6700);
-  assert.equal(await selected(existing.first()), 2, 'Invictus modal inspection does not suspend another gallery');
-  assert.equal(await selected(gallery), 4, 'Invictus modal inspection keeps its image stable');
+  assert.equal(await selected(existing.first()), 2, 'This project modal inspection does not suspend another gallery');
+  assert.equal(await selected(gallery), 4, 'This project modal inspection keeps its image stable');
   await page.keyboard.press('Escape');
   await page.clock.runFor(220);
   await page.locator('dialog').waitFor({ state: 'detached' });
