@@ -6,3 +6,4 @@ dist/
 .env.local
 *.log
 .scratch/browser-checks/
+.scratch/browser-runs/

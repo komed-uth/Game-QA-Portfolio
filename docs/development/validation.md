@@ -70,6 +70,18 @@ rg -n --max-columns 200 --max-columns-preview 'pattern' 'public/Performance-Test
 
 Read a small excerpt around a match instead of printing entire embedded lines.
 
+## Bounded merge inspection
+
+Inspect filenames first when incoming work includes generated HTML or image evidence:
+
+```sh
+git diff --name-status HEAD <remote>/<branch>
+git diff HEAD <remote>/<branch> -- src scripts package.json .github
+git merge-tree --write-tree --name-only HEAD <remote>/<branch>
+```
+
+The last command reports the candidate tree and conflict paths (exit 1 means conflicts); it creates Git objects without changing the checkout or refs. Request a text diff for a specific documentation file when needed, and inspect images visually. This keeps generated report data and image contents out of merge-inspection output.
+
 ## Focused report checks and overlay fixture
 
 Run `npm run check:reports` for report interactions and the synthetic overlay fixture using the same runner as the full suite. The runner also accepts `node scripts/check-browser.mjs --reports-only`. `npm run check:browser` remains the complete suite and is the CI default. Unknown arguments fail before preview/browser startup.
@@ -104,9 +116,15 @@ Run `npm run check:photos` for the manual photo lifecycle in both gameplay showc
 
 Every check prints START, then checks input stability before reporting PASS/FAIL with elapsed time. Failed checks save `trace.zip`, `failure.json`, and a viewport `screenshot.png` beneath a unique `.scratch/browser-checks/<check>-.../` directory before the runner closes its browser context. Diagnostics include the named check and assertion scenario, page URL, focused element, selected gameplay media, photo phase/readiness and load dimensions, DOM hover/focus, document visibility, viewport/scroll position, and gallery bounds/intersection. These are observable browser snapshots, not internal timer or suspension-state probes. Screenshot or page-state collection failures are recorded in the JSON while the original assertion and trace are preserved. Successful traces are discarded. The runner and temporary mobile/fixture contexts share failure capture through `withBrowserContext`. The saved trace and page diagnostics come from the innermost failing context before it closes; propagated errors keep that evidence. Artifact-write failures are reported while preserving the original assertion.
 
-Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads browser failure evidence with seven-day retention. Only `.scratch/browser-checks/` is uploaded; this directory is Git-ignored.
+Open a saved trace with `npx playwright show-trace <path-to-trace.zip>`. The PR workflow uploads run summaries/logs and any browser failure evidence with seven-day retention, including successful runs. Both `.scratch/browser-runs/` and `.scratch/browser-checks/` are Git-ignored.
 
-`npm run check:runner` verifies selector routing, invalid arguments before startup, real Playwright trace capture, failure cleanup and edit detection. CI runs it after installing Chromium.
+Every browser command prints `RUN EVIDENCE` with a unique `.scratch/browser-runs/run-.../` directory. `output.log` preserves streamed standard output and errors. `progress.jsonl` appends snapshots as the worker reports progress; each complete line is a JSON checkpoint. On completion, `summary.json` is created atomically. Both record the selected suite/checks, starting commit and tracked-change flag, a fingerprint of the validation inputs, check durations/results, and status. The commit identifies history; the fingerprint also identifies uncommitted source and built inputs. External preview runs fingerprint local inputs only.
+
+`passed` requires every selected check and the final input-stability gate to succeed. `failed`, `obsolete`, `interrupted`, and `incomplete` are unsuccessful outcomes. A `running` checkpoint without final completion is unfinished evidence, including after forced termination; individual check passes do not establish a suite pass. Read `summary.json` after a terminal/session interruption; when it is absent, inspect the last complete JSON line in `progress.jsonl`, ignoring any partial final line. Normal interruption requests worker cleanup; abrupt termination may leave only its last checkpoint. Append-only progress avoids replacing a file while a Windows reader has it open.
+
+`npm run check:runner` verifies selector routing, invalid arguments before startup, real Playwright trace capture, failure cleanup, edit detection, persisted subprocess results/interruption and repeatable report generation. CI runs it after installing Chromium.
+
+Generated public report copies use LF endings through `.gitattributes` and report synchronization, so CRLF original checkouts do not create mixed-ending build output. Synchronization skips copies whose output already matches. Original report files are read without modification. Repeated builds should leave generated tracked copies clean.
 
 ## Validation input stability
 

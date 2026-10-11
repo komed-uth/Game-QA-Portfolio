@@ -78,6 +78,7 @@ export async function withBrowserContext(browser, options, check) {
 export async function runBrowserCheck(browser, url, { name, check }, {
   artifactDirectory = '.scratch/browser-checks', log = console.log,
   validateInputs = async () => {},
+  onResult = async () => {},
 } = {}) {
   const started = performance.now();
   const elapsed = () => `${((performance.now() - started) / 1000).toFixed(2)}s`;
@@ -94,6 +95,7 @@ export async function runBrowserCheck(browser, url, { name, check }, {
   } catch (error) { failed = true; failure = error; }
   if (!failed && run.directory) await rm(run.directory, { recursive: true, force: true });
   await validateInputs(failure);
+  await onResult({ name, status: failed ? 'failed' : 'passed', durationMs: performance.now() - started });
   log(`${failed ? 'FAIL' : 'PASS'}: ${name} (${elapsed()})`);
   if (failed) {
     if (run.warning) log(run.warning);

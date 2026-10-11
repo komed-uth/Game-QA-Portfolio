@@ -26,10 +26,12 @@ for (const filename of filenames) {
     throw new Error(`Missing report head: ${filename}`);
   }
   // Only add presentation metadata and CSS; capture data and chart scripts stay intact.
-  await writeFile(
-    new URL(filename, destination),
-    original.replace("</head>", `${presentation}</head>`),
-  );
+  const output = original.replace(/\r\n/g, "\n").replace("</head>", `${presentation}</head>`);
+  const target = new URL(filename, destination);
+  let existing;
+  try { existing = await readFile(target, "utf8"); }
+  catch (error) { if (error.code !== "ENOENT") throw error; }
+  if (existing !== output) await writeFile(target, output);
 }
 console.log(
   `Prepared ${filenames.length} responsive reports from unchanged original evidence.`,
