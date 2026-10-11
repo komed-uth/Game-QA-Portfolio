@@ -4,6 +4,13 @@ import path from 'node:path';
 
 const runs = new AsyncLocalStorage();
 
+export function reportProgress(phase, context = {}) {
+  const run = runs.getStore();
+  if (!run) return;
+  run.progress = { phase, ...context };
+  run.log(`PROGRESS: ${run.name} ${JSON.stringify(run.progress)} (${run.elapsed()})`);
+}
+
 async function captureFailure(context, error, run) {
   // Keep evidence from the innermost failing context before its cleanup.
   if (run.failure === error) return;
@@ -17,11 +24,19 @@ async function captureFailure(context, error, run) {
     run.directory = await mkdtemp(path.join(run.artifactDirectory, `${run.name}-`));
     const page = context.pages().at(-1);
     const diagnostics = { suite: run.name, scenario: { check: run.name, assertion: error.message }, message: error.message, stack: error.stack, url: page?.url() };
+    if (run.progress) diagnostics.scenario.progress = run.progress;
     try {
       diagnostics.page = await page.evaluate(() => ({
         viewport: { width: innerWidth, height: innerHeight, scrollX, scrollY },
         visibility: { state: document.visibilityState, hidden: document.hidden, focused: document.hasFocus() },
         modalOpen: !!document.querySelector('dialog[open]'),
+        report: document.querySelector('.report-selector') ? {
+          selected: [...document.querySelectorAll('.report-selector button[aria-pressed="true"]')].map(element => element.textContent.trim()),
+          outputName: document.querySelector('.report-output')?.getAttribute('aria-label'),
+          openerNames: [...document.querySelectorAll('.report-preview, .report-controls .evidence-open')].map(element => element.getAttribute('aria-label')),
+          modalTitle: document.querySelector('dialog[open] h2')?.textContent,
+          iframeSource: document.querySelector('dialog[open] iframe')?.getAttribute('src'),
+        } : null,
         galleries: [...document.querySelectorAll('.game-gallery')].map(gallery => {
           const previews = [...gallery.querySelectorAll('.gallery-thumbnail')];
           const selected = gallery.querySelector('.gallery-thumbnail[aria-pressed="true"]');
@@ -82,7 +97,7 @@ export async function runBrowserCheck(browser, url, { name, check }, {
   const started = performance.now();
   const elapsed = () => `${((performance.now() - started) / 1000).toFixed(2)}s`;
   log(`START: ${name}`);
-  const run = { name, artifactDirectory };
+  const run = { name, artifactDirectory, log, elapsed };
   let failure;
   let failed = false;
   try {
