@@ -1,0 +1,5 @@
+.env
+auth/
+context/
+logs/
+worktrees/

@@ -1,0 +1,6 @@
+{
+  "model": "gpt-6.1-sol",
+  "image": "sandcastle:game-qa-portfolio",
+  "remote": "origin",
+  "targetBranch": "main"
+}

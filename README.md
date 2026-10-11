@@ -80,3 +80,10 @@ Validation viewports include 1920 × 1080 and 1366 × 768 desktops, 390 × 845 (
 ## Template attribution
 
 Visual assets and design adapted from the local Portfolio Template by Sol Elan. Its MIT copyright and terms are preserved in **`LICENSE.template`**. The source template repository was left unchanged.
+
+## Sandcastle workflow
+
+The project includes a sandboxed Codex runner using your host ChatGPT login.
+See [setup and dispatch instructions](docs/development/sandcastle.md).
+Run `npm run sandcastle:doctor` to check prerequisites and
+`npm run check:sandcastle` to verify its issue guards.
