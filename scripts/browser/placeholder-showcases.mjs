@@ -203,6 +203,17 @@ export default async function checkPlaceholders(page) {
     await gesture(touchGallery.locator('.gallery-viewer'), 0, -100);
     assert(await touchPage.evaluate(y => scrollY > y, before), 'Vertical photo gesture scrolls the page');
     assert.equal(await selected(touchGallery), 1);
+    // A tap during native scroll momentum stops scrolling instead of activating.
+    // Wait for a quiet page before testing the separate inspection gesture.
+    let lastScroll = await touchPage.evaluate(() => scrollY), quietSince = Date.now();
+    const scrollDeadline = Date.now() + 5000;
+    while (Date.now() - quietSince < 250) {
+      assert(Date.now() < scrollDeadline, 'Native vertical scrolling settles before inspection');
+      await touchPage.waitForTimeout(50);
+      const currentScroll = await touchPage.evaluate(() => scrollY);
+      if (currentScroll !== lastScroll) quietSince = Date.now();
+      lastScroll = currentScroll;
+    }
     await touchGallery.locator('.evidence-image-button').tap();
     await touchPage.getByRole('dialog').waitFor();
     await closeModal(touchPage, 'button');

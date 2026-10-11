@@ -47,6 +47,8 @@ After integrating main `c26ac9c`, both reviewers confirmed no findings against t
 
 The complete local nine-check suite passed before integration. The complete Linux CI suite also passed on merged head `19ab19f` ([run 38079675489](https://github.com/komed-uth/Game-QA-Portfolio/actions/runs/38079675489)). Both independent GPT-6.1 Sol high-effort reviewers inspected the final visibility prerequisite correction and reported zero findings. Final-head check results are recorded in the pull request.
 
+Main subsequently published ticket #52 as `6109a1b`. Integration retains its primary-project media ordering and uses `.project-grid.placeholder-project > .game-gallery` to keep the new showcase's named placement above the shared mobile placement rules. Both reviewers reported zero findings against this refreshed baseline. The touch scenario now observes 250ms of quiet vertical scroll, bounded by five seconds, before a separate inspection tap; the native scroll and selection assertions and single real tap remain intact. Both reviewers reported zero findings for this test adjustment, and the focused Invictus check passed in 85.36 seconds.
+
 ## Limits and merge risk
 
 The five supplied HTML reports have empty screenshot path lists. Real report capture overlays are therefore skipped; synthetic overlay coverage checks integration without certifying real capture evidence. Browser viewports, native touch emulation, and controlled document visibility do not certify physical devices or actual background-tab scheduling. Verified project facts and real project media still need the owner's input.
