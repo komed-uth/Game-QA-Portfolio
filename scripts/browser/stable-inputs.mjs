@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const inputs = ['src', 'scripts', 'public', 'dist', 'Performance-Testing-Mobile', 'index.html',
-  'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts'];
+  'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', '.gitattributes'];
 
 async function snapshot(root) {
   const files = new Map();
@@ -31,6 +31,7 @@ async function snapshot(root) {
 
 export async function withStableInputs(run, root = process.cwd()) {
   const before = await snapshot(root);
+  const fingerprint = createHash('sha256').update(JSON.stringify([...before].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0))).digest('hex');
   async function validateInputs(failure) {
     const after = await snapshot(root);
     const changed = [...new Set([...before.keys(), ...after.keys()])]
@@ -44,7 +45,7 @@ export async function withStableInputs(run, root = process.cwd()) {
   }
   let failure;
   let failed = false;
-  try { await run(validateInputs); } catch (error) { failed = true; failure = error; }
+  try { await run(validateInputs, { fingerprint }); } catch (error) { failed = true; failure = error; }
   if (failure?.name === 'ObsoleteInputError') throw failure;
   await validateInputs(failure);
   if (failed) throw failure;
