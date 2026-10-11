@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { reportFiles as files, reportLabels as labels, selectReport } from './report-selection.mjs';
+import { reportViewports } from './report-viewports.mjs';
 import { reportProgress } from './run-browser-check.mjs';
 
 // Exhaustive inspection complements the quick layout check on the rendered portfolio.
@@ -134,8 +135,7 @@ export default async function check(page) {
     }
     await page.getByRole('button', { name: 'Overall', exact: true }).click();
 
-    for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840],
-        [840, 360], [1200, 800], [800, 1200], [899, 700], [901, 700], [900, 700]]) {
+    for (const [width, height] of reportViewports) {
         await page.setViewportSize({ width, height });
         assert.equal(await page.getByRole('button', { name: 'Overall', exact: true }).getAttribute('aria-pressed'), 'true',
             'Resizing preserves selected report');
