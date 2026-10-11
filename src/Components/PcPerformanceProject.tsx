@@ -9,11 +9,24 @@ export default function PcPerformanceProject() {
       className="project-grid pc-project"
       aria-labelledby="pc-project-title"
     >
-      <div className="project-info">
+      <header className="project-heading">
         <p className="eyebrow">Performance project / 02</p>
         <h2 id="pc-project-title" className="project-title">
           {pcProject.name}
         </h2>
+      </header>
+      <figure className="capture-media">
+        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
+          aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
+        >
+          <img
+            src={assetUrl(pcProject.image)}
+            alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
+            loading="lazy"
+          />
+        </button>
+      </figure>
+      <div className="project-info">
         <div className="project-details" aria-label="Project details">
           {pcProject.details.map(({ label, value }) => (
             <div key={label}>
@@ -35,17 +48,6 @@ export default function PcPerformanceProject() {
           </a>
         </div>
       </div>
-      <figure className="capture-media">
-        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
-          aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
-        >
-          <img
-            src={assetUrl(pcProject.image)}
-            alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
-            loading="lazy"
-          />
-        </button>
-      </figure>
       {open && <EvidenceModal title="Vecchio Furioso · Microsoft PIX capture"
         source={assetUrl(pcProject.image)} alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
         onClose={() => setOpen(false)} />}
