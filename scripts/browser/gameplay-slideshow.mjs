@@ -2,11 +2,11 @@ import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 const photoDwellMs = 6500;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
-async function installPausedClock(page) {
+export async function installPausedClock(page) {
   await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
   await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
 }
-async function waitForPhoto(gallery) {
+export async function waitForPhoto(gallery) {
   const page = gallery.page();
   for (let attempt = 0; attempt < 300; attempt++) {
     await page.clock.runFor(16);
@@ -21,7 +21,7 @@ async function waitForPhoto(gallery) {
 export default async function checkSlideshow(page) {
   await page.setViewportSize({ width: 1366, height: 768 });
   await installPausedClock(page);
-  const galleries = page.locator('.game-gallery');
+  const galleries = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery');
   async function isSelected(gallery, index, message) {
     const value = await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed');
     assert.equal(value, 'true', message);
@@ -219,7 +219,7 @@ export default async function checkSlideshow(page) {
     await installPausedClock(touchPage);
     for (let index = 0; index < 2; index++) {
       await touchPage.reload();
-      const gallery = touchPage.locator('.game-gallery').nth(index);
+      const gallery = touchPage.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').nth(index);
       await gallery.locator('.gallery-thumbnail').nth(1).tap();
       await waitForPhoto(gallery);
       await touchPage.clock.runFor(32);
@@ -231,7 +231,7 @@ export default async function checkSlideshow(page) {
     }
     console.log('PASS: both showcases advance after real touch selection without forced blur');
     await touchPage.reload();
-    const touchGallery = touchPage.locator('.game-gallery').first();
+    const touchGallery = touchPage.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').first();
     await touchGallery.locator('.gallery-thumbnail').nth(1).tap();
     await waitForPhoto(touchGallery);
     await touchPage.evaluate(() => document.activeElement?.blur());
