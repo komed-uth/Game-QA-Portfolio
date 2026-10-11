@@ -291,10 +291,11 @@ async function checkProject(page, projectName) {
     assert(await touchPage.evaluate(y => scrollY > y, before), 'Vertical photo gesture scrolls the page');
     assert.equal(await selected(touchGallery), 1);
     // A tap during native scroll momentum stops scrolling instead of activating.
-    // Wait for a quiet page before testing the separate inspection gesture.
+    // Chromium can still suppress a tap's compatibility click after scrollY
+    // stops changing. Wait through that gesture window before inspection.
     let lastScroll = await touchPage.evaluate(() => scrollY), quietSince = Date.now();
     const scrollDeadline = Date.now() + 5000;
-    while (Date.now() - quietSince < 250) {
+    while (Date.now() - quietSince < 750) {
       assert(Date.now() < scrollDeadline, 'Native vertical scrolling settles before inspection');
       await touchPage.waitForTimeout(50);
       const currentScroll = await touchPage.evaluate(() => scrollY);
