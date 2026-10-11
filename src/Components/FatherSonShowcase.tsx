@@ -34,11 +34,19 @@ export default function FatherSonShowcase() {
       className="project-grid video-project"
       aria-labelledby="father-son-showcase-title"
     >
-      <div className="project-info">
+      <header className="project-heading">
         <p className="eyebrow">Project showcase</p>
         <h2 id="father-son-showcase-title" className="project-title">
           {fatherSonProject.name}
         </h2>
+      </header>
+      <MediaGallery
+        projectName={fatherSonProject.name}
+        galleryName="Father, Son & Holy Guns media"
+        videoId={fatherSonProject.videoId}
+        media={media}
+      />
+      <div className="project-info">
         <div className="project-details" aria-label="Project details">
           {fatherSonProject.details.map(({ label, value }) => (
             <div key={label}>
@@ -48,12 +56,6 @@ export default function FatherSonShowcase() {
           ))}
         </div>
       </div>
-      <MediaGallery
-        projectName={fatherSonProject.name}
-        galleryName="Father, Son & Holy Guns media"
-        videoId={fatherSonProject.videoId}
-        media={media}
-      />
     </section>
   );
 }

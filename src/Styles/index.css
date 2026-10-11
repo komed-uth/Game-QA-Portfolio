@@ -198,15 +198,33 @@ nav a.active {
 .project-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
-  gap: 48px;
+  grid-template-rows: max-content minmax(0, 1fr);
+  gap: 16px 48px;
   align-items: start;
   margin-bottom: 56px;
 }
+.project-heading,
 .project-info,
 .work-in-progress > div,
 .about-intro > div {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.project-heading {
+  grid-column: 1;
+  grid-row: 1;
+}
+.project-heading .project-title {
+  margin-bottom: 0;
+}
+.project-info {
+  grid-column: 1;
+  grid-row: 2;
+}
+.project-grid > .game-gallery,
+.project-grid > .capture-media {
+  grid-column: 2;
+  grid-row: 1 / span 2;
 }
 .placeholder-project {
   border-top: 1px solid var(--line);
@@ -217,7 +235,7 @@ nav a.active {
 }
 .placeholder-project-heading { grid-area: heading; min-width: 0; overflow-wrap: anywhere; }
 .placeholder-project > .project-details { grid-area: details; min-width: 0; overflow-wrap: anywhere; }
-.placeholder-project > .game-gallery { grid-area: gallery; }
+.project-grid.placeholder-project > .game-gallery { grid-area: gallery; }
 .placeholder-project .project-title,
 .placeholder-project .eyebrow { color: var(--project-accent); }
 @media (max-width: 900px) {
@@ -235,6 +253,8 @@ nav a.active {
   grid-template-rows: min-content 1fr;
   align-items: start;
   min-width: 0;
+  grid-row: 3;
+  margin-top: 32px;
 }
 .report-block > * {
   min-width: 0;
@@ -709,8 +729,11 @@ footer {
     align-self: start;
   }
   .project-grid {
-    gap: 28px;
+    column-gap: 28px;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .report-block {
+    margin-top: 12px;
   }
   .workflow-list {
     grid-template-columns: repeat(2, 1fr);
@@ -723,7 +746,15 @@ footer {
 @media (max-width: 900px) {
   .project-grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     gap: 24px;
+  }
+  .project-grid > .project-heading,
+  .project-grid > .project-info,
+  .project-grid > .game-gallery,
+  .project-grid > .capture-media {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 @media (max-width: 640px) {
@@ -819,6 +850,8 @@ footer {
   .report-block {
     grid-template-rows: auto;
     row-gap: 24px;
+    grid-row: auto;
+    margin-top: 0;
   }
   .report-block > * {
     grid-column: 1;
