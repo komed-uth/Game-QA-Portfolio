@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Regulus the Advent video",
+    "ready": true,
+    "states": [
+      1
+    ],
+    "errors": [],
+    "duration": 59
+  },
+  {
+    "index": 0,
+    "actualPlayerPaused": true,
+    "selected": "true"
+  },
+  {
+    "index": 0,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "index": 0,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "index": 0,
+    "eligibleCompletionAdvanced": true
+  },
+  {
+    "title": "Father, Son & Holy Guns video",
+    "ready": true,
+    "states": [
+      1
+    ],
+    "errors": [],
+    "duration": 116
+  },
+  {
+    "index": 1,
+    "actualPlayerPaused": true,
+    "selected": "true"
+  },
+  {
+    "index": 1,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "index": 1,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "index": 1,
+    "eligibleCompletionAdvanced": true
+  }
+]
