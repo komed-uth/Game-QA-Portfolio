@@ -31,11 +31,17 @@ async function checkFooter(page) {
 async function checkHomepage(page) {
   const main = page.getByRole('main');
   const text = await main.innerText();
-  for (const removed of ['Next in the portfolio', 'Manual gameplay testing', 'Work in progress',
+  for (const removed of ['Next in the portfolio', 'Manual gameplay testing',
     'Test cases, defect reports, and coverage documentation are being', 'Explore the QA approach']) {
     assert(!text.includes(removed), `Homepage removes ${removed}`);
   }
   assert.equal(await main.getByRole('link', { name: /Explore the QA approach/ }).count(), 0);
+  const coverage = main.getByRole('region', { name: 'Regulus the Advent', exact: true })
+    .getByRole('region', { name: 'Planned gameplay coverage', exact: true });
+  assert(await coverage.getByText('Work in progress', { exact: true }).isVisible(),
+    'Unfinished coverage belongs to the confirmed Regulus project');
+  assert.equal(await main.getByText('Work in progress', { exact: true }).count(), 1,
+    'No generic unfinished homepage teaser');
   assert.deepEqual(await main.locator('.project-title').allTextContents(),
     ['Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso', 'Invictus: Lost Soul', 'The Collectors', 'MeowMoney'], 'Project showcase order remains intact');
   assert.deepEqual(await main.locator('.store-links a').evaluateAll(links => links.map(link => link.href)), [
@@ -56,9 +62,9 @@ export async function checkHomepageFooter(page) {
   await checkHomepage(page);
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
   await nav.getByRole('link', { name: 'Skills', exact: true }).click();
-  await page.getByRole('heading', { name: 'Planned gameplay coverage' }).waitFor();
-  const coverage = page.getByRole('region', { name: 'Planned gameplay coverage' });
-  assert(await coverage.getByText('Work in progress', { exact: true }).isVisible());
+  await page.getByRole('heading', { name: 'QA capabilities' }).waitFor();
+  assert.equal(await page.getByRole('heading', { name: 'Planned gameplay coverage' }).count(), 0,
+    'Planned project coverage is not duplicated on Skills');
   await checkFooter(page);
   await nav.getByRole('link', { name: 'Portfolio', exact: true }).click();
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
@@ -69,7 +75,7 @@ export async function checkHomepageFooter(page) {
     element.matches(':focus-visible') && parseFloat(getComputedStyle(element).outlineWidth) > 0 &&
     getComputedStyle(element).outlineStyle !== 'none'), 'Skills has visible keyboard focus');
   await page.keyboard.press('Enter');
-  await page.getByRole('heading', { name: 'Planned gameplay coverage' }).waitFor();
+  await page.getByRole('heading', { name: 'QA capabilities' }).waitFor();
   await checkFooter(page);
   const fallbackUrl = new URL(homeUrl);
   fallbackUrl.hash = '/unknown-portfolio-route';

@@ -1,4 +1,4 @@
-import { assetUrl, project } from "../data";
+import { assetUrl, plannedCoverage, project } from "../data";
 import MediaGallery, { type MediaGalleryItem } from "./MediaGallery";
 import ReportViewer from "./ReportViewer";
 
@@ -81,6 +81,19 @@ export default function RegulusShowcase() {
         </div>
       </div>
       <ReportViewer />
+      <section className="project-coverage approach-section" aria-labelledby="coverage-heading">
+        <div className="section-heading">
+          <h2 id="coverage-heading">Planned gameplay coverage</h2>
+          <span className="status-badge">Work in progress</span>
+        </div>
+        <p className="section-description">
+          Planned manual QA documentation for Regulus the Advent. Completed test
+          suites and defect reports will be added as evidence becomes available.
+        </p>
+        <ul className="coverage-list">
+          {plannedCoverage.map((system) => <li key={system}>{system}</li>)}
+        </ul>
+      </section>
     </section>
   );
 }

@@ -2,15 +2,13 @@ import type { PerformanceReport, Profile } from "./types";
 
 export const linkedInProfileUrl = "https://www.linkedin.com/in/komed-uthisanont-592388187/";
 
-// Replace development drafts with owner-reviewed biography in ticket #77.
+// Owner-approved copy from ticket #77; the resume is a source, not a public asset.
 export const biography = {
-  status: "Development draft — biography details await the owner’s confirmation and copy review before publication.",
   sections: [
-    { id: "introduction", title: "Professional introduction", description: "Draft content — a short professional introduction and precise target role are awaiting confirmation." },
-    { id: "background", title: "Background", description: "Draft content — the owner’s professional background is awaiting confirmation." },
-    { id: "motivation", title: "Why game QA", description: "Draft content — the owner’s motivation for game QA is awaiting confirmation." },
-    { id: "direction", title: "Career direction", description: "Draft content — the owner’s career direction is awaiting confirmation." },
-    { id: "gaming", title: "Personal gaming detail", description: "Draft content — one personal gaming detail selected by the owner is awaiting confirmation." },
+    { id: "introduction", title: "Professional introduction", description: "I’m Komed Uthisanot, a Game QA Engineer with experience testing games across iOS, Android, Windows PC, and WebGL." },
+    { id: "background", title: "Background", description: "My game QA experience began in 2019 at Jumbojumps (True Axion Interactive), where my responsibilities as a Junior QA Engineer included functional, compatibility, performance, and regression testing. On Project Regulus, I coordinated QA planning, requirements analysis, and task allocation for 3–4 QA colleagues. I also collaborated with developers, technical artists, and designers on defect investigation, performance bottlenecks, and gameplay balance." },
+    { id: "motivation", title: "Why game QA", description: "I’m interested in how game design and player psychology shape the experience of playing." },
+    { id: "direction", title: "Career direction", description: "I want to develop further as a Game QA Engineer, combining structured testing with performance investigation." },
   ],
 };
 
@@ -111,39 +109,6 @@ export const reports: PerformanceReport[] = [
   { label: "Overall", filename: "overall-performance-report.png", kind: "image" },
 ];
 
-export const workflow = [
-  {
-    title: "Requirements",
-    description: "Identify intended behavior and player-facing risks.",
-  },
-  {
-    title: "Test design",
-    description:
-      "Plan happy paths, negative cases, boundaries, and state transitions.",
-  },
-  {
-    title: "Execution",
-    description: "Run planned checks and explore gameplay behavior.",
-  },
-  {
-    title: "Investigation",
-    description: "Isolate conditions and collect reproducible evidence.",
-  },
-  {
-    title: "Bug reports",
-    description:
-      "Document steps, expected behavior, actual results, and environment.",
-  },
-  {
-    title: "Regression",
-    description: "Recheck fixes and related gameplay systems.",
-  },
-  {
-    title: "Test summary",
-    description: "Record coverage, outcomes, and remaining risks.",
-  },
-];
-
 const androidEvidence = {
   to: "/?evidence=android-reports",
   label: "Regulus the Advent · Android performance reports",
@@ -155,38 +120,77 @@ const pixEvidence = {
 
 export const capabilities = [
   {
-    title: "Android performance testing",
-    description: "The Regulus the Advent evidence covers a cutscene captured on a Samsung Galaxy S10 across five graphics quality settings, using ARM Streamline / Performance Advisor.",
-    evidence: androidEvidence,
+    title: "Functional, compatibility, and regression testing",
+    description: "Experience testing games across mobile, Windows PC, and WebGL.",
+    evidence: [],
   },
   {
-    title: "PC GPU frame investigation",
-    description: "The Vecchio Furioso sample uses a Microsoft PIX GPU frame capture to review rendering events and their timing during gameplay.",
-    evidence: pixEvidence,
+    title: "Performance investigation",
+    description: "Collaborated with technical artists to identify bottlenecks on low-end devices. Portfolio examples include Android profiling with ARM Streamline and PC GPU analysis with Microsoft PIX.",
+    evidence: [androidEvidence, pixEvidence],
   },
   {
-    title: "Manual game QA",
-    description: "Descriptions of demonstrated requirements analysis, test design, exploratory testing, defect reporting, and regression work await confirmation. Planned gameplay coverage and the retained workflow appear below; completed manual QA evidence is Work in progress.",
+    title: "Defect investigation and reporting",
+    description: "Documented bugs in detail and worked with developers to investigate them.",
+    evidence: [],
+  },
+  {
+    title: "Gameplay balance testing",
+    description: "Worked with designers to test character builds and boss encounters.",
+    evidence: [],
+  },
+  {
+    title: "QA coordination",
+    description: "Coordinated planning, requirements analysis, and task allocation for 3–4 QA colleagues on Project Regulus.",
+    evidence: [],
+  },
+  {
+    title: "Internal tooling",
+    description: "Used basic JavaScript in Google Apps Script to build a Google Sheets tool for managing Jira ticket data.",
+    evidence: [],
   },
 ];
 
 export const tools = [
   {
-    name: "ARM Streamline / Performance Advisor",
-    description: "Used for the supplied Samsung Galaxy S10 cutscene captures and performance reports at five graphics quality settings in Regulus the Advent.",
-    evidence: androidEvidence,
+    name: "Jira",
+    description: "Working with QA ticket information.",
+    evidence: [],
+  },
+  {
+    name: "Google Sheets and Google Apps Script",
+    description: "Managing ticket data and building internal workflow tools.",
+    evidence: [],
+  },
+  {
+    name: "Jenkins",
+    description: "Verifying frontend and backend build results, adjusting settings, and downloading builds for testing.",
+    evidence: [],
+  },
+  {
+    name: "ARM Streamline",
+    description: "Android performance profiling.",
+    evidence: [androidEvidence],
   },
   {
     name: "Microsoft PIX",
-    description: "Used to capture a gameplay GPU frame and review rendering events against timing data in the supplied Vecchio Furioso sample.",
-    evidence: pixEvidence,
+    description: "PC GPU capture and rendering analysis.",
+    evidence: [pixEvidence],
   },
-  ...["Unity", "Git", "GitHub", "SourceTree", "Jira", "C#", "Codex"].map((name) => ({
-    name,
-    description: "Listed in the existing toolkit. A description of actual use, and whether it represents demonstrated work, learning, or planned work, awaits owner confirmation.",
-    evidence: undefined,
-  })),
+  {
+    name: "Unity",
+    description: "Engine experience, including programming a university mixed-reality VR karaoke project.",
+    evidence: [],
+  },
+  {
+    name: "Codex",
+    description: "Creating custom skills to support internal work.",
+    evidence: [],
+  },
 ];
+export const interests = "Player psychology, neuroscience, game design, Unreal Engine, and automated testing in games.";
+
+// Owner confirmed Project Regulus as this planned scope's project in ticket #77.
 export const plannedCoverage = [
   "Player movement",
   "Combat",

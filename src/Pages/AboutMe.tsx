@@ -5,7 +5,6 @@ export default function AboutMe() {
     <article className="biography" aria-labelledby="about-me-heading">
       <p className="eyebrow">The person behind the portfolio</p>
       <h1 id="about-me-heading">About me</h1>
-      <p className="section-description">{biography.status}</p>
       {biography.sections.map((section) => (
         <section className="approach-section" aria-labelledby={`${section.id}-heading`} key={section.id}>
           <h2 id={`${section.id}-heading`}>{section.title}</h2>
