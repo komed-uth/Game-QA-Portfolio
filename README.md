@@ -1,6 +1,6 @@
 # Game QA Portfolio
 
-A React + TypeScript portfolio adapted from the local **Portfolio Template** for game QA work. It preserves the template's dark background, gaming typography, cyan project headings, green links, responsive project/media layout, and separate approach page. Vite supplies the development server and production build; hash routing works on static hosts without server rewrites.
+A React + TypeScript portfolio adapted from the local **Portfolio Template** for game QA work. It preserves the template's dark background, gaming typography, cyan project headings, green links, responsive project/media layout, and testing workflow on Skills. Vite supplies the development server and production build; hash routing works on static hosts without server rewrites.
 
 ## Run locally
 
@@ -49,7 +49,9 @@ Place optional files in `public/`. Use relative paths without a leading slash. T
 
 Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
 
-Manual test cases, defect reports, and coverage documents remain **work in progress**. The approach page describes the intended QA process, not completed execution results. The original `test-cases/TC-MOV-001` is a placeholder.
+Manual test cases, defect reports, and coverage documents remain **work in progress**. Skills at `#/skills` presents capabilities, tools, and the intended QA process alongside links to supplied performance evidence. Legacy `#/about` links redirect to Skills. Unconfirmed personal descriptions are visibly marked as development drafts; reviewed content and the project association for planned coverage remain pending ticket #77. The original `test-cases/TC-MOV-001` is a placeholder.
+
+Ticket #75's implementation, testing, branch push, and PR are authorized by the owner's later instruction. Deployment remains on hold: pushing this working branch does not publish it, and merging to `main` would trigger the Pages workflow. Complete the content review and obtain deployment authorization before merging.
 
 ## Structure
 
@@ -59,7 +61,7 @@ src/
   data.ts              Editable portfolio content
   types.ts             Content interfaces
   Components/          Header, project, report viewer, footer
-  Pages/               Portfolio and QA approach
+  Pages/               Portfolio and Skills
   Styles/              Responsive styling
   assets/              Template fonts and background
 public/

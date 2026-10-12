@@ -9,7 +9,7 @@ export default function ReportViewer() {
   const url = reportUrl(selected);
   const title = selected.label + (selected.kind === "image" ? " performance summary" : " quality — Samsung Galaxy S10 Performance Advisor report");
   return <>
-    <section className="report-block" aria-labelledby="report-heading">
+    <section id="android-reports" tabIndex={-1} className="report-block" aria-labelledby="report-heading">
       <h2 id="report-heading" className="report-heading">Performance reports</h2>
       <section className="report-output" aria-label={title}>
         <span className="visually-hidden" role="status">Selected report: {title}</span>

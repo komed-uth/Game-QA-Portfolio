@@ -1,17 +1,24 @@
 import { useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import SelfSummary from "./Components/SelfSummary";
 import Footer from "./Components/Footer";
 import MainPage from "./Pages/MainPage";
-import AboutMe from "./Pages/AboutMe";
+import Skills from "./Pages/Skills";
 import { personalInfo } from "./data";
 
 export default function App() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
-    document.title = `${pathname === "/about" ? "QA approach · " : ""}${personalInfo.name}`;
+    document.title = `${pathname === "/skills" ? "Skills · " : ""}${personalInfo.name}`;
+    const evidence = new URLSearchParams(search).get("evidence");
+    if (pathname === "/" && (evidence === "android-reports" || evidence === "pix-capture")) {
+      const destination = document.getElementById(evidence);
+      destination?.focus({ preventScroll: true });
+      destination?.scrollIntoView();
+      return;
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, search]);
 
   return (
     <div className="site-shell">
@@ -31,7 +38,8 @@ export default function App() {
       <main id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/about" element={<AboutMe />} />
+          <Route path="/skills" element={<Skills />} />
+          <Route path="/about" element={<Navigate to="/skills" replace />} />
           <Route path="*" element={<MainPage />} />
         </Routes>
       </main>

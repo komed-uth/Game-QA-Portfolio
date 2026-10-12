@@ -446,7 +446,7 @@ async function checkProject(page, projectName) {
     await page.unroute(slowUrl);
     await page.unroute(failedUrl);
   }
-  await page.getByRole('link', { name: /QA approach/ }).first().click();
+  await page.getByRole('link', { name: /^Skills$/ }).first().click();
   await page.goBack();
   assert.equal(await selected(gallery), 0, 'Returning to the homepage resets the image-only gallery to its first panel');
   console.log('PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset');

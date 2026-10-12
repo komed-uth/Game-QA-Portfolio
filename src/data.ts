@@ -130,16 +130,48 @@ export const workflow = [
   },
 ];
 
+const androidEvidence = {
+  to: "/?evidence=android-reports",
+  label: "Regulus the Advent · Android performance reports",
+};
+const pixEvidence = {
+  to: "/?evidence=pix-capture",
+  label: "Vecchio Furioso · Microsoft PIX GPU capture",
+};
+
+export const capabilities = [
+  {
+    title: "Android performance testing",
+    description: "The Regulus the Advent evidence covers a cutscene captured on a Samsung Galaxy S10 across five graphics quality settings, using ARM Streamline / Performance Advisor.",
+    evidence: androidEvidence,
+  },
+  {
+    title: "PC GPU frame investigation",
+    description: "The Vecchio Furioso sample uses a Microsoft PIX GPU frame capture to review rendering events and their timing during gameplay.",
+    evidence: pixEvidence,
+  },
+  {
+    title: "Manual game QA",
+    description: "Descriptions of demonstrated requirements analysis, test design, exploratory testing, defect reporting, and regression work await confirmation. Planned gameplay coverage and the retained workflow appear below; completed manual QA evidence is Work in progress.",
+  },
+];
+
 export const tools = [
-  "Unity",
-  "Git",
-  "GitHub",
-  "SourceTree",
-  "Jira",
-  "C#",
-  "ARM Streamline",
-  "PIX",
-  "Codex",
+  {
+    name: "ARM Streamline / Performance Advisor",
+    description: "Used for the supplied Samsung Galaxy S10 cutscene captures and performance reports at five graphics quality settings in Regulus the Advent.",
+    evidence: androidEvidence,
+  },
+  {
+    name: "Microsoft PIX",
+    description: "Used to capture a gameplay GPU frame and review rendering events against timing data in the supplied Vecchio Furioso sample.",
+    evidence: pixEvidence,
+  },
+  ...["Unity", "Git", "GitHub", "SourceTree", "Jira", "C#", "Codex"].map((name) => ({
+    name,
+    description: "Listed in the existing toolkit. A description of actual use, and whether it represents demonstrated work, learning, or planned work, awaits owner confirmation.",
+    evidence: undefined,
+  })),
 ];
 export const plannedCoverage = [
   "Player movement",
