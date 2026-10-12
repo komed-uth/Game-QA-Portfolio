@@ -4,12 +4,14 @@ import SelfSummary from "./Components/SelfSummary";
 import Footer from "./Components/Footer";
 import MainPage from "./Pages/MainPage";
 import AboutMe from "./Pages/AboutMe";
+import QAApproach from "./Pages/QAApproach";
 import { personalInfo } from "./data";
 
 export default function App() {
   const { pathname } = useLocation();
   useEffect(() => {
-    document.title = `${pathname === "/about" ? "QA approach · " : ""}${personalInfo.name}`;
+    const pageTitle = pathname === "/about-me" ? "About me · " : pathname === "/about" ? "QA approach · " : "";
+    document.title = `${pageTitle}${personalInfo.name}`;
     window.scrollTo(0, 0);
   }, [pathname]);
 
@@ -31,7 +33,8 @@ export default function App() {
       <main id="main-content" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/about" element={<AboutMe />} />
+          <Route path="/about" element={<QAApproach />} />
+          <Route path="/about-me" element={<AboutMe />} />
           <Route path="*" element={<MainPage />} />
         </Routes>
       </main>

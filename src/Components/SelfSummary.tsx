@@ -18,6 +18,7 @@ export default function SelfSummary() {
             Portfolio
           </NavLink>
           <NavLink to="/about">QA approach</NavLink>
+          <NavLink to="/about-me">About me</NavLink>
         </nav>
         <a
           className="linkedin-link"
