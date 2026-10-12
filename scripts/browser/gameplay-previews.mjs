@@ -121,7 +121,7 @@ export default async function checkGameplay(page) {
         await page.keyboard.press('Space');
         assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('2 / 4'));
         await waitForPhoto(gallery);
-        assert.equal(await gallery.locator('figcaption').count(), 1, 'Photo selection retains caption and counter');
+        await checkGalleryControlLayout(gallery);
         assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
         assert(await previews.nth(1).evaluate(e => getComputedStyle(e).outlineStyle !== 'none'), 'Keyboard preview focus is visible');
         const image=gallery.locator('.gallery-viewer img');

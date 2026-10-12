@@ -65,7 +65,7 @@ export default async function checkPhotoChanges(page) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await previews.nth(1).click(); await ready(gallery, sources[1]);
     await previews.nth(2).click(); await ready(gallery, sources[2]);
-    assert.equal(await viewer.locator('button').evaluate(e => getComputedStyle(e).animationName), 'none');
+    assert.equal(await open.evaluate(e => getComputedStyle(e).animationName), 'none');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await previews.first().click();
   }

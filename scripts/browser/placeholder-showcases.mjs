@@ -278,7 +278,8 @@ async function checkProject(page, projectName) {
     async function gesture(target, dx, dy) {
       await target.scrollIntoViewIfNeeded();
       const box = await target.boundingBox();
-      const x = box.x + box.width * .8, y = box.y + Math.min(35, box.height * .3);
+      // Start in the media area, clear of the top-right slideshow control.
+      const x = box.x + box.width * .8, y = box.y + box.height * .5;
       await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
       for (let i = 1; i <= 8; i++) {
         await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * i / 8, y: y + dy * i / 8 }] });
