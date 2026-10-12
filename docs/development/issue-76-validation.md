@@ -18,7 +18,11 @@ Base: `6bb08cbed1083e661c7cd65147185412d2d3f71e` (fetched `origin/main`). Unrela
 
 Production build including TypeScript: passed. Focused About me browser checks: passed (`run-1eEbv8`, final fingerprint `4d13ad442cdb2ec1de4cb7881729f163f31ef36f1ab14ebdb0b9c6003d23de6a`). Preview-startup/parser/selector checks and runner tests: passed (106 runner tests).
 
-Complete production browser regression is running as `run-RwvdA9` against implementation commit `930cc77` and the same final input fingerprint. It is not yet a completed suite pass.
+Complete production browser regression passed all 12 selected checks in `run-RwvdA9` against implementation commit `930cc77`, with the same final input fingerprint and exit code 0. Final input stability passed. The final record is `.scratch/browser-runs/run-RwvdA9/summary.json`.
+
+GitHub validation passed for published commit `a33a760`: https://github.com/komed-uth/Game-QA-Portfolio/actions/runs/38207825819. Later changes are documentation only; the validated application and check inputs are unchanged.
+
+Existing real report capture overlays were explicitly skipped because all supplied screenshot path lists are empty; synthetic modal integration was checked. LinkedIn availability and physical-device behavior are outside this rendered check.
 
 ## Standards
 
@@ -33,5 +37,6 @@ Review totals: Standards 0; Spec 0.
 ## Publication hold
 
 This is a structural development draft. Ticket #77 must supply and apply reviewed personal biography before publication. Main's Pages workflow deploys on push, so merging this PR would publish drafts. Keep the PR draft until the owner authorizes release and the content gate is satisfied.
+
 
 
