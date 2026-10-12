@@ -10,7 +10,8 @@ Implementation, testing, branch push, and a PR were authorized by the owner's ex
 - Focused `--skills-only` rendered checks: passed. Direct/reloaded Skills and legacy links, active navigation/title, Back/Forward and legacy history replacement, section order, seven numbered workflow steps, nine planned systems and Work in progress, visible draft distinctions, four evidence links with original report/capture inspection, page-change scroll, keyboard activation/focus, skip link, and eleven viewport layouts all passed.
 - The first isolated-checkout preview attempt failed because its own dependencies were missing. Installing the lockfile dependencies resolved the setup failure.
 - The first rendered layout run found a Skills link narrower than 44px. Adding shared navigation minimum width corrected it; subsequent focused checks passed.
-- Full production regression suite: in progress; its recorded summary will be added after completion.
+- Full production regression suite: all 12 groups passed. [Recorded summary](browser-summary.json) and [streamed output](browser-output.txt) preserve the input fingerprint, tested commit `263d1ff9e2a502e831db56d1f604c4593e056f15`, clean tracked-input status, durations, and results. [Preview test output](preview-output.txt) records 81/81 passes.
+- GitHub `build-and-browser` passed on published head `147c443fbbcb3747748f55c2cfa587eeeab1e004`; [status snapshot](github-checks.json) records that head and result. Later commits only record evidence/documentation and ignore temporary capture output; the application and validation inputs match the tested implementation.
 
 Viewport checks: 1920×1080, 1366×768, 390×845, 845×390, 360×840, 840×360, 1200×800, 800×1200, 899×700, 901×700, and 320×700. Navigation stays visible, keyboard focus is visible, targets are at least 44×44px, and there is no horizontal overflow. Desktop and phone screenshots were visually inspected for section order, wrapping, unclipped content, and retained dark background, typography, and green accents. These are browser viewport checks, not physical device certification.
 
@@ -18,6 +19,8 @@ Viewport checks: 1920×1080, 1366×768, 390×845, 845×390, 360×840, 840×360, 
 ![Skills phone development preview](skills-phone.png)
 
 ## Standards
+
+Review target: implementation commit `263d1ff`, before the evidence/documentation commits.
 
 Independent GPT-6.1 Sol review at high effort against `git diff 6bb08cbed1083e661c7cd65147185412d2d3f71e...HEAD`: no documented standards violations. One optional judgement call: capability and tool cards repeat heading, description, and evidence/draft markup in `Skills.tsx`. A shared card could centralize future presentation changes. Retained the small local markup for this slice; this is not a correctness issue or hard repository rule.
 

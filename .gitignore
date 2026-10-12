@@ -7,3 +7,4 @@ dist/
 *.log
 .scratch/browser-checks/
 .scratch/browser-runs/
+.scratch/issue75-visuals/

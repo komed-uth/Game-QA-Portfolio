@@ -1,0 +1,100 @@
+{
+  "suite": "complete portfolio suite",
+  "checks": [
+    {
+      "name": "skills",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:16:26.777Z",
+      "durationMs": 43320.778300000005
+    },
+    {
+      "name": "placeholder-showcases",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:17:10.123Z",
+      "durationMs": 458849.4159
+    },
+    {
+      "name": "video",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:24:49.037Z",
+      "durationMs": 37884.61089999997
+    },
+    {
+      "name": "slideshow",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:25:26.943Z",
+      "durationMs": 67489.74790000007
+    },
+    {
+      "name": "photos",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:34.438Z",
+      "durationMs": 22813.88209999993
+    },
+    {
+      "name": "gameplay-previews",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:57.348Z",
+      "durationMs": 135883.27450000006
+    },
+    {
+      "name": "gameplay-fixtures",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:29:13.934Z",
+      "durationMs": 27049.757400000002
+    },
+    {
+      "name": "evidence-modal",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:29:40.987Z",
+      "durationMs": 219779.20019999996
+    },
+    {
+      "name": "evidence-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:33:20.785Z",
+      "durationMs": 12911.247700000065
+    },
+    {
+      "name": "report-layout",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:33:33.702Z",
+      "durationMs": 8772.349999999977
+    },
+    {
+      "name": "overlay-fixture",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:33:42.478Z",
+      "durationMs": 8830.13910000003
+    },
+    {
+      "name": "report-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:33:51.314Z",
+      "durationMs": 317870.20389999985
+    }
+  ],
+  "selectedChecks": [
+    "skills",
+    "placeholder-showcases",
+    "video",
+    "slideshow",
+    "photos",
+    "gameplay-previews",
+    "gameplay-fixtures",
+    "evidence-modal",
+    "evidence-interactions",
+    "report-layout",
+    "overlay-fixture",
+    "report-interactions"
+  ],
+  "commit": "263d1ff9e2a502e831db56d1f604c4593e056f15",
+  "trackedChanges": false,
+  "preview": "local",
+  "startedAt": "2026-10-12T05:16:23.361Z",
+  "status": "passed",
+  "inputFingerprint": "06603bb6912cfba8d5146fe24b54e84bd58d4549524d3c2b91f7524af756406d",
+  "endedAt": "2026-10-12T05:39:20.126Z",
+  "exitCode": 0,
+  "signal": null
+}
