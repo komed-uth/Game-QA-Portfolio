@@ -97,7 +97,7 @@ export default async function check(page) {
     assert(await page.getByRole('main').evaluate(element => [...element.querySelectorAll('h1, h2, p, a')].every(node => node.scrollWidth <= node.clientWidth)), `Readable text at ${width}px`);
     if ([390, 1366].includes(width)) {
       await mkdir('.scratch/about-me', { recursive: true });
-      await captureRegion(page, { selectors: ['.self-summary', '.biography', 'footer'], path: `.scratch/about-me/${width}.png` });
+      await captureRegion(page, { selectors: ['html'], path: `.scratch/about-me/${width}.png` });
     }
   }
 }
