@@ -3,6 +3,7 @@ import { waitForPhoto } from './gallery-photo-ready.mjs';
 import { installPausedClock, waitForPhoto as waitForClockPhoto } from './gameplay-slideshow.mjs';
 import { withBrowserContext } from './run-browser-check.mjs';
 import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
+import { checkGalleryControlLayout } from './gallery-control-layout.mjs';
 
 const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
@@ -175,6 +176,7 @@ async function checkProject(page, projectName) {
       await previews.first().click();
       await waitForPhoto(gallery);
       await checkPreviewStripLayout(gallery);
+      await checkGalleryControlLayout(gallery);
       const title = await section.getByRole('heading', { name: projectName, exact: true }).boundingBox();
       const media = await gallery.boundingBox();
       const details = await section.locator('.project-details').boundingBox();

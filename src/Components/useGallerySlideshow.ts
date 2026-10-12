@@ -10,18 +10,16 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   videoShowcase?: boolean;
 }) {
   const gallery = useRef<HTMLDivElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const [paused, setPaused] = useState(reducedMotion);
+  const [paused, setPaused] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
-      setReducedMotion(preference.matches);
-      if (videoShowcase && preference.matches) setPaused(true);
+      if (preference.matches) setPaused(true);
     };
     update();
     preference.addEventListener("change", update);
     return () => preference.removeEventListener("change", update);
-  }, [videoShowcase]);
+  }, []);
   const [inspection, setInspection] = useState({ hover: false, focus: false, dragging: false, visible: false, hidden: document.hidden });
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
@@ -111,7 +109,7 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     setInspection(current => current.hover === hover ? current : { ...current, hover });
   }, [inspecting]);
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
-  const eligible = count > 1 && !(videoShowcase ? paused : reducedMotion) && !suspended;
+  const eligible = count > 1 && !paused && !suspended;
   useEffect(() => {
     if (!ready || !eligible) return;
     const timer = setTimeout(() => advanceRef.current(), videoShowcase ? 5000 : 6500);

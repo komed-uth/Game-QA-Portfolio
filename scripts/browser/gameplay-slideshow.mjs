@@ -1,5 +1,6 @@
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
+import checkGalleryControls from './gallery-controls.mjs';
 const photoDwellMs = 5000;
 // Keep dwell assertions independent of the machine's wall-clock scheduling.
 export async function installPausedClock(page) {
@@ -19,6 +20,9 @@ export async function waitForPhoto(gallery) {
 }
 
 export default async function checkSlideshow(page) {
+  await checkGalleryControls(page);
+  await page.emulateMedia({reducedMotion: 'no-preference'});
+  await page.reload();
   await page.setViewportSize({ width: 1366, height: 768 });
   await installPausedClock(page);
   const galleries = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery');
