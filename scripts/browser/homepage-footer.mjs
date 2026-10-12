@@ -55,19 +55,19 @@ export async function checkHomepageFooter(page) {
   const homeUrl = page.url();
   await checkHomepage(page);
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
-  await nav.getByRole('link', { name: 'QA approach', exact: true }).click();
+  await nav.getByRole('link', { name: 'Skills', exact: true }).click();
   await page.getByRole('heading', { name: 'Planned gameplay coverage' }).waitFor();
   const coverage = page.getByRole('region', { name: 'Planned gameplay coverage' });
   assert(await coverage.getByText('Work in progress', { exact: true }).isVisible());
   await checkFooter(page);
   await nav.getByRole('link', { name: 'Portfolio', exact: true }).click();
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
-  const approach = nav.getByRole('link', { name: 'QA approach', exact: true });
+  const approach = nav.getByRole('link', { name: 'Skills', exact: true });
   await nav.getByRole('link', { name: 'Portfolio', exact: true }).focus();
   await page.keyboard.press('Tab');
   assert(await approach.evaluate(element => element === document.activeElement &&
     element.matches(':focus-visible') && parseFloat(getComputedStyle(element).outlineWidth) > 0 &&
-    getComputedStyle(element).outlineStyle !== 'none'), 'QA approach has visible keyboard focus');
+    getComputedStyle(element).outlineStyle !== 'none'), 'Skills has visible keyboard focus');
   await page.keyboard.press('Enter');
   await page.getByRole('heading', { name: 'Planned gameplay coverage' }).waitFor();
   await checkFooter(page);

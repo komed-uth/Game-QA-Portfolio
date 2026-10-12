@@ -22,7 +22,7 @@ async function about(page) {
   assert.match(await contact.getAttribute('rel'), /noopener/);
   assert.match(await contact.getAttribute('rel'), /noreferrer/);
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
-  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'QA approach', 'About me']);
+  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
   assert.equal(await nav.getByRole('link', { name: 'About me', exact: true }).getAttribute('aria-current'), 'page');
   assert.equal(await nav.locator('[aria-current="page"]').count(), 1);
 }
@@ -45,7 +45,7 @@ export default async function check(page) {
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
   await page.evaluate(() => window.scrollTo(0, 700));
   await page.waitForFunction(() => scrollY > 0);
-  await nav.getByRole('link', { name: 'QA approach', exact: true }).focus();
+  await nav.getByRole('link', { name: 'Skills', exact: true }).focus();
   await page.keyboard.press('Tab');
   await focusVisible(nav.getByRole('link', { name: 'About me', exact: true }));
   await page.keyboard.press('Enter');
@@ -77,8 +77,9 @@ export default async function check(page) {
   legacy.hash = '/about';
   await page.goto(legacy.href);
   await page.getByRole('heading', { name: 'QA workflow', exact: true }).waitFor();
-  await page.waitForFunction(() => document.title === "QA approach · Komed's Portfolio");
-  assert.equal(await nav.getByRole('link', { name: 'QA approach', exact: true }).getAttribute('aria-current'), 'page');
+  await page.waitForFunction(() => document.title === "Skills · Komed's Portfolio");
+  assert.equal(await nav.getByRole('link', { name: 'Skills', exact: true }).getAttribute('aria-current'), 'page');
+  assert.equal(new URL(page.url()).hash, '#/skills');
   assert.equal(await page.getByRole('heading', { name: 'About me', exact: true }).count(), 0);
 
   for (const width of [320, 360, 390, 640, 768, 900, 960, 961, 1024, 1366, 1920]) {

@@ -1,5 +1,11 @@
 # Validation and publishing
 
+## Skills and legacy links
+
+After building current source, run `node scripts/check-browser.mjs --skills-only` for ticket #75's rendered checks. It uses the existing preview, diagnostics, and recorded-run workflow and is also included in `npm run check:browser`. It checks direct links, reload, back/forward, the legacy `#/about` redirect, title/active navigation, section order, retained numbered workflow and planned coverage, draft labels, all four capability/tool evidence links, Android report and PIX inspection, keyboard navigation, skip link, page-change scroll, and eleven narrow/wide layouts. It captures 1366px and 360px Skills screenshots in `.scratch/issue75-visuals/` for visual review.
+
+Skills evidence links use `#/?evidence=android-reports` and `#/?evidence=pix-capture` to focus and reveal the existing report controls or capture. No new evidence viewer is introduced. Personal copy and planned coverage association require review in #77. The owner authorized implementation/testing/push/PR for #75, then authorized PR merge and ticket closure on 2026-10-12. Merging into `main` triggers Pages publishing; draft content remains visibly identified pending #77.
+
 ## Rendered portfolio checks
 
 From the repository root:

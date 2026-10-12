@@ -15,7 +15,7 @@ export default function PcPerformanceProject() {
           {pcProject.name}
         </h2>
       </header>
-      <figure className="capture-media">
+      <figure id="pix-capture" tabIndex={-1} className="capture-media">
         <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
           aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
         >

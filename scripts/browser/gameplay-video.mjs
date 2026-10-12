@@ -149,7 +149,7 @@ export default async function checkVideo(page) {
     await page.clock.fastForward(4500); await selected(gallery,1,'Reduced-motion Resume keeps five-second dwell');
     await page.clock.fastForward(700); await waitForPhoto(gallery); await selected(gallery,2,'Reduced-motion Resume advances without fades');
     await gallery.locator('.gallery-thumbnail').first().evaluate(e=>e.click()); player=await playerIndex(gallery);
-    await page.getByRole('link',{name:/QA approach/}).first().click();
+    await page.getByRole('link',{name:/^Skills$/}).first().click();
     await emit(player,0);
     await page.goBack(); await selected(gallery,0,'Navigation resets selection and cancels obsolete work');
     await page.emulateMedia({reducedMotion:'no-preference'});

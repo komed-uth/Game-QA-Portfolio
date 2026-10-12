@@ -314,7 +314,7 @@ export default async function checkSlideshow(page) {
   await fullInterval(galleries.first(), 1, 2);
   await page.reload();
   await photo(galleries.first(), 1);
-  await page.getByRole('link', { name: /QA approach/ }).first().click();
+  await page.getByRole('link', { name: /^Skills$/ }).first().click();
   await page.goBack();
   await isSelected(galleries.first(), 0, 'Route return resets video-first selection');
   assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);

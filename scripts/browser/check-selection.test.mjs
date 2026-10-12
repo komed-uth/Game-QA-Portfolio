@@ -5,8 +5,9 @@ import { selectSuite } from './check-suites.mjs';
 
 const cases = [
   { mode: '--about-me-only', checks: ['about-me'], reports: false },
-  { mode: undefined, checks: ['about-me', 'placeholder-showcases', 'video', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures',
+  { mode: undefined, checks: ['skills', 'about-me', 'placeholder-showcases', 'video', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures',
     'evidence-modal', 'evidence-interactions', 'report-layout', 'overlay-fixture', 'report-interactions'], reports: true },
+  { mode: '--skills-only', checks: ['skills'], reports: false },
   { mode: '--reports-only', checks: ['report-layout', 'overlay-fixture', 'report-interactions'], reports: true },
   { mode: '--report-layout-only', checks: ['report-layout'], reports: false },
   { mode: '--gameplay-only', checks: ['placeholder-showcases', 'video', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'], reports: false },

@@ -17,7 +17,7 @@ export default function SelfSummary() {
           <NavLink to="/" end>
             Portfolio
           </NavLink>
-          <NavLink to="/about">QA approach</NavLink>
+          <NavLink to="/skills">Skills</NavLink>
           <NavLink to="/about-me">About me</NavLink>
         </nav>
         <a
