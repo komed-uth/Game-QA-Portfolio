@@ -189,19 +189,6 @@ export const tools = [
   },
 ];
 
-// Owner confirmed Project Regulus as this planned scope's project in ticket #77.
-export const plannedCoverage = [
-  "Player movement",
-  "Combat",
-  "Checkpoints",
-  "Death & respawn",
-  "Save/load",
-  "UI navigation",
-  "Inventory",
-  "Game state transitions",
-  "Visual graphics",
-];
-
 // Relative base keeps links working when hosted inside a repository subfolder.
 export const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 export const reportUrl = (report: PerformanceReport) =>

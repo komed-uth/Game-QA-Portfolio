@@ -1,5 +1,7 @@
 # Ticket #50 validation
 
+> Historical record: [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88) supersedes planned gameplay coverage retention and placement. The earlier results and captures below describe the presentation validated at that time.
+
 Validated on 2026-10-10 against published main `75c691305d347f5691998e19b48907b497728bcb`.
 The owner's implementation instruction releases the earlier specification hold for this ticket.
 

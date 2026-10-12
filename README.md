@@ -35,7 +35,7 @@ cvUri: 'files/my-cv.pdf',
 links: [{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/your-profile' }],
 ```
 
-Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, approved biography, capabilities, tools, interests, and planned Regulus coverage also live in `src/data.ts`. About me uses `biography` and `linkedInProfileUrl`; no photo or CV is included in the approved presentation.
+Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, approved biography, capabilities, and tools also live in `src/data.ts`. About me uses `biography` and `linkedInProfileUrl`; no photo or CV is included in the approved presentation.
 
 ## Current evidence
 
@@ -49,7 +49,7 @@ Place optional files in `public/`. Use relative paths without a leading slash. T
 
 Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
 
-Manual test cases, defect reports, and coverage documents remain **work in progress**. Planned gameplay coverage belongs to the Regulus the Advent project showcase, as confirmed by the owner for #77. Skills at `#/skills` presents the approved QA capabilities, Tools, and Interests and development, with links to supplied Android and PC performance evidence. Legacy `#/about` links redirect to Skills. About me at `#/about-me` presents the approved biography and LinkedIn contact. The former QA approach and numbered workflow are removed. The original `test-cases/TC-MOV-001` is a placeholder, not completed evidence.
+Manual test cases, defect reports, and coverage documents remain **work in progress**. The Planned gameplay coverage section is removed without replacement under [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88); this supersedes its retention and placement under #49, #74, and #77 and makes no claim of completed manual testing. Skills at `#/skills` presents the approved QA capabilities and Tools, with links to supplied Android and PC performance evidence. Legacy `#/about` links redirect to Skills. About me at `#/about-me` presents the approved biography and LinkedIn contact. The former QA approach and numbered workflow are removed. The original `test-cases/TC-MOV-001` is a placeholder, not completed evidence.
 
 On 2026-10-12 the owner authorized #77's implementation, testing, branch push, and PR, and confirmed Project Regulus as the planned coverage's project. The Skills and About me copy was already approved in #77. Deployment remains on hold: merging to `main` triggers the Pages workflow and requires separate owner authorization.
 
