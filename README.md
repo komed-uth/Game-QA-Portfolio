@@ -1,6 +1,6 @@
 # Game QA Portfolio
 
-A React + TypeScript portfolio adapted from the local **Portfolio Template** for game QA work. It preserves the template's dark background, gaming typography, cyan project headings, green links, responsive project/media layout, and testing workflow on Skills. Vite supplies the development server and production build; hash routing works on static hosts without server rewrites.
+A React + TypeScript portfolio adapted from the local **Portfolio Template** for game QA work. It preserves the template's dark background, gaming typography, cyan project headings, green links, and responsive project/media layout. Vite supplies the development server and production build; hash routing works on static hosts without server rewrites.
 
 ## Run locally
 
@@ -35,7 +35,7 @@ cvUri: 'files/my-cv.pdf',
 links: [{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/your-profile' }],
 ```
 
-Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, workflow, tools, and planned coverage also live in `src/data.ts`.
+Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, approved biography, capabilities, tools, interests, and planned Regulus coverage also live in `src/data.ts`. About me uses `biography` and `linkedInProfileUrl`; no photo or CV is included in the approved presentation.
 
 ## Current evidence
 
@@ -49,9 +49,9 @@ Place optional files in `public/`. Use relative paths without a leading slash. T
 
 Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
 
-Manual test cases, defect reports, and coverage documents remain **work in progress**. Skills at `#/skills` presents capabilities, tools, and the intended QA process alongside links to supplied performance evidence. Legacy `#/about` links redirect to Skills. Unconfirmed personal descriptions are visibly marked as development drafts; reviewed content and the project association for planned coverage remain pending ticket #77. The original `test-cases/TC-MOV-001` is a placeholder.
+Manual test cases, defect reports, and coverage documents remain **work in progress**. Planned gameplay coverage belongs to the Regulus the Advent project showcase, as confirmed by the owner for #77. Skills at `#/skills` presents the approved QA capabilities, Tools, and Interests and development, with links to supplied Android and PC performance evidence. Legacy `#/about` links redirect to Skills. About me at `#/about-me` presents the approved biography and LinkedIn contact. The former QA approach and numbered workflow are removed. The original `test-cases/TC-MOV-001` is a placeholder, not completed evidence.
 
-The owner authorized ticket #75's implementation, testing, branch push, and PR, then authorized merging the PR and closing the ticket on 2026-10-12. Merging to `main` triggers the Pages workflow. The Skills and About me development drafts remain visibly identified; reviewed personal content and planned coverage association remain ticket #77.
+On 2026-10-12 the owner authorized #77's implementation, testing, branch push, and PR, and confirmed Project Regulus as the planned coverage's project. The Skills and About me copy was already approved in #77. Deployment remains on hold: merging to `main` triggers the Pages workflow and requires separate owner authorization.
 
 ## Structure
 
@@ -61,7 +61,7 @@ src/
   data.ts              Editable portfolio content
   types.ts             Content interfaces
   Components/          Header, project, report viewer, footer
-  Pages/               Portfolio and Skills
+  Pages/               Portfolio, Skills, and About me
   Styles/              Responsive styling
   assets/              Template fonts and background
 public/

@@ -1,7 +1,25 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 
-// Ticket #75: inspect the rendered visitor experience, including existing evidence.
+// Ticket #77: compare rendered copy with the owner-approved issue text.
+const capabilities = [
+  ['Functional, compatibility, and regression testing', 'Experience testing games across mobile, Windows PC, and WebGL.'],
+  ['Performance investigation', 'Collaborated with technical artists to identify bottlenecks on low-end devices. Portfolio examples include Android profiling with ARM Streamline and PC GPU analysis with Microsoft PIX.'],
+  ['Defect investigation and reporting', 'Documented bugs in detail and worked with developers to investigate them.'],
+  ['Gameplay balance testing', 'Worked with designers to test character builds and boss encounters.'],
+  ['QA coordination', 'Coordinated planning, requirements analysis, and task allocation for 3–4 QA colleagues on Project Regulus.'],
+  ['Internal tooling', 'Used basic JavaScript in Google Apps Script to build a Google Sheets tool for managing Jira ticket data.'],
+];
+const tools = [
+  ['Jira', 'Working with QA ticket information.'],
+  ['Google Sheets and Google Apps Script', 'Managing ticket data and building internal workflow tools.'],
+  ['Jenkins', 'Verifying frontend and backend build results, adjusting settings, and downloading builds for testing.'],
+  ['ARM Streamline', 'Android performance profiling.'],
+  ['Microsoft PIX', 'PC GPU capture and rendering analysis.'],
+  ['Unity', 'Engine experience, including programming a university mixed-reality VR karaoke project.'],
+  ['Codex', 'Creating custom skills to support internal work.'],
+];
+
 export default async function check(page) {
   const base = new URL(page.url());
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
@@ -19,25 +37,36 @@ export default async function check(page) {
     assert.equal(await skills.getAttribute('aria-current'), 'page');
     assert.equal(await nav.getByRole('link', { name: 'QA approach', exact: true }).count(), 0);
     assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
-    assert.deepEqual(await page.getByRole('main').getByRole('heading', { level: 2 }).allTextContents(),
-      ['QA capabilities', 'Tools & technologies', 'QA workflow', 'Planned gameplay coverage']);
-    const workflow = page.getByRole('region', { name: 'QA workflow' });
-    assert.deepEqual(await workflow.getByRole('heading', { level: 3 }).allTextContents(),
-      ['Requirements', 'Test design', 'Execution', 'Investigation', 'Bug reports', 'Regression', 'Test summary']);
-    assert.deepEqual(await workflow.locator('li > span').allTextContents(), ['01', '02', '03', '04', '05', '06', '07']);
-    const coverage = page.getByRole('region', { name: 'Planned gameplay coverage' });
+    const main = page.getByRole('main');
+    assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(),
+      ['QA capabilities', 'Tools', 'Interests and development']);
+    for (const [region, copy] of [['QA capabilities', capabilities], ['Tools', tools]]) {
+      const group = main.getByRole('region', { name: region, exact: true });
+      assert.deepEqual(await group.getByRole('heading', { level: 3 }).allTextContents(), copy.map(([title]) => title));
+      assert.deepEqual(await group.locator('li > p').allTextContents(), copy.map(([, description]) => description));
+    }
+    assert.equal(await main.getByRole('region', { name: 'Interests and development' }).locator('p').innerText(),
+      'Player psychology, neuroscience, game design, Unreal Engine, and automated testing in games.');
+    assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|QA approach|QA workflow|Planned gameplay coverage|Work in progress|\bFPS\b|\bexpert\b|\d+%/i);
+    assert.equal(await main.getByRole('list').count(), 2, 'No numbered workflow');
+    assert.equal(await main.getByRole('link').count(), 4, 'Only the four available performance evidence links');
+    assert.equal(await page.getByRole('progressbar').count(), 0);
+  }
+
+  async function checkCoverage() {
+    const main = page.getByRole('main');
+    assert.equal(await main.getByRole('heading', { name: 'Planned gameplay coverage', exact: true }).count(), 1,
+      'Coverage appears once, inside its confirmed project rather than in a generic teaser');
+    const coverage = main.getByRole('region', { name: 'Regulus the Advent', exact: true })
+      .getByRole('region', { name: 'Planned gameplay coverage', exact: true });
+    assert(await coverage.isVisible());
     assert.deepEqual(await coverage.getByRole('listitem').allTextContents(), ['Player movement', 'Combat', 'Checkpoints',
       'Death & respawn', 'Save/load', 'UI navigation', 'Inventory', 'Game state transitions', 'Visual graphics']);
     assert(await coverage.getByText('Work in progress', { exact: true }).isVisible());
-    assert(await coverage.getByText(/Project association awaits owner confirmation/).isVisible());
-    assert(await page.getByText(/Development draft — personal skill/).isVisible());
-    for (const name of ['Unity', 'Git', 'GitHub', 'SourceTree', 'Jira', 'C#', 'Codex']) {
-      const item = page.getByRole('region', { name: 'Tools & technologies' }).getByRole('listitem')
-        .filter({ has: page.getByRole('heading', { name, exact: true }) });
-      assert(await item.getByText(/description of actual use/).isVisible());
-      assert(await item.getByText('Development draft · awaiting confirmation', { exact: true }).isVisible());
-    }
-    assert.equal(await page.getByRole('progressbar').count(), 0);
+    assert.match(await coverage.innerText(), /Planned manual QA documentation for Regulus the Advent/);
+    assert.match(await coverage.innerText(), /Completed test suites and defect reports will be added as evidence becomes available/);
+    assert(await coverage.evaluate(element => [...element.querySelectorAll('h2, p, li')]
+      .every(node => node.scrollWidth <= node.clientWidth)), 'Planned scope wraps without clipping');
   }
   await visit('/skills');
   await checkSkills();
@@ -49,6 +78,7 @@ export default async function check(page) {
   await checkSkills();
   await portfolio.click();
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
+  await checkCoverage();
   await page.evaluate(() => scrollTo(0, 700));
   await skills.click();
   await checkSkills();
@@ -66,7 +96,7 @@ export default async function check(page) {
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
   await skills.click();
 
-  for (const region of ['QA capabilities', 'Tools & technologies']) {
+  for (const region of ['QA capabilities', 'Tools']) {
     const descriptions = page.getByRole('region', { name: region });
     for (const [name, evidence, opener, title] of [
       ['Regulus the Advent · Android performance reports', 'android-reports',
@@ -101,13 +131,20 @@ export default async function check(page) {
     }
   }
 
-  await mkdir('.scratch/issue75-visuals', { recursive: true });
+  await mkdir('.scratch/issue77-visuals', { recursive: true });
   for (const [width, height] of [[1920,1080], [1366,768], [390,845], [845,390], [360,840],
     [840,360], [1200,800], [800,1200], [899,700], [901,700], [320,700]]) {
     await page.setViewportSize({ width, height });
     await page.evaluate(() => document.fonts.ready);
     await checkSkills();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Skills has no horizontal overflow');
+    assert(await page.getByRole('main').evaluate(element => [...element.querySelectorAll('h1, h2, h3, p, a')]
+      .every(node => node.scrollWidth <= node.clientWidth)), 'Approved Skills copy wraps without clipping');
+    for (const link of await page.getByRole('main').getByRole('link').all()) {
+      const box = await link.boundingBox();
+      assert(box.width >= 44 && box.height >= 44 && box.x >= 0 && box.x + box.width <= width,
+        'Evidence links fit and retain 44px targets');
+    }
     for (const link of await nav.getByRole('link').all()) {
       const box = await link.boundingBox();
       assert(box.width >= 44 && box.height >= 44 && box.x >= 0 && box.x + box.width <= width,
@@ -127,6 +164,11 @@ export default async function check(page) {
     await portfolio.focus();
     await page.keyboard.press('Enter');
     await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
+    await checkCoverage();
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Regulus coverage causes no page overflow');
+    if (width === 1366 || width === 360) {
+      await page.getByRole('region', { name: 'Planned gameplay coverage', exact: true }).screenshot({ path: `.scratch/issue77-visuals/coverage-${width}.png` });
+    }
     await skills.focus();
     await page.keyboard.press('Enter');
     await checkSkills();
@@ -137,8 +179,8 @@ export default async function check(page) {
     assert(await page.getByRole('main').evaluate(element => element === document.activeElement));
     if (width === 1366 || width === 360) {
       await page.evaluate(() => scrollTo(0, 0));
-      await page.screenshot({ path: `.scratch/issue75-visuals/skills-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `.scratch/issue77-visuals/skills-${width}.png`, fullPage: true });
     }
   }
-  console.log('PASS: Skills section order, seven numbered steps, nine planned systems, draft distinctions, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures');
+  console.log('PASS: approved Skills copy/order, Regulus-only planned coverage and Work in progress, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures');
 }
