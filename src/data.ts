@@ -1,5 +1,19 @@
 import type { PerformanceReport, Profile } from "./types";
 
+export const linkedInProfileUrl = "https://www.linkedin.com/in/komed-uthisanont-592388187/";
+
+// Replace development drafts with owner-reviewed biography in ticket #77.
+export const biography = {
+  status: "Development draft — biography details await the owner’s confirmation and copy review before publication.",
+  sections: [
+    { id: "introduction", title: "Professional introduction", description: "Draft content — a short professional introduction and precise target role are awaiting confirmation." },
+    { id: "background", title: "Background", description: "Draft content — the owner’s professional background is awaiting confirmation." },
+    { id: "motivation", title: "Why game QA", description: "Draft content — the owner’s motivation for game QA is awaiting confirmation." },
+    { id: "direction", title: "Career direction", description: "Draft content — the owner’s career direction is awaiting confirmation." },
+    { id: "gaming", title: "Personal gaming detail", description: "Draft content — one personal gaming detail selected by the owner is awaiting confirmation." },
+  ],
+};
+
 // Edit this object when you are ready to add your name, bio, CV or profile links.
 // Optional image and CV paths are relative to public/, e.g. 'files/my-cv.pdf'.
 export const personalInfo: Profile = {

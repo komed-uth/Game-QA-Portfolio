@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { waitForPhoto } from './gallery-photo-ready.mjs';
 import { installPausedClock, waitForPhoto as waitForClockPhoto } from './gameplay-slideshow.mjs';
 import { withBrowserContext } from './run-browser-check.mjs';
+import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
 
 const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
@@ -173,6 +174,7 @@ async function checkProject(page, projectName) {
       await page.setViewportSize({ width, height });
       await previews.first().click();
       await waitForPhoto(gallery);
+      await checkPreviewStripLayout(gallery);
       const title = await section.getByRole('heading', { name: projectName, exact: true }).boundingBox();
       const media = await gallery.boundingBox();
       const details = await section.locator('.project-details').boundingBox();
@@ -247,9 +249,13 @@ async function checkProject(page, projectName) {
   await waitForPhoto(gallery);
   await previews.first().click();
   await waitForPhoto(gallery, sources[0]);
-  await gallery.getByRole('button', { name: /scroll previews forward/ }).click();
-  assert.equal(await selected(gallery), 0, 'Preview controls browse without selecting');
   const strip = gallery.locator('.gallery-thumbnails');
+  await strip.scrollIntoViewIfNeeded();
+  await strip.hover();
+  await page.mouse.wheel(10000, 0);
+  await page.waitForTimeout(400);
+  assert(await strip.evaluate(e => Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1), 'Wheel browsing reaches the last placeholder preview');
+  assert.equal(await selected(gallery), 0, 'Preview browsing leaves selection unchanged');
   await strip.evaluate(e => e.scrollLeft = 0);
   await swipe(page, strip, 1);
   assert(await strip.evaluate(e => e.scrollLeft > 0), 'Dragging browses the thumbnail strip');

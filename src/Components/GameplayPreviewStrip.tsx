@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import type { MediaGalleryItem } from "./MediaGallery";
 
 type Props = {
@@ -10,16 +10,8 @@ type Props = {
 
 export default function GameplayPreviewStrip({ galleryName, media, selected, onSelect }: Props) {
   const strip = useRef<HTMLDivElement>(null);
-  const [ends, setEnds] = useState({ start: true, end: true });
   const drag = useRef<{ id: number; x: number; y: number; scroll: number; horizontal: boolean } | null>(null);
   const suppressClick = useRef(false);
-
-  function updateEnds() {
-    const element = strip.current;
-    if (!element) return;
-    setEnds({ start: element.scrollLeft <= 1,
-      end: element.scrollLeft + element.clientWidth >= element.scrollWidth - 1 });
-  }
 
   function scrollTo(left: number) {
     strip.current?.scrollTo({ left, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
@@ -37,25 +29,7 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
     else scrollTo(element.scrollLeft);
   }
 
-  useEffect(() => {
-    const element = strip.current;
-    if (!element) return;
-    const observer = new ResizeObserver(updateEnds);
-    observer.observe(element);
-    for (const child of element.children) observer.observe(child);
-    updateEnds();
-    return () => observer.disconnect();
-  }, [media]);
-
   useEffect(() => { reveal(selected); }, [selected]);
-
-  function browse(direction: number) {
-    const element = strip.current;
-    if (!element) return;
-    const preview = element.firstElementChild as HTMLElement | null;
-    const group = Math.max(1, element.clientWidth - (preview?.offsetWidth ?? 0) - 8);
-    scrollTo(element.scrollLeft + direction * group);
-  }
 
   function focusPreview(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const next = event.key === "Home" ? 0 : event.key === "End" ? media.length - 1 :
@@ -105,9 +79,8 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
     event.stopPropagation();
   }
 
-  const overflowing = !ends.start || !ends.end;
   return <div className="gallery-preview-strip" role="group" aria-label={galleryName + " gameplay previews"}>
-    <div className="gallery-thumbnails" ref={strip} onScroll={updateEnds}
+    <div className="gallery-thumbnails" ref={strip}
       onPointerDown={startDrag} onPointerMove={moveDrag}
       onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}
       onClickCapture={blockDraggedClick}>
@@ -119,11 +92,5 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
         {thumbnail.type === "video" && <span className="gallery-video-indicator" aria-hidden="true">▶</span>}
       </button>)}
     </div>
-    {media.length > 1 && overflowing && <div className="gallery-controls">
-      <button type="button" className="gallery-arrow" disabled={ends.start}
-        aria-label={galleryName + " scroll previews backward"} onClick={() => browse(-1)}>‹</button>
-      <button type="button" className="gallery-arrow" disabled={ends.end}
-        aria-label={galleryName + " scroll previews forward"} onClick={() => browse(1)}>›</button>
-    </div>}
   </div>;
 }

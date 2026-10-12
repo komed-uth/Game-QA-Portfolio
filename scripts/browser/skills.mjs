@@ -18,6 +18,7 @@ export default async function check(page) {
     assert.equal(new URL(page.url()).hash, '#/skills');
     assert.equal(await skills.getAttribute('aria-current'), 'page');
     assert.equal(await nav.getByRole('link', { name: 'QA approach', exact: true }).count(), 0);
+    assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
     assert.deepEqual(await page.getByRole('main').getByRole('heading', { level: 2 }).allTextContents(),
       ['QA capabilities', 'Tools & technologies', 'QA workflow', 'Planned gameplay coverage']);
     const workflow = page.getByRole('region', { name: 'QA workflow' });
@@ -118,6 +119,9 @@ export default async function check(page) {
     await page.keyboard.press('Tab');
     assert(await skills.evaluate(element => element === document.activeElement && element.matches(':focus-visible') &&
       getComputedStyle(element).outlineStyle !== 'none' && parseFloat(getComputedStyle(element).outlineWidth) > 0));
+    await page.keyboard.press('Tab');
+    const aboutMe = nav.getByRole('link', { name: 'About me', exact: true });
+    assert(await aboutMe.evaluate(element => element === document.activeElement), 'About me remains after Skills');
     await page.keyboard.press('Tab');
     assert(await linkedIn.evaluate(element => element === document.activeElement), 'LinkedIn remains after page links');
     await portfolio.focus();

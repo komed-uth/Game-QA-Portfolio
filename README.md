@@ -51,7 +51,7 @@ Vecchio Furioso currently presents the supplied screenshot as rendering-event an
 
 Manual test cases, defect reports, and coverage documents remain **work in progress**. Skills at `#/skills` presents capabilities, tools, and the intended QA process alongside links to supplied performance evidence. Legacy `#/about` links redirect to Skills. Unconfirmed personal descriptions are visibly marked as development drafts; reviewed content and the project association for planned coverage remain pending ticket #77. The original `test-cases/TC-MOV-001` is a placeholder.
 
-Ticket #75's implementation, testing, branch push, and PR are authorized by the owner's later instruction. Deployment remains on hold: pushing this working branch does not publish it, and merging to `main` would trigger the Pages workflow. Complete the content review and obtain deployment authorization before merging.
+The owner authorized ticket #75's implementation, testing, branch push, and PR, then authorized merging the PR and closing the ticket on 2026-10-12. Merging to `main` triggers the Pages workflow. The Skills and About me development drafts remain visibly identified; reviewed personal content and planned coverage association remain ticket #77.
 
 ## Structure
 

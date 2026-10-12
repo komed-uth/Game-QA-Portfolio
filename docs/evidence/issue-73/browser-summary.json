@@ -1,0 +1,93 @@
+{
+  "suite": "complete portfolio suite",
+  "checks": [
+    {
+      "name": "placeholder-showcases",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:10:02.509Z",
+      "durationMs": 386280.3866
+    },
+    {
+      "name": "video",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:16:28.834Z",
+      "durationMs": 34437.20079999999
+    },
+    {
+      "name": "slideshow",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:17:03.272Z",
+      "durationMs": 61109.140000000014
+    },
+    {
+      "name": "photos",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:18:04.398Z",
+      "durationMs": 24823.64360000001
+    },
+    {
+      "name": "gameplay-previews",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:18:29.231Z",
+      "durationMs": 154332.07039999997
+    },
+    {
+      "name": "gameplay-fixtures",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:21:04.082Z",
+      "durationMs": 60247.307900000014
+    },
+    {
+      "name": "evidence-modal",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:22:04.423Z",
+      "durationMs": 244491.08979999996
+    },
+    {
+      "name": "evidence-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:08.933Z",
+      "durationMs": 13278.892699999968
+    },
+    {
+      "name": "report-layout",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:22.223Z",
+      "durationMs": 11058.346200000029
+    },
+    {
+      "name": "overlay-fixture",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:33.291Z",
+      "durationMs": 12312.912899999996
+    },
+    {
+      "name": "report-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T05:26:45.617Z",
+      "durationMs": 382705.2409
+    }
+  ],
+  "selectedChecks": [
+    "placeholder-showcases",
+    "video",
+    "slideshow",
+    "photos",
+    "gameplay-previews",
+    "gameplay-fixtures",
+    "evidence-modal",
+    "evidence-interactions",
+    "report-layout",
+    "overlay-fixture",
+    "report-interactions"
+  ],
+  "commit": "6bb08cbed1083e661c7cd65147185412d2d3f71e",
+  "trackedChanges": true,
+  "preview": "local",
+  "startedAt": "2026-10-12T05:09:59.412Z",
+  "status": "passed",
+  "inputFingerprint": "c62a79b58621fa8323ef73bb5e6182d7b24a0cd7217ca8aa2479d94b50cd2e22",
+  "endedAt": "2026-10-12T05:33:26.400Z",
+  "exitCode": 0,
+  "signal": null
+}

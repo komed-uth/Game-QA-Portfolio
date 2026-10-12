@@ -2,6 +2,12 @@ import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 import { build } from "vite";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
+import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
+
+async function atGestureBoundary(strip, direction) {
+  return strip.evaluate((element, direction) => direction < 0 ?
+    Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1 : element.scrollLeft <= 1, direction);
+}
 
 async function checkScrollInterruption(page, gallery) {
   await page.setViewportSize({width:390,height:845});
@@ -57,7 +63,8 @@ export default async function checkPreviewFixtures(page) {
     const output = Array.isArray(result) ? result[0].output : result.output;
     const entry = output.find(file => file.type === "chunk" && file.isEntry);
     assert(entry, "Fixture entry produced");
-    await withBrowserContext(browser, { viewport: {width:390,height:845}, reducedMotion: "reduce" }, async context => {
+    await withBrowserContext(browser, { viewport: {width:390,height:845}, reducedMotion: "reduce",
+      ...(fixture === 'long' ? { hasTouch: true, isMobile: true } : {}) }, async context => {
       await context.route('**/assets/index-*.js', route => route.fulfill({contentType:'text/javascript',body:entry.code}));
       const fixturePage=await context.newPage();
       await fixturePage.goto(page.url());
@@ -76,7 +83,8 @@ export default async function checkPreviewFixtures(page) {
         }
       } else if (fixture === "single" || fixture === "single-photo") {
         assert.equal(await gallery.locator('.gallery-thumbnail').count(),1);
-        assert.equal(await gallery.locator('.gallery-controls').count(),0);
+        await checkPreviewStripLayout(gallery);
+        assert(await gallery.locator('.gallery-thumbnails').evaluate(e => e.scrollWidth <= e.clientWidth + 1), 'Single preview fits without horizontal scrolling');
         assert.equal(await gallery.getByRole('button', {name: /slideshow/}).count(),0,'Single item omits slideshow controls');
         if (fixture === "single") assert.equal(await gallery.locator('iframe').count(),1);
         else {
@@ -92,22 +100,74 @@ export default async function checkPreviewFixtures(page) {
       } else {
         const strip=gallery.locator('.gallery-thumbnails');
         const previews=gallery.locator('.gallery-thumbnail');
-        const forward=gallery.getByRole('button',{name:/scroll previews forward/});
-        const backward=gallery.getByRole('button',{name:/scroll previews backward/});
+        await checkPreviewStripLayout(gallery);
         assert.equal(await previews.count(),16);
-        await forward.click();
-        const scrolled=await strip.evaluate(e=>({left:e.scrollLeft,width:e.clientWidth,preview:e.children[0].getBoundingClientRect().width}));
-        assert(scrolled.left > scrolled.width-scrolled.preview-12 && scrolled.left < scrolled.width-scrolled.preview+4,
-          'Group browsing retains one preview for context');
+        const player = await gallery.locator('iframe').elementHandle();
+        await strip.scrollIntoViewIfNeeded();
+        await strip.hover();
+        await fixturePage.mouse.wheel(10000, 0);
+        await fixturePage.waitForTimeout(400);
+        assert(await strip.evaluate(e => Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1), 'Wheel reaches the finite end of a longer list');
         assert.equal(await previews.first().getAttribute('aria-pressed'),'true','Browsing away preserves selected video');
+        await fixturePage.mouse.wheel(-10000, 0);
+        await fixturePage.waitForTimeout(400);
+        assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Wheel reaches the start of a longer list');
+        const box = await strip.boundingBox();
+        const metrics = await strip.evaluate(e => ({height:e.clientHeight,total:e.offsetHeight}));
+        assert(metrics.total > metrics.height, 'Longer list retains a visible native scrollbar');
+        const scrollbarY = box.y + metrics.height + (metrics.total - metrics.height) / 2;
+        await fixturePage.mouse.move(box.x + 8, scrollbarY);
+        await fixturePage.mouse.down();
+        await fixturePage.mouse.move(box.x + box.width - 8, scrollbarY, {steps:12});
+        await fixturePage.mouse.up();
+        assert(await strip.evaluate(e => Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1), 'Scrollbar thumb reaches the end of a longer list');
+        await fixturePage.mouse.down();
+        await fixturePage.mouse.move(box.x + 8, scrollbarY, {steps:12});
+        await fixturePage.mouse.up();
+        assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Scrollbar thumb returns to the start');
+        assert.equal(await previews.first().getAttribute('aria-pressed'),'true', 'Scrollbar browsing preserves selection');
+        for (const direction of [-1, 1]) {
+          for (let attempt = 0; attempt < 30; attempt++) {
+            if (await atGestureBoundary(strip, direction)) break;
+            const from = box.x + box.width * (direction < 0 ? .8 : .2), y = box.y + 20;
+            await fixturePage.mouse.move(from, y);
+            await fixturePage.mouse.down();
+            await fixturePage.mouse.move(from + direction * box.width * .6, y, {steps:12});
+            await fixturePage.mouse.up();
+          }
+          assert(await atGestureBoundary(strip, direction), 'Mouse dragging reaches both ends of a longer list');
+        }
+        const session = await context.newCDPSession(fixturePage);
+        for (const direction of [-1, 1]) {
+          for (let attempt = 0; attempt < 30; attempt++) {
+            if (await atGestureBoundary(strip, direction)) break;
+            const x = box.x + box.width * (direction < 0 ? .8 : .2), y = box.y + 20;
+            await session.send('Input.dispatchTouchEvent', {type:'touchStart',touchPoints:[{x,y}]});
+            for (let step = 1; step <= 8; step++) {
+              await session.send('Input.dispatchTouchEvent', {type:'touchMove',touchPoints:[{x:x+direction*box.width*.6*step/8,y}]});
+              await fixturePage.waitForTimeout(20);
+            }
+            await session.send('Input.dispatchTouchEvent', {type:'touchEnd',touchPoints:[]});
+            await fixturePage.waitForTimeout(200);
+          }
+          assert(await atGestureBoundary(strip, direction), 'Native touch reaches both ends of a longer list');
+        }
+        await session.detach();
+        assert.equal(await previews.first().getAttribute('aria-pressed'),'true', 'Long-list touch browsing does not select');
+        assert.equal(await fixturePage.locator('dialog').count(), 0, 'Long-list browsing never opens an image');
+        assert(await player.evaluate(e => e.isConnected), 'Long-list browsing preserves the active video player');
         await previews.first().focus();
         await fixturePage.keyboard.press('End');
-        await fixturePage.waitForFunction(() => document.querySelector('[aria-label="Regulus the Advent media scroll previews forward"]').disabled);
-        assert(await forward.isDisabled(),'Keyboard focus reaches finite end');
+        assert(await previews.last().evaluate(e => {
+          const bounds=e.getBoundingClientRect(), strip=e.parentElement.getBoundingClientRect();
+          return e === document.activeElement && bounds.left >= strip.left-1 && bounds.right <= strip.right+1;
+        }), 'Keyboard focus reveals the final preview in a longer list');
         assert.equal(await previews.first().getAttribute('aria-pressed'),'true');
         await fixturePage.keyboard.press('Enter');
         assert.equal(await previews.last().getAttribute('aria-pressed'),'true');
-        await backward.click();
+        await strip.hover();
+        await fixturePage.mouse.wheel(-10000, 0);
+        await fixturePage.waitForTimeout(400);
         assert.equal(await previews.last().getAttribute('aria-pressed'),'true','Browse away from selected photo');
         await fixturePage.keyboard.press('Tab');
         await fixturePage.setViewportSize({width:1366,height:768});
@@ -143,5 +203,5 @@ export default async function checkPreviewFixtures(page) {
     assert.equal(await touchPage.locator('dialog').count(),0);
     await session.detach();
   });
-  console.log('PASS: temporary empty/single/long portfolio lists, group context, hidden selection, resize, native touch strip, vertical page scrolling and verified normal/reduced scroll interruption');
+  console.log('PASS: compact empty/single/long portfolio lists, finite wheel/scrollbar/touch browsing, hidden selection, resize, vertical page scrolling and normal/reduced scroll interruption');
 }

@@ -1,6 +1,12 @@
 # Ticket #75 validation and review
 
-Implementation, testing, branch push, and a PR were authorized by the owner's explicit request on 2026-10-12, superseding the earlier implementation hold. Deployment remains held. Ticket #76 and #77 remain separate work; reviewed personal copy and confirmed planned-coverage association are still required before publication. Do not merge this draft into `main`: that branch triggers Pages deployment.
+Implementation, testing, branch push, and a PR were authorized by the owner's explicit request on 2026-10-12, superseding the earlier implementation hold. The owner later authorized merging the PR and closing #75 on the same date. `main` triggers Pages deployment. The marked development drafts retain the separate personal-content and planned-coverage association handoff in #77.
+
+## Integration before merge
+
+The first merge attempt was rejected after `main` advanced with PR #80 (About me, #76) and PR #81 (preview-strip arrow removal, #73). Integrated published main `f0d0b4b873c27ea82ca3f25f8d7a0a34368d9242`, preserving About me and the arrow cleanup. Skills replaces QA approach, legacy `#/about` redirects to Skills, and the header order is Portfolio, Skills, About me, LinkedIn. The old QA approach module is superseded by Skills. Both page checks and their full-suite registrations are retained.
+
+The integrated production build, 99 preview/parser/selection tests, focused Skills checks, and focused About me checks passed. [Integrated preview output](integrated-preview-output.txt), [Skills summary](integrated-skills-summary.json), and [About me summary](integrated-about-me-summary.json) preserve these results. Screenshots below were refreshed to the integrated three-page header. Full build/browser CI on the integration commit is the final merge gate; results are visible in [PR #79 checks](https://github.com/komed-uth/Game-QA-Portfolio/pull/79/checks).
 
 ## Acceptance evidence
 
@@ -32,4 +38,4 @@ Review totals: Standards 0 hard violations, 1 optional duplication observation; 
 
 ## Remaining gates
 
-Core personal skill/tool descriptions and the project association for planned coverage still require owner review in #77. Tool names and the workflow are not proof of unconfirmed proficiency. About me was not present on the implementation base and is not introduced by #75. No percentage bars or expert ratings were added. Original reports and evidence were preserved. Real report-owned screenshot overlays remain uncertified because the supplied report screenshot path lists are empty; the existing synthetic overlay fixture covers integration only. No deployment was performed.
+Core personal skill/tool descriptions and the project association for planned coverage still require owner review in #77. Tool names and the workflow are not proof of unconfirmed proficiency. About me was absent from the original implementation base; the independently merged #76 page is preserved in the integrated result. No percentage bars or expert ratings were added. Original reports and evidence were preserved. Real report-owned screenshot overlays remain uncertified because the supplied report screenshot path lists are empty; the existing synthetic overlay fixture covers integration only. The owner's later merge instruction authorizes the existing Pages workflow publication of the marked development drafts.

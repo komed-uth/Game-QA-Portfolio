@@ -1,0 +1,104 @@
+import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
+import { captureRegion } from './capture-region.mjs';
+
+const headings = ['Professional introduction', 'Background', 'Why game QA', 'Career direction', 'Personal gaming detail', 'Contact'];
+const profile = 'https://www.linkedin.com/in/komed-uthisanont-592388187/';
+
+async function about(page) {
+  await page.getByRole('heading', { name: 'About me', exact: true }).waitFor();
+  await page.waitForFunction(() => document.title === "About me · Komed's Portfolio");
+  const main = page.getByRole('main');
+  assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(), headings);
+  assert(await main.getByText(/Development draft/).isVisible());
+  for (const name of headings.slice(0, -1)) {
+    assert.match(await main.getByRole('region', { name, exact: true }).innerText(), /Draft content.*awaiting confirmation/s);
+  }
+  assert.equal(await main.locator('img, iframe, form, input, a[download]').count(), 0);
+  assert.equal(await main.getByRole('link').count(), 1);
+  const contact = main.getByRole('link', { name: 'Contact me on LinkedIn (opens in a new tab)' });
+  assert.equal(await contact.getAttribute('href'), profile);
+  assert.equal(await contact.getAttribute('target'), '_blank');
+  assert.match(await contact.getAttribute('rel'), /noopener/);
+  assert.match(await contact.getAttribute('rel'), /noreferrer/);
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
+  assert.equal(await nav.getByRole('link', { name: 'About me', exact: true }).getAttribute('aria-current'), 'page');
+  assert.equal(await nav.locator('[aria-current="page"]').count(), 1);
+}
+
+async function focusVisible(link) {
+  assert(await link.evaluate(element => element === document.activeElement && element.matches(':focus-visible') &&
+    parseFloat(getComputedStyle(element).outlineWidth) >= 2 && getComputedStyle(element).outlineStyle !== 'none'));
+}
+
+export default async function check(page) {
+  const home = page.url();
+  const direct = new URL(home);
+  direct.hash = '/about-me';
+  await page.goto(direct.href);
+  await about(page);
+  await page.reload();
+  await about(page);
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  await nav.getByRole('link', { name: 'Portfolio', exact: true }).click();
+  await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
+  await page.evaluate(() => window.scrollTo(0, 700));
+  await page.waitForFunction(() => scrollY > 0);
+  await nav.getByRole('link', { name: 'Skills', exact: true }).focus();
+  await page.keyboard.press('Tab');
+  await focusVisible(nav.getByRole('link', { name: 'About me', exact: true }));
+  await page.keyboard.press('Enter');
+  await about(page);
+  await page.waitForFunction(() => scrollY === 0);
+  await page.goBack();
+  await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
+  await page.goForward();
+  await about(page);
+  await page.reload();
+  await about(page);
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await focusVisible(skip);
+  await page.keyboard.press('Enter');
+  assert(await page.getByRole('main').evaluate(element => document.activeElement === element));
+  const contact = page.getByRole('link', { name: /Contact me on LinkedIn/ });
+  await contact.focus();
+  await focusVisible(contact);
+  // Verify activation and destination without depending on LinkedIn availability.
+  await page.context().route('https://www.linkedin.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<h1>LinkedIn contact boundary</h1>' }));
+  const popupPromise = page.waitForEvent('popup');
+  await page.keyboard.press('Enter');
+  const popup = await popupPromise;
+  await popup.waitForLoadState();
+  assert.equal(popup.url(), profile);
+  await popup.close();
+  const legacy = new URL(home);
+  legacy.hash = '/about';
+  await page.goto(legacy.href);
+  await page.getByRole('heading', { name: 'QA workflow', exact: true }).waitFor();
+  await page.waitForFunction(() => document.title === "Skills · Komed's Portfolio");
+  assert.equal(await nav.getByRole('link', { name: 'Skills', exact: true }).getAttribute('aria-current'), 'page');
+  assert.equal(new URL(page.url()).hash, '#/skills');
+  assert.equal(await page.getByRole('heading', { name: 'About me', exact: true }).count(), 0);
+
+  for (const width of [320, 360, 390, 640, 768, 900, 960, 961, 1024, 1366, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(direct.href);
+    await about(page);
+    await page.evaluate(() => document.fonts.ready);
+    const links = page.locator('header nav a, header .linkedin-link, main a');
+    for (const link of await links.all()) {
+      assert(await link.isVisible());
+      const box = await link.boundingBox();
+      assert(box.width >= 44 && box.height >= 44, `Touch target at ${width}px`);
+      assert(box.x >= 0 && box.x + box.width <= width, `Link fits at ${width}px`);
+    }
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `No overflow at ${width}px`);
+    assert(await page.getByRole('main').evaluate(element => [...element.querySelectorAll('h1, h2, p, a')].every(node => node.scrollWidth <= node.clientWidth)), `Readable text at ${width}px`);
+    if ([390, 1366].includes(width)) {
+      await mkdir('.scratch/about-me', { recursive: true });
+      await captureRegion(page, { selectors: ['html'], path: `.scratch/about-me/${width}.png` });
+    }
+  }
+}
