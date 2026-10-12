@@ -37,6 +37,3 @@ Review totals: Standards 0; Spec 0.
 ## Publication hold
 
 This is a structural development draft. Ticket #77 must supply and apply reviewed personal biography before publication. Main's Pages workflow deploys on push, so merging this PR would publish drafts. Keep the PR draft until the owner authorizes release and the content gate is satisfied.
-
-
-
