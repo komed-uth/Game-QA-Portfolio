@@ -301,6 +301,13 @@ async function checkProject(page, projectName) {
       if (currentScroll !== lastScroll) quietSince = Date.now();
       lastScroll = currentScroll;
     }
+    // Chromium may consume the first touch after a canceled native pan even
+    // after scrollY settles. End that interaction on the noninteractive gutter
+    // before testing a distinct image activation, rather than retrying it.
+    assert(await touchPage.evaluate(() => !document.elementFromPoint(2, 2)?.closest('button, a, iframe, input')));
+    await touchPage.touchscreen.tap(2, 2);
+    await touchPage.waitForTimeout(100);
+    assert.equal(await touchPage.locator('dialog').count(), 0, 'Ending native scroll does not open inspection');
     await touchGallery.locator('.evidence-image-button').tap();
     await touchPage.getByRole('dialog').waitFor();
     await closeModal(touchPage, 'button');

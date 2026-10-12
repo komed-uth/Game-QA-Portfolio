@@ -4,6 +4,7 @@ import EvidenceModal from "./EvidenceModal";
 import GameplayPreviewStrip from "./GameplayPreviewStrip";
 import useGalleryPhoto from "./useGalleryPhoto";
 import useGallerySlideshow from "./useGallerySlideshow";
+import YouTubeVideo from "./YouTubeVideo";
 
 export type MediaGalleryItem = {
   type: "video" | "image";
@@ -31,7 +32,7 @@ export default function MediaGallery({
   const selectedRef = useRef(0);
   const photo = useGalleryPhoto(item?.type === "image" ? item.source : null);
   const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
-  const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, advance: () => select(selectedRef.current + 1) });
+  const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, videoShowcase: !!videoId, advance: () => select(selectedRef.current + 1) });
   const imageButton = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
   useEffect(() => {
@@ -143,16 +144,9 @@ export default function MediaGallery({
           {...(activeItem.type === "image" ? swipeHandlers : {})}
         >
           {activeItem.type === "video" ? (
-            <iframe
-              src={
-                "https://www.youtube-nocookie.com/embed/" +
-                videoId +
-                "?autoplay=1&mute=1&playsinline=1&rel=0"
-              }
-              title={projectName + " video"}
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
+            <YouTubeVideo videoId={videoId ?? ""} title={projectName + " video"}
+              eligible={slideshow.eligible} isCurrent={() => selectedRef.current === selected}
+              onComplete={() => select(selectedRef.current + 1)} />
           ) : (
             <>
               {displayedItem && <button type="button"
@@ -172,7 +166,14 @@ export default function MediaGallery({
             </>
           )}
         </div>
-
+        {videoId && <figcaption className="gallery-caption">
+          <span>{selected + 1} / {media.length} · {activeItem.label}</span>
+          {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control" onClick={slideshow.togglePause}>
+            {slideshow.paused ? "Resume slideshow" : "Pause slideshow"}
+          </button>}
+          {activeItem.type === "video" && <a href={"https://www.youtube.com/watch?v=" + videoId}
+            target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>}
+        </figcaption>}
       </figure>
 
       <span className="sr-only" aria-live="polite" aria-atomic="true">

@@ -339,6 +339,9 @@ nav a.active {
   height: 100%;
   object-fit: contain;
 }
+.gallery-video-player { width: 100%; height: 100%; }
+.gallery-caption { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 8px; }
+.gallery-caption a { display: inline-flex; align-items: center; min-height: 44px; }
 .gallery-viewer iframe {
   display: block;
   width: 100%;
@@ -389,6 +392,7 @@ nav a.active {
   font-size: 1.8rem;
   cursor: pointer;
 }
+.gallery-slideshow-control { flex: 0 0 auto; min-width: 44px; padding: 0 12px; border-radius: 4px; font-size: 0.875rem; }
 .gallery-thumbnails {
   position: relative;
   display: flex;
