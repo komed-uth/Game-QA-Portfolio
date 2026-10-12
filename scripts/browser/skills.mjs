@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkCoverageRemoval, checkRegulusTransition } from './homepage-footer.mjs';
 import { captureRegion } from './capture-region.mjs';
 
 // Ticket #77: compare rendered copy with the owner-approved issue text.
@@ -38,6 +39,7 @@ export default async function check(page) {
     assert.equal(await nav.getByRole('link', { name: 'QA approach', exact: true }).count(), 0);
     assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
     const main = page.getByRole('main');
+    await checkCoverageRemoval(page);
     assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(),
       ['QA capabilities', 'Tools']);
     for (const [region, copy] of [['QA capabilities', capabilities], ['Tools', tools]]) {
@@ -52,20 +54,10 @@ export default async function check(page) {
     assert.equal(await page.getByRole('progressbar').count(), 0);
   }
 
-  async function checkCoverage() {
-    const main = page.getByRole('main');
-    assert.equal(await main.getByRole('heading', { name: 'Planned gameplay coverage', exact: true }).count(), 1,
-      'Coverage appears once, inside its confirmed project rather than in a generic teaser');
-    const coverage = main.getByRole('region', { name: 'Regulus the Advent', exact: true })
-      .getByRole('region', { name: 'Planned gameplay coverage', exact: true });
-    assert(await coverage.isVisible());
-    assert.deepEqual(await coverage.getByRole('listitem').allTextContents(), ['Player movement', 'Combat', 'Checkpoints',
-      'Death & respawn', 'Save/load', 'UI navigation', 'Inventory', 'Game state transitions', 'Visual graphics']);
-    assert(await coverage.getByText('Work in progress', { exact: true }).isVisible());
-    assert.match(await coverage.innerText(), /Planned manual QA documentation for Regulus the Advent/);
-    assert.match(await coverage.innerText(), /Completed test suites and defect reports will be added as evidence becomes available/);
-    assert(await coverage.evaluate(element => [...element.querySelectorAll('h2, p, li')]
-      .every(node => node.scrollWidth <= node.clientWidth)), 'Planned scope wraps without clipping');
+  for (const [route, heading] of [['/about-me', 'About me'], ['/unknown-portfolio-route', 'Regulus the Advent']]) {
+    await visit(route);
+    await page.getByRole('heading', { name: heading, exact: true }).waitFor();
+    await checkCoverageRemoval(page);
   }
   await visit('/skills');
   await checkSkills();
@@ -77,7 +69,7 @@ export default async function check(page) {
   await checkSkills();
   await portfolio.click();
   await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
-  await checkCoverage();
+  await checkRegulusTransition(page);
   await page.evaluate(() => scrollTo(0, 700));
   await skills.click();
   await checkSkills();
@@ -162,10 +154,10 @@ export default async function check(page) {
     await portfolio.focus();
     await page.keyboard.press('Enter');
     await page.getByRole('heading', { name: 'Regulus the Advent', exact: true }).waitFor();
-    await checkCoverage();
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Regulus coverage causes no page overflow');
+    await checkRegulusTransition(page);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Portfolio has no horizontal overflow');
     if (width === 1366 || width === 360) {
-      await captureRegion(page, { selectors: ['.project-coverage'], path: `.scratch/issue77-visuals/coverage-${width}.png` });
+      await captureRegion(page, { selectors: ['#android-reports', '#father-son-showcase-title'], path: `.scratch/issue88-visuals/transition-${width}.png` });
     }
     await skills.focus();
     await page.keyboard.press('Enter');
@@ -180,5 +172,5 @@ export default async function check(page) {
       await captureRegion(page, { selectors: ['html'], path: `.scratch/issue77-visuals/skills-${width}.png` });
     }
   }
-  console.log('PASS: approved Skills copy/order, Regulus-only planned coverage and Work in progress, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures');
+  console.log('PASS: approved Skills copy/order, planned coverage absent and normal Regulus transition, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures');
 }

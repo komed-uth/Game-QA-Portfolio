@@ -1,5 +1,7 @@
 # Ticket #77: approved personal content and Regulus coverage
 
+> Historical record: [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88) supersedes planned gameplay coverage retention and placement. The earlier results and captures below describe the presentation validated at that time.
+
 Ticket: [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77).
 Review base: `74dba92b12c5c44a8df1b0d14508b03e5968d153` (fetched main at implementation start).
 Implementation commit: `8f226b7`.

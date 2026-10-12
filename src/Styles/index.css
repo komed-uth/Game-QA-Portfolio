@@ -539,23 +539,9 @@ nav a.active {
   color: #d4ddd7;
   background: rgba(21, 32, 27, 0.6);
 }
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-}
-.section-heading .eyebrow {
-  margin-bottom: 8px;
-}
 .muted {
   font-size: 0.85rem;
   color: var(--muted);
-}
-.section-description {
-  color: var(--muted);
-  font-size: 1rem;
-  max-width: 800px;
 }
 .report-toolbar {
   display: flex;
@@ -631,15 +617,6 @@ nav a.active {
   color: var(--muted);
   margin: 14px 0 0;
 }
-.status-badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border: 1px solid #786332;
-  color: #e7cd87;
-  font-size: 0.75rem;
-  border-radius: 3px;
-  white-space: nowrap;
-}
 footer {
   display: flex;
   flex-wrap: wrap;
@@ -711,21 +688,6 @@ footer {
   font-size: 1rem;
   padding: 12px 18px;
 }
-.project-coverage {
-  grid-column: 1 / -1;
-  min-width: 0;
-}
-.coverage-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding-left: 20px;
-  gap: 18px;
-  color: #d4ddd7;
-  margin: 24px 0 0;
-}
-.coverage-list li::marker {
-  color: var(--green);
-}
 @media (max-width: 960px) {
   .header-top {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -794,17 +756,11 @@ footer {
   .project-grid {
     margin-bottom: 32px;
   }
-  .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-  }
   .report-button {
     padding: 10px 14px;
     min-height: 44px;
   }
-  .workflow-list,
-  .coverage-list {
+  .workflow-list {
     grid-template-columns: 1fr;
   }
   .about-intro {
@@ -1101,7 +1057,6 @@ footer {
 }
 .skills-list h3 { color: var(--green); }
 .skills-list p { color: var(--muted); }
-.skills-list .status-badge { white-space: normal; }
 .skill-evidence {
   display: inline-flex;
   align-items: center;

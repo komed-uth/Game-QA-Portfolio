@@ -1,0 +1,6 @@
+CHECKS: Skills and legacy links
+PREVIEW: http://127.0.0.1:56351/
+START: skills
+PASS: approved Skills copy/order, planned coverage absent and normal Regulus transition, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures
+PASS: skills (27.60s)
+PASS: rendered Skills browser checks

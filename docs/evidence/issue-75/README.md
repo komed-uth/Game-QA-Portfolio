@@ -1,5 +1,7 @@
 # Ticket #75 validation and review
 
+> Historical record: [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88) supersedes planned gameplay coverage retention and placement. The earlier results and captures below describe the presentation validated at that time.
+
 Implementation, testing, branch push, and a PR were authorized by the owner's explicit request on 2026-10-12, superseding the earlier implementation hold. The owner later authorized merging the PR and closing #75 on the same date. `main` triggers Pages deployment. The marked development drafts retain the separate personal-content and planned-coverage association handoff in #77.
 
 ## Integration before merge
