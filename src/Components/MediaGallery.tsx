@@ -68,6 +68,7 @@ export default function MediaGallery({
 
   function startSwipe(event: PointerEvent<HTMLDivElement>) {
     suppressClick.current = false;
+    if ((event.target as Element).closest(".gallery-slideshow-control")) return;
     if (!event.isPrimary || event.button !== 0) return;
     gesture.current = {
       id: event.pointerId,
@@ -165,15 +166,11 @@ export default function MediaGallery({
               </div> : !displayedItem && <div className="gallery-photo-status" role="status">Loading photo…</div>}
             </>
           )}
-        </div>
-        {videoId && <figcaption className="gallery-caption">
-          <span>{selected + 1} / {media.length} · {activeItem.label}</span>
-          {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control" onClick={slideshow.togglePause}>
+          {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control"
+            onClick={slideshow.togglePause}>
             {slideshow.paused ? "Resume slideshow" : "Pause slideshow"}
           </button>}
-          {activeItem.type === "video" && <a href={"https://www.youtube.com/watch?v=" + videoId}
-            target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>}
-        </figcaption>}
+        </div>
       </figure>
 
       <span className="sr-only" aria-live="polite" aria-atomic="true">

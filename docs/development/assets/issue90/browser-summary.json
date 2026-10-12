@@ -1,0 +1,107 @@
+{
+  "suite": "complete portfolio suite",
+  "checks": [
+    {
+      "name": "skills",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:33:54.932Z",
+      "durationMs": 55469.9264
+    },
+    {
+      "name": "about-me",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:34:50.407Z",
+      "durationMs": 5317.364300000001
+    },
+    {
+      "name": "placeholder-showcases",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:34:55.730Z",
+      "durationMs": 352641.5241
+    },
+    {
+      "name": "video",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:40:48.419Z",
+      "durationMs": 23858.38690000004
+    },
+    {
+      "name": "slideshow",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:41:12.279Z",
+      "durationMs": 75560.60450000002
+    },
+    {
+      "name": "photos",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:42:27.845Z",
+      "durationMs": 18354.994000000006
+    },
+    {
+      "name": "gameplay-previews",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:42:46.202Z",
+      "durationMs": 90237.00099999993
+    },
+    {
+      "name": "gameplay-fixtures",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:44:16.858Z",
+      "durationMs": 34094.85119999992
+    },
+    {
+      "name": "evidence-modal",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:44:50.955Z",
+      "durationMs": 126339.78460000001
+    },
+    {
+      "name": "evidence-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:46:57.301Z",
+      "durationMs": 7979.943000000087
+    },
+    {
+      "name": "report-layout",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:47:05.282Z",
+      "durationMs": 6243.9974999999395
+    },
+    {
+      "name": "overlay-fixture",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:47:11.528Z",
+      "durationMs": 6543.241900000023
+    },
+    {
+      "name": "report-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:47:18.073Z",
+      "durationMs": 234135.99089999998
+    }
+  ],
+  "selectedChecks": [
+    "skills",
+    "about-me",
+    "placeholder-showcases",
+    "video",
+    "slideshow",
+    "photos",
+    "gameplay-previews",
+    "gameplay-fixtures",
+    "evidence-modal",
+    "evidence-interactions",
+    "report-layout",
+    "overlay-fixture",
+    "report-interactions"
+  ],
+  "commit": "090ef1b72a2d4593f90348242fc8538021720d30",
+  "trackedChanges": true,
+  "preview": "local",
+  "startedAt": "2026-10-12T15:33:46.729Z",
+  "status": "passed",
+  "inputFingerprint": "380d6ea1caecfe3189dc37d0c4a04b02dc6b51b25054f6d7ce1321970db58533",
+  "endedAt": "2026-10-12T15:51:16.242Z",
+  "exitCode": 0,
+  "signal": null
+}

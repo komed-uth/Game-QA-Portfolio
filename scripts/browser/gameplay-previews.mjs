@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
 import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
+import { checkGalleryControlLayout } from './gallery-control-layout.mjs';
 
 async function drag(page, locator, from, to) {
   await locator.scrollIntoViewIfNeeded();
@@ -28,9 +29,9 @@ export default async function checkGameplay(page) {
         await previews.first().click();
         await checkPreviewStripLayout(gallery);
         assert.equal(await previews.count(), 4);
-        assert.equal(await gallery.locator('figcaption').count(), 1, 'Gameplay caption and counter are restored');
+        await checkGalleryControlLayout(gallery);
         assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1, 'Visitor can pause/resume automatic selection');
-        assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 1);
+        assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 0);
         assert.equal(await gallery.getByRole('button', { name: 'Open full-size image', exact: true }).count(), 0);
         assert.deepEqual(await previews.allTextContents(), ['▶', '', '', ''], 'Only the video play indicator remains on previews');
         assert(await previews.first().getAttribute('aria-label'), 'Video preview keeps its accessible name');
@@ -39,17 +40,10 @@ export default async function checkGameplay(page) {
         assert(await announcement.evaluate(e => getComputedStyle(e).clipPath === 'inset(50%)'), 'Selection updates remain nonvisual');
         const layout = await gallery.evaluate(e => {
           const viewer = e.querySelector('.gallery-viewer').getBoundingClientRect();
-          const caption = e.querySelector('figcaption').getBoundingClientRect();
           const strip = e.querySelector('.gallery-preview-strip').getBoundingClientRect();
-          return { gap: strip.top - caption.bottom, captionGap: caption.top - viewer.bottom,
-            frame: viewer.width / viewer.height, captionFits: caption.left >= viewer.left && caption.right <= viewer.right };
+          return { gap: strip.top - viewer.bottom, frame: viewer.width / viewer.height };
         });
-        assert(Math.abs(layout.gap - 12) < 1 && layout.captionGap >= 0, 'Caption and controls precede the preview strip');
-        assert(layout.captionFits, 'Caption row fits within the viewer width');
-        for (const action of await gallery.locator('.gallery-caption button, .gallery-caption a').all()) {
-          const bounds = await action.boundingBox();
-          assert(bounds.width >= 44 && bounds.height >= 44, 'Slideshow and external video actions have 44px targets');
-        }
+        assert(Math.abs(layout.gap - 12) < 1, 'Preview strip follows viewer without reserved caption space');
         assert(Math.abs(layout.frame - 16 / 9) < .02, 'Main frame proportions remain intact');
         assert.equal(await gallery.locator('.gallery-dots').count(), 0);
         assert.equal(await gallery.getByRole('button', { name: /previous media|next media/ }).count(), 0);
@@ -127,7 +121,7 @@ export default async function checkGameplay(page) {
         await page.keyboard.press('Space');
         assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('2 / 4'));
         await waitForPhoto(gallery);
-        assert.equal(await gallery.locator('figcaption').count(), 1, 'Photo selection retains caption and counter');
+        await checkGalleryControlLayout(gallery);
         assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
         assert(await previews.nth(1).evaluate(e => getComputedStyle(e).outlineStyle !== 'none'), 'Keyboard preview focus is visible');
         const image=gallery.locator('.gallery-viewer img');
