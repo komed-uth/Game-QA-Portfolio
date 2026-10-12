@@ -39,14 +39,13 @@ export default async function check(page) {
     assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
     const main = page.getByRole('main');
     assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(),
-      ['QA capabilities', 'Tools', 'Interests and development']);
+      ['QA capabilities', 'Tools']);
     for (const [region, copy] of [['QA capabilities', capabilities], ['Tools', tools]]) {
       const group = main.getByRole('region', { name: region, exact: true });
       assert.deepEqual(await group.getByRole('heading', { level: 3 }).allTextContents(), copy.map(([title]) => title));
       assert.deepEqual(await group.locator('li > p').allTextContents(), copy.map(([, description]) => description));
     }
-    assert.equal(await main.getByRole('region', { name: 'Interests and development' }).locator('p').innerText(),
-      'Player psychology, neuroscience, game design, Unreal Engine, and automated testing in games.');
+    assert.doesNotMatch(await main.innerText(), /Interests and development|Player psychology|neuroscience|Unreal Engine|automated testing in games/i);
     assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|QA approach|QA workflow|Planned gameplay coverage|Work in progress|\bFPS\b|\bexpert\b|\d+%/i);
     assert.equal(await main.getByRole('list').count(), 2, 'No numbered workflow');
     assert.equal(await main.getByRole('link').count(), 4, 'Only the four available performance evidence links');

@@ -8,7 +8,7 @@ Portfolio language for presenting game projects and the work associated with the
 A portfolio section devoted to one game, presenting its overview, the contributor's role and responsibilities, platforms and tools, and project media.
 
 **Skills page**:
-A portfolio page presenting the contributor's QA capabilities, working tools, and interests and development, with supporting project evidence where available.
+A portfolio page presenting the contributor's QA capabilities and working tools, with supporting project evidence where available.
 
 **QA approach**:
 The former portfolio destination for the contributor's testing process, superseded by the Skills page.
