@@ -1,4 +1,4 @@
-import { capabilities, interests, tools } from "../data";
+import { capabilities, tools } from "../data";
 import { Link } from "react-router-dom";
 
 export default function Skills() {
@@ -34,10 +34,6 @@ export default function Skills() {
             </li>
           ))}
         </ul>
-      </section>
-      <section className="approach-section" aria-labelledby="interests-heading">
-        <h2 id="interests-heading">Interests and development</h2>
-        <p>{interests}</p>
       </section>
     </>
   );

@@ -188,7 +188,6 @@ export const tools = [
     evidence: [],
   },
 ];
-export const interests = "Player psychology, neuroscience, game design, Unreal Engine, and automated testing in games.";
 
 // Owner confirmed Project Regulus as this planned scope's project in ticket #77.
 export const plannedCoverage = [
