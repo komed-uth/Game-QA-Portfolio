@@ -366,12 +366,6 @@ nav a.active {
   padding: 14px 20px;
   color: var(--green);
 }
-.gallery-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
 .gallery-swipe-surface {
   touch-action: pan-y pinch-zoom;
 }
@@ -380,8 +374,6 @@ nav a.active {
   -webkit-user-drag: none;
 }
 .gallery-preview-strip { margin-top: 12px; min-width: 0; }
-.gallery-controls { justify-content: space-between; }
-.gallery-arrow:disabled { opacity: 0.4; cursor: default; }
 .gallery-arrow {
   flex: 0 0 44px;
   height: 44px;
@@ -470,7 +462,6 @@ nav a.active {
 }
 @media (max-width: 640px) {
   .gallery-thumbnail { flex-basis: calc((100% - 24px) / 3.35); }
-  .gallery-controls { justify-content: space-between; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gallery-viewer { animation: none; }

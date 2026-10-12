@@ -124,7 +124,12 @@ export default async function checkPhotoChanges(page) {
       await previews.nth(1).click(); await ready(gallery, sources[1]);
       await previews.nth(3).click(); await gallery.getByRole('alert').waitFor();
       retrySucceeds = true;
-      await gallery.getByRole('button', { name: 'Retry', exact: true }).click();
+      const retry = gallery.getByRole('button', { name: 'Retry', exact: true });
+      const retryBounds = await retry.boundingBox();
+      assert(retryBounds.width >= 44 && retryBounds.height >= 44, 'Failed-photo Retry retains a usable target');
+      assert(await retry.evaluate(e => getComputedStyle(e).borderRadius === '50%' &&
+        getComputedStyle(e).color === 'rgb(161, 231, 125)'), 'Retry retains its circular green action presentation');
+      await retry.click();
       await ready(gallery, sources[3]);
       await open.click();
       assert.equal(await page.locator('dialog img').getAttribute('src'), sources[3], 'Retried photo opens for inspection');

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
+import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
 
 async function drag(page, locator, from, to) {
   await locator.scrollIntoViewIfNeeded();
@@ -25,6 +26,7 @@ export default async function checkGameplay(page) {
         const previews = gallery.locator('.gallery-thumbnail');
         const strip = gallery.locator('.gallery-thumbnails');
         await previews.first().click();
+        await checkPreviewStripLayout(gallery);
         assert.equal(await previews.count(), 4);
         assert.equal(await gallery.locator('figcaption').count(), 1, 'Gameplay caption and counter are restored');
         assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1, 'Visitor can pause/resume automatic selection');
@@ -61,16 +63,15 @@ export default async function checkGameplay(page) {
           const box = await strip.boundingBox();
           assert(boxes[2].right <= box.x + box.width + 1, 'Three complete phone previews');
           assert(boxes[3].left < box.x + box.width && boxes[3].right > box.x + box.width, 'Partial next preview');
-          const backward = gallery.getByRole('button', { name: /scroll previews backward/ });
-          const forward = gallery.getByRole('button', { name: /scroll previews forward/ });
-          assert(await backward.isDisabled());
-          for (const arrow of [backward,forward]) { const bounds = await arrow.boundingBox(); assert(bounds.width >= 44 && bounds.height >= 44); }
-          await forward.click();
+          await strip.scrollIntoViewIfNeeded();
+          await strip.hover();
+          await page.mouse.wheel(10000, 0);
           await waitForScroll(page);
-          assert(await forward.isDisabled(), 'Finite forward end');
+          assert(await strip.evaluate(e => Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1), 'Horizontal wheel reaches the finite forward end');
           assert.equal(await selected(gallery), initial);
-          await backward.click();
+          await page.mouse.wheel(-10000, 0);
           await waitForScroll(page);
+          assert.equal(await strip.evaluate(e => e.scrollLeft), 0, 'Horizontal wheel reaches the finite start');
           await strip.scrollIntoViewIfNeeded();
           await strip.hover();
           await page.mouse.wheel(100, 0);
@@ -104,9 +105,7 @@ export default async function checkGameplay(page) {
             assert(await strip.evaluate(e => e.scrollLeft > 0), 'Native scrollbar browses previews');
             assert.equal(await selected(gallery), initial);
           }
-        } else {
-          assert.equal(await gallery.locator('.gallery-controls').count(), 0, 'Fitting previews hide controls');
-        }
+        } else assert(await strip.evaluate(e => e.scrollWidth <= e.clientWidth + 1), 'Fitting previews need no horizontal browsing');
         await previews.first().click();
         assert(await iframe.evaluate(e => e.isConnected && e.dataset.continuity === 'active'), 'Browsing and active-video reselection preserve player identity');
         await previews.first().focus();
@@ -190,5 +189,5 @@ export default async function checkGameplay(page) {
   await page.setViewportSize({width:390,height:845});
   await waitForScroll(page);
   assert((await galleries[0].locator('[aria-live="polite"]').innerText()).includes('4 / 4'), 'Resize retains selection');
-  console.log('PASS: gameplay strip phone peek, finite arrows, drag/wheel/scrollbar browsing, player continuity, keyboard, swipe direction, independence and ten viewports in normal/reduced motion');
+  console.log('PASS: compact gameplay strips without arrows, phone peek, finite drag/wheel/scrollbar browsing, player continuity, keyboard, swipe direction, independence and ten viewports in normal/reduced motion');
 }
