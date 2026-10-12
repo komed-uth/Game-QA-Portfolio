@@ -4,6 +4,11 @@ import { build } from "vite";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
 import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
 
+async function atGestureBoundary(strip, direction) {
+  return strip.evaluate((element, direction) => direction < 0 ?
+    Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1 : element.scrollLeft <= 1, direction);
+}
+
 async function checkScrollInterruption(page, gallery) {
   await page.setViewportSize({width:390,height:845});
   const strip=gallery.locator('.gallery-thumbnails');
@@ -123,23 +128,19 @@ export default async function checkPreviewFixtures(page) {
         assert.equal(await previews.first().getAttribute('aria-pressed'),'true', 'Scrollbar browsing preserves selection');
         for (const direction of [-1, 1]) {
           for (let attempt = 0; attempt < 30; attempt++) {
-            if (await strip.evaluate((e, direction) => direction < 0 ?
-              Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1 : e.scrollLeft <= 1, direction)) break;
+            if (await atGestureBoundary(strip, direction)) break;
             const from = box.x + box.width * (direction < 0 ? .8 : .2), y = box.y + 20;
             await fixturePage.mouse.move(from, y);
             await fixturePage.mouse.down();
             await fixturePage.mouse.move(from + direction * box.width * .6, y, {steps:12});
             await fixturePage.mouse.up();
           }
-          assert(await strip.evaluate((e, direction) => direction < 0 ?
-            Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1 : e.scrollLeft <= 1, direction), 'Mouse dragging reaches both ends of a longer list');
+          assert(await atGestureBoundary(strip, direction), 'Mouse dragging reaches both ends of a longer list');
         }
         const session = await context.newCDPSession(fixturePage);
         for (const direction of [-1, 1]) {
           for (let attempt = 0; attempt < 30; attempt++) {
-            const atEnd = await strip.evaluate((e, direction) => direction < 0 ?
-              Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1 : e.scrollLeft <= 1, direction);
-            if (atEnd) break;
+            if (await atGestureBoundary(strip, direction)) break;
             const x = box.x + box.width * (direction < 0 ? .8 : .2), y = box.y + 20;
             await session.send('Input.dispatchTouchEvent', {type:'touchStart',touchPoints:[{x,y}]});
             for (let step = 1; step <= 8; step++) {
@@ -149,8 +150,7 @@ export default async function checkPreviewFixtures(page) {
             await session.send('Input.dispatchTouchEvent', {type:'touchEnd',touchPoints:[]});
             await fixturePage.waitForTimeout(200);
           }
-          assert(await strip.evaluate((e, direction) => direction < 0 ?
-            Math.abs(e.scrollLeft - (e.scrollWidth - e.clientWidth)) <= 1 : e.scrollLeft <= 1, direction), 'Native touch reaches both ends of a longer list');
+          assert(await atGestureBoundary(strip, direction), 'Native touch reaches both ends of a longer list');
         }
         await session.detach();
         assert.equal(await previews.first().getAttribute('aria-pressed'),'true', 'Long-list touch browsing does not select');
