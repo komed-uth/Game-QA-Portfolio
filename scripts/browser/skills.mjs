@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
+import { captureRegion } from './capture-region.mjs';
 
 // Ticket #77: compare rendered copy with the owner-approved issue text.
 const capabilities = [
@@ -131,7 +131,6 @@ export default async function check(page) {
     }
   }
 
-  await mkdir('.scratch/issue77-visuals', { recursive: true });
   for (const [width, height] of [[1920,1080], [1366,768], [390,845], [845,390], [360,840],
     [840,360], [1200,800], [800,1200], [899,700], [901,700], [320,700]]) {
     await page.setViewportSize({ width, height });
@@ -167,7 +166,7 @@ export default async function check(page) {
     await checkCoverage();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Regulus coverage causes no page overflow');
     if (width === 1366 || width === 360) {
-      await page.getByRole('region', { name: 'Planned gameplay coverage', exact: true }).screenshot({ path: `.scratch/issue77-visuals/coverage-${width}.png` });
+      await captureRegion(page, { selectors: ['.project-coverage'], path: `.scratch/issue77-visuals/coverage-${width}.png` });
     }
     await skills.focus();
     await page.keyboard.press('Enter');
@@ -179,7 +178,7 @@ export default async function check(page) {
     assert(await page.getByRole('main').evaluate(element => element === document.activeElement));
     if (width === 1366 || width === 360) {
       await page.evaluate(() => scrollTo(0, 0));
-      await page.screenshot({ path: `.scratch/issue77-visuals/skills-${width}.png`, fullPage: true });
+      await captureRegion(page, { selectors: ['html'], path: `.scratch/issue77-visuals/skills-${width}.png` });
     }
   }
   console.log('PASS: approved Skills copy/order, Regulus-only planned coverage and Work in progress, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures');
