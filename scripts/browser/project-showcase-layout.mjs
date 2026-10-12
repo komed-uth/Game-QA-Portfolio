@@ -131,24 +131,16 @@ export async function checkShowcaseResizeAndKeyboard(page) {
         await page.keyboard.press('Tab');
         await visibleFocus(page, preview);
       }
-      // Let focus-driven browsing reach its visible end before traversing arrows.
+      // Let focus-driven browsing reveal the final thumbnail before leaving the strip.
       await page.waitForFunction(name => {
         const gallery = [...document.querySelectorAll('.game-gallery')].find(element => element.getAttribute('aria-label') === name);
         const strip = gallery.querySelector('.gallery-thumbnails');
         const last = strip.lastElementChild.getBoundingClientRect();
         const bounds = strip.getBoundingClientRect();
-        const forward = gallery.querySelector('[aria-label$="scroll previews forward"]');
-        const overflowing = strip.scrollWidth > strip.clientWidth + 1;
-        return last.left >= bounds.left - 1 && last.right <= bounds.right + 1 &&
-          (overflowing ? forward?.disabled : !forward);
+        return last.left >= bounds.left - 1 && last.right <= bounds.right + 1;
       }, await gallery.getAttribute('aria-label'));
-      // Phone arrows may appear/disappear as keyboard focus reveals previews.
-      let leftGallery = false;
-      for (let step = 0; step < 3; step++) {
-        await page.keyboard.press('Tab');
-        if (!await gallery.evaluate(element => element.contains(document.activeElement))) { leftGallery = true; break; }
-      }
-      assert(leftGallery, 'Tab leaves the complete gameplay block');
+      await page.keyboard.press('Tab');
+      assert(!await gallery.evaluate(element => element.contains(document.activeElement)), 'Tab leaves the final preview without replacement focus stops');
       const next = index === 0 ? page.getByRole('link', { name: 'Regulus the Advent on the App Store (opens in a new tab)' }) :
         page.getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' });
       await visibleFocus(page, next);
