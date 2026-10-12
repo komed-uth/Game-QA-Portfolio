@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { assetUrl, personalInfo } from "../data";
+import { assetUrl, linkedInProfileUrl, personalInfo } from "../data";
 
 export default function SelfSummary() {
   return (
@@ -18,10 +18,11 @@ export default function SelfSummary() {
             Portfolio
           </NavLink>
           <NavLink to="/about">QA approach</NavLink>
+          <NavLink to="/about-me">About me</NavLink>
         </nav>
         <a
           className="linkedin-link"
-          href="https://www.linkedin.com/in/komed-uthisanont-592388187/"
+          href={linkedInProfileUrl}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Komed Uthisanont on LinkedIn (opens in a new tab)"

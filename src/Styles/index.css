@@ -649,6 +649,10 @@ footer {
   gap: 40px;
   padding-bottom: 24px;
 }
+.biography {
+  max-width: 760px;
+  overflow-wrap: anywhere;
+}
 .profile-photo {
   width: 180px;
   height: 180px;

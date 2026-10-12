@@ -9,10 +9,12 @@ const overlays = { name: 'overlay-fixture', module: './report-overlay-fixture.mj
 const reports = { name: 'report-interactions', module: './report-interactions.mjs' };
 const reportLayout = { name: 'report-layout', module: './report-layout.mjs' };
 const placeholders = { name: 'placeholder-showcases', module: './placeholder-showcases.mjs' };
+const aboutMe = { name: 'about-me', module: './about-me.mjs' };
 
 const suites = new Map([
   [undefined, { label: 'complete portfolio suite', result: 'portfolio', reports: true,
-    checks: [placeholders, video, slideshow, photos, gameplay, fixtures, evidence, interactions, reportLayout, overlays, reports] }],
+    checks: [aboutMe, placeholders, video, slideshow, photos, gameplay, fixtures, evidence, interactions, reportLayout, overlays, reports] }],
+  ['--about-me-only', { label: 'About me and contact', result: 'About me', reports: false, checks: [aboutMe] }],
   ['--reports-only', { label: 'reports and overlay fixture', result: 'report', reports: true, checks: [reportLayout, overlays, reports] }],
   ['--report-layout-only', { label: 'quick report layout', result: 'report layout', reports: false, checks: [reportLayout] }],
   ['--gameplay-only', { label: 'gameplay', result: 'gameplay', reports: false, checks: [placeholders, video, slideshow, photos, gameplay, fixtures] }],
@@ -25,7 +27,7 @@ const suites = new Map([
 export function selectSuite(args) {
   const suite = suites.get(args[0]);
   if (args.length > 1 || !suite) {
-    throw new Error('Usage: node scripts/check-browser.mjs [--reports-only | --report-layout-only | --gameplay-only | --photos-only | --evidence-only | --slideshow-only | --placeholders-only]');
+    throw new Error('Usage: node scripts/check-browser.mjs [--reports-only | --report-layout-only | --gameplay-only | --photos-only | --evidence-only | --slideshow-only | --placeholders-only | --about-me-only]');
   }
   return suite;
 }
