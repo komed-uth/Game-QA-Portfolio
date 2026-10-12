@@ -1,0 +1,168 @@
+SKIP: real capture overlay checks — S10_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Low_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Medium_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_Low_Fixed.html: screenshotPathList is empty.
+COVERAGE: the synthetic overlay fixture checks modal integration; it does not certify real capture images.
+CHECKS: complete portfolio suite
+PREVIEW: http://127.0.0.1:56482/
+START: skills
+PASS: approved Skills copy/order, planned coverage absent and normal Regulus transition, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures
+PASS: skills (33.25s)
+START: about-me
+PASS: about-me (3.79s)
+START: placeholder-showcases
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: all fifteen panels and three accents; manual selection, modal navigation/inspection and slideshows retain independent state in every gallery
+PASS: placeholder-showcases (375.13s)
+START: video
+PASS: controlled YouTube boundary, both full cycles, deferred completion/replay, blocked/error states, cleanup, reduced motion, unavailable API and player independence
+PASS: video (27.21s)
+START: slideshow
+PASS: real mouse photo selection resumes without forced blur; keyboard inspection stays suspended
+PASS: both showcases advance after real touch selection without forced blur
+PASS: both slideshow sequences, full dwell/reset/reselection, video retention, timer independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset
+PASS: slideshow (58.29s)
+START: photos
+PASS: both galleries, ordered 100/150ms fades, no zoom, stable loading/failure, retry/original, stale responses, rapid image/video changes, active reselection and reduced motion
+PASS: photos (19.47s)
+START: gameplay-previews
+PASS: compact gameplay strips without arrows, phone peek, finite drag/wheel/scrollbar browsing, player continuity, keyboard, swipe direction, independence and ten viewports in normal/reduced motion
+PASS: gameplay-previews (114.86s)
+START: gameplay-fixtures
+PASS: compact empty/single/long portfolio lists, finite wheel/scrollbar/touch browsing, hidden selection, resize, vertical page scrolling and normal/reduced scroll interruption
+PASS: gameplay-fixtures (41.54s)
+START: evidence-modal
+PASS: all seven evidence images, actions, originals, navigation/video skip, focus, dismissal and background lock
+PASS: six reports, chart rendering, iframe Escape, independent scroll restoration and originals
+PASS: showcase reading/keyboard order, visible focus, modal restoration and selection continuity across 900px in both directions
+PASS: reload reset, eleven responsive viewports including exactly 900px, project/media ordering, outside margins, no page overflow and reduced motion
+PASS: homepage teaser removal, compact shared footer, About/fallback routes, pointer/keyboard navigation and store destinations at ten viewports
+PASS: evidence-modal (181.77s)
+START: evidence-interactions
+PASS: vertical touch scrolling preserves keyboard image opening
+PASS: swipe suppresses opening, phone image fit, report toggle, iframe focus boundaries and actual original-file tab
+PASS: evidence-interactions (9.68s)
+START: report-layout
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":1920,"height":1080},"report":"Overall"} (3.30s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":1366,"height":768},"report":"Overall"} (3.61s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":390,"height":845},"report":"Overall"} (3.79s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":845,"height":390},"report":"Overall"} (4.03s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":360,"height":840},"report":"Overall"} (4.25s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":840,"height":360},"report":"Overall"} (4.46s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":1200,"height":800},"report":"Overall"} (4.65s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":800,"height":1200},"report":"Overall"} (5.05s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":899,"height":700},"report":"Overall"} (5.39s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":901,"height":700},"report":"Overall"} (5.67s)
+PROGRESS: report-layout {"phase":"Report layout","viewport":{"width":900,"height":700},"report":"Overall"} (6.01s)
+PASS: report presentation, all six selection contexts, eleven responsive viewports, 900px boundaries, resize continuity, wrapping, reading/keyboard order and both opener restoration
+PASS: report-layout (8.16s)
+START: overlay-fixture
+PASS: synthetic report chart-to-image overlay, loaded image, inner close/backdrop, portfolio modal retention and iframe Escape (fixture coverage only)
+PASS: overlay-fixture (7.10s)
+START: report-interactions
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"controls"} (0.55s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"High","opener":"controls"} (4.35s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Medium","opener":"controls"} (6.82s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Low","opener":"controls"} (9.15s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very Low","opener":"controls"} (12.14s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Overall","opener":"controls"} (15.73s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"preview"} (16.73s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"High","opener":"preview"} (21.74s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Medium","opener":"preview"} (26.85s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Low","opener":"preview"} (32.19s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very Low","opener":"preview"} (38.99s)
+PASS: five HTML reports, toggles, chart tooltips, real documentation tabs, iframe link-focused Escape and focus boundaries
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Overall","opener":"controls"} (45.84s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very High","opener":"preview"} (46.31s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Overall","opener":"preview"} (48.54s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very High","opener":"controls"} (48.98s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"High","opener":"controls"} (51.54s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Medium","opener":"controls"} (54.58s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Low","opener":"controls"} (58.02s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very Low","opener":"controls"} (61.69s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Overall","opener":"controls"} (65.13s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Very High","opener":"preview"} (66.09s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"High","opener":"preview"} (70.08s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Medium","opener":"preview"} (74.68s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Low","opener":"preview"} (78.46s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Very Low","opener":"preview"} (83.13s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Overall","opener":"preview"} (86.66s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"preview"} (87.75s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"High","opener":"preview"} (90.40s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Medium","opener":"preview"} (92.80s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Low","opener":"preview"} (95.37s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very Low","opener":"preview"} (98.14s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Overall","opener":"preview"} (101.02s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very High","opener":"preview"} (101.96s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"High","opener":"preview"} (104.36s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Medium","opener":"preview"} (106.92s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Low","opener":"preview"} (109.61s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very Low","opener":"preview"} (112.41s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Overall","opener":"preview"} (115.39s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Very High","opener":"preview"} (116.28s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"High","opener":"preview"} (118.78s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Medium","opener":"preview"} (121.10s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Low","opener":"preview"} (123.77s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Very Low","opener":"preview"} (127.12s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Overall","opener":"preview"} (131.10s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Very High","opener":"preview"} (132.21s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"High","opener":"preview"} (134.91s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Medium","opener":"preview"} (137.50s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Low","opener":"preview"} (140.69s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Very Low","opener":"preview"} (144.12s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Overall","opener":"preview"} (147.44s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Very High","opener":"preview"} (148.39s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"High","opener":"preview"} (151.21s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Medium","opener":"preview"} (154.08s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Low","opener":"preview"} (157.30s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Very Low","opener":"preview"} (160.83s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Overall","opener":"preview"} (164.47s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Very High","opener":"preview"} (165.51s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"High","opener":"preview"} (168.65s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Medium","opener":"preview"} (171.55s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Low","opener":"preview"} (175.01s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Very Low","opener":"preview"} (178.61s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Overall","opener":"preview"} (182.13s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Very High","opener":"preview"} (183.21s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"High","opener":"preview"} (186.35s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Medium","opener":"preview"} (189.11s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Low","opener":"preview"} (191.94s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Very Low","opener":"preview"} (195.57s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Overall","opener":"preview"} (199.05s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Very High","opener":"preview"} (200.04s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"High","opener":"preview"} (203.06s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Medium","opener":"preview"} (206.70s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Low","opener":"preview"} (209.85s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Very Low","opener":"preview"} (213.39s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Overall","opener":"preview"} (217.13s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Very High","opener":"preview"} (218.20s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"High","opener":"preview"} (221.64s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Medium","opener":"preview"} (224.95s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Low","opener":"preview"} (228.26s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Very Low","opener":"preview"} (232.37s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Overall","opener":"preview"} (236.18s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very High","opener":"preview"} (237.63s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"High","opener":"preview"} (241.26s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Medium","opener":"preview"} (244.74s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Low","opener":"preview"} (248.75s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very Low","opener":"preview"} (252.42s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Overall","opener":"preview"} (256.49s)
+PASS: all six report inspection layouts across ten viewports plus 900px
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very High","opener":"preview"} (258.04s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"High","opener":"preview"} (266.11s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Medium","opener":"preview"} (274.92s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Low","opener":"preview"} (283.85s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very Low","opener":"preview"} (291.92s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Overall","opener":"preview"} (301.01s)
+PASS: Overall immediate-close memory, reload resets, Very High default and original tabs for all six reports
+PASS: report-interactions (305.89s)
+PASS: rendered portfolio browser checks

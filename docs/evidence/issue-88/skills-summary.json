@@ -1,0 +1,23 @@
+{
+  "suite": "Skills and legacy links",
+  "checks": [
+    {
+      "name": "skills",
+      "status": "passed",
+      "startedAt": "2026-10-12T15:13:44.508Z",
+      "durationMs": 27600.4739
+    }
+  ],
+  "selectedChecks": [
+    "skills"
+  ],
+  "commit": "c0cbde0c8396b5fab011477cfb040ad29f57d3cb",
+  "trackedChanges": true,
+  "preview": "local",
+  "startedAt": "2026-10-12T15:13:42.911Z",
+  "status": "passed",
+  "inputFingerprint": "a4405fc817f79775070adf3a1b0f47be88b84bbeff1ae8ca2f1e019bf05daa72",
+  "endedAt": "2026-10-12T15:14:12.695Z",
+  "exitCode": 0,
+  "signal": null
+}

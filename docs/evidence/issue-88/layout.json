@@ -1,0 +1,28 @@
+[
+  {
+    "width": 1366,
+    "overflow": false,
+    "gap": 56,
+    "titleScrollWidth": 476,
+    "titleWidth": 476,
+    "clip": {
+      "x": 0,
+      "y": 796,
+      "width": 1366,
+      "height": 480
+    }
+  },
+  {
+    "width": 360,
+    "overflow": false,
+    "gap": 32,
+    "titleScrollWidth": 328,
+    "titleWidth": 328,
+    "clip": {
+      "x": 0,
+      "y": 1152,
+      "width": 360,
+      "height": 620
+    }
+  }
+]
