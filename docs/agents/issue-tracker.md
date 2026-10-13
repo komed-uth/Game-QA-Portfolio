@@ -1,5 +1,7 @@
 # Issue tracker: GitHub
 
+For dated authorization scope and implementation/validation/publishing order, see `docs/development/validation.md`.
+
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI when it is installed and authenticated. If `gh` is unavailable or cannot connect, use the connected GitHub tools before falling back to browser UI.
 
 ## Tool fallback
