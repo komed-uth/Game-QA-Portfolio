@@ -3,8 +3,11 @@ import { checkHomepageFooter } from './homepage-footer.mjs';
 import { waitForPhoto as galleryReady } from "./gallery-photo-ready.mjs";
 import { checkProjectLayout, checkShowcaseResizeAndKeyboard } from './project-showcase-layout.mjs';
 import checkVecchioGameplay from './vecchio-gameplay.mjs';
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
+    await installVideoFixture(page.context());
+    await page.reload();
     const p = page;
     await p.setViewportSize({ width: 1366, height: 768 });
     const d = p.locator('dialog');
@@ -113,6 +116,7 @@ export default async function check(page) {
         await galleryReady(g);
         assert(await action.evaluate(element => element === document.activeElement));
         await g.locator('.gallery-thumbnail').first().click();
+        await g.locator('.gallery-viewer iframe').waitFor({ state: 'attached' });
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
     }
     await checkCaptureLayout();
