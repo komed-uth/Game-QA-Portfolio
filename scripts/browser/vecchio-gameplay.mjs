@@ -93,6 +93,8 @@ export default async function checkVecchioGameplay(page) {
     await session.detach();
   });
 
+  await page.bringToFront();
+  await page.setViewportSize({ width: 1366, height: 768 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await installPausedClock(page);
   await page.reload();
@@ -106,9 +108,12 @@ export default async function checkVecchioGameplay(page) {
   }
   await releaseInspection();
   for (let i = 0; i < 5; i++) {
-    await page.clock.fastForward(4900);
-    assert.equal(await selected(gallery), i, 'Five-second dwell has not elapsed');
-    await page.clock.fastForward(200);
+    await gallery.scrollIntoViewIfNeeded();
+    await page.clock.runFor(32);
+    await page.waitForTimeout(100);
+    await page.clock.fastForward(6000);
+    assert.equal(await selected(gallery), i, 'Image-only dwell has not elapsed');
+    await page.clock.fastForward(700);
     await clockPhoto(gallery);
     assert.equal(await selected(gallery), (i + 1) % 5, 'Image-only progression wraps after all five photos');
   }
