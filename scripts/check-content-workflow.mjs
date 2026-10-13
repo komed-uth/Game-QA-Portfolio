@@ -259,6 +259,14 @@ try {
         diagnostic: "siteContent.contact.destination: malformed destination",
       });
 
+      const localContactRoute = structuredClone(editedSite);
+      localContactRoute.contact.destination = "/skills";
+      invalidVariants.push({
+        source: "site",
+        value: localContactRoute,
+        diagnostic: "siteContent.contact.destination: malformed destination",
+      });
+
       const unresolvedNavigation = structuredClone(editedSite);
       unresolvedNavigation.navigation.links[1].destination = "/typo";
       invalidVariants.push({

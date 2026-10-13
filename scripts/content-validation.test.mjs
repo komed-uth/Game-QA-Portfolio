@@ -21,6 +21,20 @@ test("the checked-in definitions validate, including a supplied local asset", as
   assert.deepEqual(await validateContent(withOptionalMedia, { publicDirectory }), []);
 });
 
+test("shared contact destinations accept absolute web and mailto URLs but reject local app routes", async () => {
+  const definitions = await loadContentDefinitions();
+  const mailto = structuredClone(definitions);
+  mailto.siteContent.contact.destination = "mailto:qa@example.com";
+  assert.deepEqual(await validateContent(mailto, { publicDirectory }), []);
+
+  const localRoute = structuredClone(definitions);
+  localRoute.siteContent.contact.destination = "/skills";
+  assert.match(
+    (await validateContent(localRoute, { publicDirectory })).join("\n"),
+    /siteContent\.contact\.destination: malformed destination; use an absolute HTTP\(S\) or mailto URL/,
+  );
+});
+
 test("diagnostics identify missing fields, unsupported presets, duplicate identity, and bad destinations", async () => {
   const definitions = await loadContentDefinitions();
   const invalid = structuredClone(definitions);

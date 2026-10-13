@@ -76,7 +76,7 @@ function registerIdentity(value, identities, context, label, errors) {
   identities.add(value);
 }
 
-function isValidDestination(destination) {
+function isValidContactDestination(destination) {
   if (
     typeof destination !== "string" ||
     destination.length === 0 ||
@@ -86,25 +86,26 @@ function isValidDestination(destination) {
     return false;
   }
 
-  if (destination.startsWith("/") && !destination.startsWith("//")) {
-    try {
-      const url = new URL(destination, "https://portfolio.invalid");
-      return url.origin === "https://portfolio.invalid";
-    } catch {
-      return false;
-    }
-  }
-
   try {
     const url = new URL(destination);
-    return ["http:", "https:", "mailto:"].includes(url.protocol);
+    if (url.protocol === "mailto:") return url.pathname.trim().length > 0;
+    return ["http:", "https:"].includes(url.protocol) && url.hostname.length > 0;
   } catch {
     return false;
   }
 }
 
 function isValidNavigationDestination(destination) {
-  if (!isValidDestination(destination) || !destination.startsWith("/")) return false;
+  if (
+    typeof destination !== "string" ||
+    destination.length === 0 ||
+    /\s/.test(destination) ||
+    destination.includes("\\") ||
+    !destination.startsWith("/") ||
+    destination.startsWith("//")
+  ) {
+    return false;
+  }
   try {
     const url = new URL(destination, "https://portfolio.invalid");
     return url.origin === "https://portfolio.invalid" && supportedNavigationPaths.has(url.pathname);
@@ -184,10 +185,10 @@ export async function validateContent(
     if (
       typeof siteContent.contact?.destination === "string" &&
       siteContent.contact.destination.trim().length > 0 &&
-      !isValidDestination(siteContent.contact.destination)
+      !isValidContactDestination(siteContent.contact.destination)
     ) {
       errors.push(
-        `${siteFile}: siteContent.contact.destination: malformed destination; use a valid local path, HTTP(S) URL, or mailto URL.`,
+        `${siteFile}: siteContent.contact.destination: malformed destination; use an absolute HTTP(S) or mailto URL.`,
       );
     }
 
