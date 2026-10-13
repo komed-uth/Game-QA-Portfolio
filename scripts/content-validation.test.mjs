@@ -24,8 +24,9 @@ test("the checked-in definitions validate, including a supplied local asset", as
 test("diagnostics identify missing fields, unsupported presets, duplicate identity, and bad destinations", async () => {
   const definitions = await loadContentDefinitions();
   const invalid = structuredClone(definitions);
-  invalid.siteContent.contact.destination = "https://bad destination";
+  invalid.siteContent.contact.destination = "/\\other.example";
   invalid.siteContent.navigation.links[0].destination = "//malformed.example";
+  invalid.siteContent.navigation.links[1].destination = "/typo";
   invalid.aboutMePage.sections[0].description = "";
   invalid.aboutMePage.sections[0].preset = "unsupported";
   invalid.aboutMePage.sections[1].id = invalid.aboutMePage.sections[0].id;
@@ -34,6 +35,7 @@ test("diagnostics identify missing fields, unsupported presets, duplicate identi
   const output = errors.join("\n");
   assert.match(output, /src\/content\/site\.ts: siteContent\.contact\.destination: malformed destination/);
   assert.match(output, /siteContent\.navigation\.links\[0\]\.destination: malformed destination/);
+  assert.match(output, /siteContent\.navigation\.links\[1\]\.destination: malformed destination or unresolved route/);
   assert.match(output, /src\/content\/pages\/aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.description: required non-empty string is missing/);
   assert.match(output, /sections\["introduction"\]\.preset: unsupported text preset/);
   assert.match(output, /sections\["introduction"\]\.id: duplicate section identity/);
@@ -51,5 +53,20 @@ test("optional media is omitted cleanly while a missing supplied file fails with
   assert.match(
     errors.join("\n"),
     /aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: local media file does not exist/,
+  );
+});
+
+test("media paths cannot escape the deployed public base even when filesystem normalization finds a file", async () => {
+  const definitions = await loadContentDefinitions();
+  const invalid = structuredClone(definitions);
+  invalid.aboutMePage.sections[0].media = {
+    path: "../public/favicon.svg",
+    alt: "Portfolio mark",
+  };
+
+  const errors = await validateContent(invalid, { publicDirectory });
+  assert.match(
+    errors.join("\n"),
+    /aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: must stay within public\/ and cannot contain parent-directory segments/,
   );
 });

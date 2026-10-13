@@ -9,7 +9,7 @@ export default function SelfSummary() {
         <NavLink
           to="/"
           className="identity"
-          aria-label={`${siteContent.identity.name} home`}
+          aria-label={`${siteContent.identity.name} ${siteContent.interface.identityHomeLabel}`}
         >
           <img className="qa-mark" src={assetUrl("favicon.svg")} alt="" />
           <span className="site-title">{siteContent.identity.name}</span>

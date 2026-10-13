@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
@@ -40,6 +40,46 @@ async function stopProcess(process) {
   if (!process || process.exitCode !== null) return;
   process.kill();
   await new Promise((resolve) => process.once("exit", resolve));
+}
+
+function startDevelopmentServer() {
+  const process = spawn(
+    processExecPath,
+    [path.join(repositoryRoot, "node_modules", "vite", "bin", "vite.js"), "--host", "127.0.0.1", "--port", "0"],
+    { cwd: repositoryRoot, stdio: ["ignore", "pipe", "pipe"], windowsHide: true },
+  );
+  let output = "";
+  process.stdout.setEncoding("utf8").on("data", (chunk) => (output += chunk));
+  process.stderr.setEncoding("utf8").on("data", (chunk) => (output += chunk));
+  return { process, get output() { return output; } };
+}
+
+const processExecPath = process.execPath;
+
+async function waitForDevelopmentOutput(server, fragment, startAt = 0) {
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    const recentOutput = server.output.slice(startAt);
+    if (recentOutput.includes(fragment)) return recentOutput;
+    if (server.process.exitCode !== null) {
+      throw new Error(`Development server exited before reporting ${JSON.stringify(fragment)}:\n${server.output}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(`Development server did not report ${JSON.stringify(fragment)}:\n${server.output}`);
+}
+
+async function waitForDevelopmentUrl(server) {
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    const match = server.output.match(/Local:\s+(http:\/\/127\.0\.0\.1:\d+\/)/);
+    if (match) return match[1];
+    if (server.process.exitCode !== null) {
+      throw new Error(`Development server exited before becoming ready:\n${server.output}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(`Development server did not become ready:\n${server.output}`);
 }
 
 async function checkRenderedVariant(siteContent, aboutMePage) {
@@ -172,6 +212,102 @@ try {
     "utf8",
   );
   assertCommandPassed("edited content build", runNpmScript("build"));
+
+  const developmentServer = startDevelopmentServer();
+  let developmentBrowser;
+  try {
+    const developmentUrl = await waitForDevelopmentUrl(developmentServer);
+    developmentBrowser = await chromium.launch({ headless: true });
+    await withBrowserContext(developmentBrowser, { viewport: { width: 1366, height: 900 } }, async (context) => {
+      const page = await context.newPage();
+      await page.goto(new URL("#/about-me", developmentUrl).href);
+      await page.getByText("A content edit made in the About me definition.", { exact: true }).waitFor();
+
+      const invalidVariants = [];
+      const missingDescription = structuredClone(editedAboutMe);
+      missingDescription.sections.find((section) => section.id === "introduction").description = "";
+      invalidVariants.push({
+        source: "aboutMe",
+        value: missingDescription,
+        diagnostic: "description: required non-empty string is missing",
+      });
+
+      const unsupportedPreset = structuredClone(editedAboutMe);
+      const unsupportedIntroduction = unsupportedPreset.sections.find((section) => section.id === "introduction");
+      unsupportedIntroduction.preset = "unsupported";
+      unsupportedIntroduction.description = "This invalid edit must be withheld.";
+      invalidVariants.push({
+        source: "aboutMe",
+        value: unsupportedPreset,
+        diagnostic: "preset: unsupported text preset \"unsupported\"",
+      });
+
+      const duplicateSection = structuredClone(editedAboutMe);
+      duplicateSection.sections[1].id = duplicateSection.sections[0].id;
+      duplicateSection.sections[0].description = "This invalid edit must be withheld.";
+      invalidVariants.push({
+        source: "aboutMe",
+        value: duplicateSection,
+        diagnostic: "duplicate section identity",
+      });
+
+      const malformedContact = structuredClone(editedSite);
+      malformedContact.contact.destination = "/\\\\other.example";
+      invalidVariants.push({
+        source: "site",
+        value: malformedContact,
+        diagnostic: "siteContent.contact.destination: malformed destination",
+      });
+
+      const unresolvedNavigation = structuredClone(editedSite);
+      unresolvedNavigation.navigation.links[1].destination = "/typo";
+      invalidVariants.push({
+        source: "site",
+        value: unresolvedNavigation,
+        diagnostic: "navigation.links[1].destination: malformed destination or unresolved route",
+      });
+
+      for (const variant of invalidVariants) {
+        const file = variant.source === "aboutMe" ? aboutMePath : sitePath;
+        const typeName = variant.source === "aboutMe" ? "AboutMePageContent" : "SiteContent";
+        const exportName = variant.source === "aboutMe" ? "aboutMePage" : "siteContent";
+        const startAt = developmentServer.output.length;
+        await writeFile(file, contentModuleSource(typeName, exportName, variant.value), "utf8");
+        await waitForDevelopmentOutput(developmentServer, variant.diagnostic, startAt);
+        if (variant.source === "aboutMe") {
+          assert.equal(
+            await page.getByText("A content edit made in the About me definition.", { exact: true }).count(),
+            1,
+          );
+        } else {
+          assert.equal(
+            await page.locator("header .linkedin-link").getAttribute("href"),
+            editedSite.contact.destination,
+          );
+        }
+      }
+
+      const correctedAboutMe = structuredClone(editedAboutMe);
+      correctedAboutMe.sections.find((section) => section.id === "introduction").description =
+        "A valid development edit after correction.";
+      await Promise.all([
+        writeFile(sitePath, contentModuleSource("SiteContent", "siteContent", editedSite), "utf8"),
+        writeFile(
+          aboutMePath,
+          contentModuleSource("AboutMePageContent", "aboutMePage", correctedAboutMe),
+          "utf8",
+        ),
+      ]);
+      await page.getByText("A valid development edit after correction.", { exact: true }).waitFor();
+    });
+  } finally {
+    try {
+      await developmentBrowser?.close();
+    } finally {
+      await stopProcess(developmentServer.process);
+    }
+  }
+
   await checkRenderedVariant(editedSite, editedAboutMe);
 } catch (error) {
   failure = error;
@@ -189,4 +325,4 @@ try {
 }
 
 if (failure) throw failure;
-console.log("PASS: About me copy, shared contact, section addition/order/visibility, media, validation, build, and browser workflow.");
+console.log("PASS: About me copy, shared contact, section addition/order/visibility, media, validation, live development updates, build, and browser workflow.");

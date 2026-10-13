@@ -8,6 +8,7 @@ export const repositoryRoot = path.resolve(scriptDirectory, "..");
 const defaultDefinitionsDirectory = path.join(repositoryRoot, "src", "content");
 const defaultPublicDirectory = path.join(repositoryRoot, "public");
 const allowedTextPresets = new Set(["standard"]);
+const supportedNavigationPaths = new Set(["/", "/skills", "/about-me"]);
 
 function displayPath(sourcePath) {
   return path.relative(repositoryRoot, sourcePath).split(path.sep).join("/") || sourcePath;
@@ -67,15 +68,28 @@ function requiredString(value, context, errors) {
   }
 }
 
+function registerIdentity(value, identities, context, label, errors) {
+  if (typeof value !== "string" || value.trim().length === 0) return;
+  if (identities.has(value)) {
+    errors.push(`${context}: duplicate ${label} ${JSON.stringify(value)}.`);
+  }
+  identities.add(value);
+}
+
 function isValidDestination(destination) {
-  if (typeof destination !== "string" || destination.length === 0 || /\s/.test(destination)) {
+  if (
+    typeof destination !== "string" ||
+    destination.length === 0 ||
+    /\s/.test(destination) ||
+    destination.includes("\\")
+  ) {
     return false;
   }
 
   if (destination.startsWith("/") && !destination.startsWith("//")) {
     try {
-      new URL(destination, "https://portfolio.invalid");
-      return true;
+      const url = new URL(destination, "https://portfolio.invalid");
+      return url.origin === "https://portfolio.invalid";
     } catch {
       return false;
     }
@@ -90,13 +104,13 @@ function isValidDestination(destination) {
 }
 
 function isValidNavigationDestination(destination) {
-  return (
-    typeof destination === "string" &&
-    destination.startsWith("/") &&
-    !destination.startsWith("//") &&
-    !/\s/.test(destination) &&
-    isValidDestination(destination)
-  );
+  if (!isValidDestination(destination) || !destination.startsWith("/")) return false;
+  try {
+    const url = new URL(destination, "https://portfolio.invalid");
+    return url.origin === "https://portfolio.invalid" && supportedNavigationPaths.has(url.pathname);
+  } catch {
+    return false;
+  }
 }
 
 function sectionRecordName(section, index) {
@@ -112,6 +126,10 @@ async function validateMediaPath(pathValue, context, publicDirectory, errors) {
   }
 
   const normalizedReference = pathValue.replaceAll("\\", "/");
+  if (normalizedReference.split("/").includes("..")) {
+    errors.push(`${context}: must stay within public/ and cannot contain parent-directory segments.`);
+    return;
+  }
   const resolvedPublicDirectory = path.resolve(publicDirectory);
   const resolvedAssetPath = path.resolve(resolvedPublicDirectory, normalizedReference);
   const relativeAssetPath = path.relative(resolvedPublicDirectory, resolvedAssetPath);
@@ -173,7 +191,7 @@ export async function validateContent(
       );
     }
 
-    for (const field of ["skipLinkLabel", "opensInNewTab", "externalLinkArrow"]) {
+    for (const field of ["skipLinkLabel", "identityHomeLabel", "opensInNewTab", "externalLinkArrow"]) {
       requiredString(
         siteContent.interface?.[field],
         `${siteFile}: siteContent.interface.${field}`,
@@ -195,18 +213,13 @@ export async function validateContent(
         for (const field of ["id", "label", "destination"]) {
           requiredString(link[field], `${context}.${field}`, errors);
         }
-        if (typeof link.id === "string" && link.id.trim().length > 0) {
-          if (navigationIds.has(link.id)) {
-            errors.push(`${context}.id: duplicate navigation identity ${JSON.stringify(link.id)}.`);
-          }
-          navigationIds.add(link.id);
-        }
+        registerIdentity(link.id, navigationIds, `${context}.id`, "navigation identity", errors);
         if (
           typeof link.destination === "string" &&
           link.destination.trim().length > 0 &&
           !isValidNavigationDestination(link.destination)
         ) {
-          errors.push(`${context}.destination: malformed destination; navigation destinations must be local site paths.`);
+          errors.push(`${context}.destination: malformed destination or unresolved route; navigation paths must match /, /skills, or /about-me.`);
         }
       });
     }
@@ -236,11 +249,8 @@ export async function validateContent(
     }
 
     requiredString(section.id, `${context}.id`, errors);
+    registerIdentity(section.id, sectionIds, `${context}.id`, "section identity", errors);
     if (typeof section.id === "string" && section.id.trim().length > 0) {
-      if (sectionIds.has(section.id)) {
-        errors.push(`${context}.id: duplicate section identity ${JSON.stringify(section.id)}.`);
-      }
-      sectionIds.add(section.id);
       if (!/^[a-z][a-z0-9-]*$/.test(section.id)) {
         errors.push(`${context}.id: use a lowercase stable identity with letters, numbers, and hyphens.`);
       }

@@ -20,6 +20,7 @@ export const siteContent = {
   },
   interface: {
     skipLinkLabel: "Skip to content",
+    identityHomeLabel: "home",
     opensInNewTab: "(opens in a new tab)",
     externalLinkArrow: "↗",
   },

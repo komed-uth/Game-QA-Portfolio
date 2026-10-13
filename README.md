@@ -24,7 +24,7 @@ GitHub Pages uses `.github/workflows/deploy-pages.yml` to build and publish ever
 
 ## Edit About me and shared site content
 
-About me copy, section order and visibility are in `src/content/pages/aboutMe.ts`. The portfolio name, shared navigation, footer label, contact destination and common interface text are in `src/content/site.ts`. Development and build commands validate these definitions and report the file, record and field for errors. See the [content editing guide](docs/content-editing.md) for examples, supported presets and optional media.
+About me copy, section order and visibility are in `src/content/pages/aboutMe.ts`. The portfolio name, shared navigation, footer label, contact destination and common interface text are in `src/content/site.ts`. Development validates definitions on startup and when saved edits are made; builds validate them before typechecking. Errors identify the file, record and field. See the [content editing guide](docs/content-editing.md) for examples, supported presets and optional media.
 
 Project details, report settings, capabilities, tools and other unmigrated portfolio content remain in `src/data.ts` for now. The current approved About me presentation does not include a photo or CV.
 
