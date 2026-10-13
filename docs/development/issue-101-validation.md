@@ -10,7 +10,7 @@ Branch: `codex/issue-101`.
 
 - **Source:** owner instruction in this Codex task on 2026-10-13.
 - **Implementation and tests:** authorized and complete.
-- **Branch push and PR:** authorized.
+- **Branch push and PR:** completed; `codex/issue-101` is pushed and [PR #115](https://github.com/komed-uth/Game-QA-Portfolio/pull/115) is open against `main`.
 - **Merge and issue closure:** not authorized.
 - **Deployment:** not authorized; the Pages workflow runs on merge to `main`.
 - **Separate content or release requirements:** retain the approved biography; do not add a photo or CV. No deployment approval was given.
