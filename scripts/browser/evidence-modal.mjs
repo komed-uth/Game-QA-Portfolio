@@ -191,18 +191,20 @@ export default async function check(page) {
         await p.setViewportSize({ width, height });
         await checkProjectLayout(p);
         // Image inspection must fit too: screenshot controls wrap on phones.
-        for (const g of await p.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all()) {
+        for (const g of await p.locator('.regulus-showcase .game-gallery, .video-project .game-gallery, .pc-project .game-gallery').all()) {
             await g.locator('.gallery-thumbnail').nth(1).click();
             await galleryReady(g);
             const selections = await p.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(
                 elements => elements.map(element => element.getAttribute('aria-label')));
             await g.locator('.evidence-image-button').click();
             await checkImageFit();
+            const imageOnly = await g.getAttribute('aria-label') === 'Vecchio Furioso media';
             const sources = await g.locator('.gallery-thumbnail img').evaluateAll(
-                elements => elements.slice(1).map(element => element.getAttribute('src')));
-            for (const expected of [sources[2], sources[1], sources[0]]) {
+                (elements, imageOnly) => elements.slice(imageOnly ? 0 : 1).map(element => element.getAttribute('src')), imageOnly);
+            const start = imageOnly ? 1 : 0;
+            for (let step = 1; step <= sources.length; step++) {
                 await p.keyboard.press('ArrowLeft');
-                assert.equal(await d.locator('img').getAttribute('src'), expected, 'Previous wraps and skips video');
+                assert.equal(await d.locator('img').getAttribute('src'), sources[(start - step + sources.length) % sources.length], 'Previous wraps within gameplay photos');
             }
             assert.deepEqual(await p.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(
                 elements => elements.map(element => element.getAttribute('aria-label'))), selections,

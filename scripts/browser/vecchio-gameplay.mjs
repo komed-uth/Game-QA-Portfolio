@@ -19,8 +19,8 @@ export default async function checkVecchioGameplay(page) {
   assert.equal(await gallery.locator('iframe').count(), 0, 'Image-only gameplay');
   const sources = await previews.locator('img').evaluateAll(images => images.map(i => i.getAttribute('src')));
   assert.deepEqual(sources.map(source => source.split('/').at(-1)), files.map(file => file + '.png'), 'Accepted order includes replacement slots');
-  const others = page.locator('.game-gallery').filter({ hasNot: previews });
-  const otherSelections = await others.locator('.gallery-thumbnail[aria-pressed=true]').allTextContents();
+  const others = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery, .placeholder-project .game-gallery');
+  const otherSelections = await others.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(elements => elements.map(e => e.getAttribute('aria-label')));
   for (let i = 0; i < 5; i++) {
     await previews.nth(i).click();
     await waitForPhoto(gallery, sources[i]);
@@ -54,11 +54,46 @@ export default async function checkVecchioGameplay(page) {
     assert(await opener.evaluate(e => e === document.activeElement), 'Gameplay restores its own opener');
     assert.equal(await selected(gallery), i);
   }
-  assert.deepEqual(await others.locator('.gallery-thumbnail[aria-pressed=true]').allTextContents(), otherSelections, 'Vecchio selection and inspection leave other galleries unchanged');
+  assert.deepEqual(await others.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(elements => elements.map(e => e.getAttribute('aria-label'))), otherSelections, 'Vecchio selection and inspection leave other galleries unchanged');
+  await previews.first().focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await selected(gallery), 4, 'Keyboard preview focus does not select');
+  await page.keyboard.press('Enter');
+  await waitForPhoto(gallery, sources[1]);
+  assert.equal(await selected(gallery), 1, 'Keyboard activates the focused preview');
   await gallery.page().getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' }).click();
   assert.equal(await dialog.getByRole('button', { name: /screenshot/ }).count(), 0, 'PIX stays outside gameplay navigation');
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'detached' });
+
+  // Exercise the new durable sources through the shared readiness and retry UI.
+  const delayedUrl = new URL(sources[2], page.url()).href;
+  const failedUrl = new URL(sources[3], page.url()).href;
+  let releaseImage, retry = false;
+  const heldImage = new Promise(resolve => { releaseImage = resolve; });
+  await page.route(delayedUrl, async route => { const response = await route.fetch(); await heldImage; await route.fulfill({ response }); });
+  await page.route(failedUrl, route => retry ? route.continue() : route.fulfill({ status: 503, body: 'Photo unavailable' }));
+  try {
+    await page.reload();
+    await waitForPhoto(gallery);
+    await previews.nth(2).click();
+    await gallery.getByRole('status').waitFor();
+    assert.equal(await opener.count(), 0, 'Loading photo cannot open inspection');
+    releaseImage();
+    await waitForPhoto(gallery, sources[2]);
+    await previews.nth(3).click();
+    const retryButton = gallery.getByRole('button', { name: /Retry/ });
+    await retryButton.waitFor();
+    assert.equal(await opener.count(), 0, 'Failed photo cannot open inspection');
+    retry = true;
+    await retryButton.click();
+    await waitForPhoto(gallery, sources[3]);
+    assert.equal(await selected(gallery), 3, 'Retry preserves the requested photo');
+  } finally {
+    releaseImage();
+    await page.unroute(delayedUrl);
+    await page.unroute(failedUrl);
+  }
 
   await withBrowserContext(page.context().browser(), { viewport: { width: 390, height: 845 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' }, async context => {
     const phone = await context.newPage();

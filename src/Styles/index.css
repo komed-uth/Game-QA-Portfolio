@@ -490,7 +490,7 @@ nav a.active {
   margin: 0;
 }
 /* Keep gameplay and performance evidence in distinct desktop grid rows. */
-@media (min-width: 901px) {
+@media (width > 900px) {
   .pc-project {
     grid-template-rows: max-content auto auto;
   }
