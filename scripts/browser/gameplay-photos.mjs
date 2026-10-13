@@ -2,6 +2,108 @@ import assert from "node:assert/strict";
 
 import { waitForPhoto as ready } from "./gallery-photo-ready.mjs";
 
+async function overlap(gallery, index) {
+  const result = await gallery.locator('.gallery-thumbnail').nth(index).evaluate(element => new Promise((resolve, reject) => {
+    const gallery = element.closest('.game-gallery');
+    const oldSource = gallery.querySelector('.gallery-photo img').getAttribute('src');
+    element.click();
+    let frames = 0;
+    const sample = () => {
+      if (++frames > 180) { reject(new Error('No visible photo overlap within 180 render frames')); return; }
+      const incoming = gallery.querySelector('.gallery-photo.fading-in');
+      const outgoing = gallery.querySelector('.gallery-photo-backdrop');
+      const opacity = incoming && Number(getComputedStyle(incoming).opacity);
+      if (incoming && outgoing && opacity > 0.05 && opacity < 0.95) {
+        const style = getComputedStyle(incoming);
+        const image = incoming.querySelector('img');
+        resolve({ opacity, backdropOpacity: Number(getComputedStyle(outgoing).opacity),
+          oldSource, backdropSource: outgoing.querySelector('img').getAttribute('src'),
+          duration: style.animationDuration, easing: style.animationTimingFunction, transform: style.transform,
+          background: style.backgroundColor,
+          decoded: image.complete && image.naturalWidth > 0, framing: getComputedStyle(image).objectFit,
+          selected: element.getAttribute('aria-pressed'), announcement: gallery.querySelector('[aria-live]').textContent,
+          blocked: incoming.disabled, hidden: outgoing.getAttribute('aria-hidden'),
+          outgoingDisabled: outgoing.disabled, outgoingTabIndex: outgoing.tabIndex });
+      } else requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  }));
+  assert(result.opacity > 0 && result.opacity < 1, 'Incoming photo is visibly translucent during overlap');
+  assert.equal(result.backdropOpacity, 1, 'Opaque outgoing backdrop prevents a dark interval');
+  assert.equal(result.backdropSource, result.oldSource);
+  assert.equal(result.duration, '0.3s'); assert.equal(result.easing, 'ease-in-out');
+  assert.equal(result.transform, 'none'); assert.equal(result.framing, 'contain'); assert(result.decoded);
+  assert.equal(result.background, 'rgb(9, 14, 12)', 'Incoming canvas fades letterboxing as well as image pixels');
+  assert.equal(result.selected, 'true'); assert(result.announcement.includes(`${index + 1} /`));
+  assert(result.blocked && result.outgoingDisabled); assert.equal(result.hidden, 'true'); assert.equal(result.outgoingTabIndex, -1);
+  await ready(gallery);
+  assert.equal(await gallery.locator('.gallery-photo-layer').count(), 1, 'Completion releases outgoing layers');
+  assert.equal(await gallery.locator('.gallery-photo').evaluate(e => Number(getComputedStyle(e).opacity)), 1);
+}
+
+async function decodeAndInterrupt(page, selector) {
+  const gallery = page.locator(selector).first();
+  const previews = gallery.locator('.gallery-thumbnail');
+  const start = selector.includes('placeholder') ? 0 : 1;
+  const target = start + 1;
+  const latest = target + 1;
+  const sources = await previews.locator('img').evaluateAll(images => images.map(e => e.getAttribute('src')));
+  await page.evaluate(source => {
+    const decode = HTMLImageElement.prototype.decode;
+    window.decodeFixture = { source: new URL(source, location.href).href, mode: 'hold', pending: [] };
+    HTMLImageElement.prototype.decode = async function () {
+      await decode.call(this);
+      if (this.isConnected || this.src !== window.decodeFixture.source) return;
+      if (window.decodeFixture.mode === 'fail') throw new Error('Controlled decoding failure');
+      if (window.decodeFixture.mode === 'hold') await new Promise(resolve => window.decodeFixture.pending.push(resolve));
+    };
+    window.restoreDecode = () => { HTMLImageElement.prototype.decode = decode; };
+  }, sources[target]);
+  try {
+    await previews.nth(start).click(); await ready(gallery);
+    await previews.nth(target).click();
+    await page.waitForFunction(() => window.decodeFixture.pending.length === 1);
+    assert.equal(await gallery.locator('.gallery-photo-backdrop img').getAttribute('src'), sources[start]);
+    assert.equal(await gallery.locator('.gallery-photo.fading-in').count(), 0, 'Decode must finish before presentation');
+    await previews.nth(latest).click(); await ready(gallery);
+    await page.evaluate(() => window.decodeFixture.pending.splice(0).forEach(resolve => resolve()));
+    await page.waitForTimeout(350);
+    await ready(gallery, sources[latest]);
+    assert.equal(await previews.nth(latest).getAttribute('aria-pressed'), 'true', 'Stale decode cannot replace latest selection');
+    await page.evaluate(() => { window.decodeFixture.mode = 'fail'; });
+    await previews.nth(target).click(); await gallery.getByRole('alert').waitFor();
+    assert.equal(await gallery.locator('.gallery-photo-backdrop img').getAttribute('src'), sources[latest]);
+    await page.evaluate(() => { window.decodeFixture.mode = 'pass'; });
+    await gallery.getByRole('button', { name: 'Retry', exact: true }).click(); await ready(gallery);
+
+    // Interrupt a rendered fade; retained keyed layers must continue without reset.
+    const retained = await previews.nth(start).evaluate((element, latest) => new Promise((resolve, reject) => {
+      const gallery = element.closest('.game-gallery');
+      element.click();
+      let frames = 0;
+      const sample = () => {
+        if (++frames > 180) { reject(new Error('No interruptible rendered photo fade within 180 frames')); return; }
+        const incoming = gallery.querySelector('.gallery-photo.fading-in');
+        const opacity = incoming && Number(getComputedStyle(incoming).opacity);
+        if (!incoming || opacity < 0.2 || opacity > 0.7) { requestAnimationFrame(sample); return; }
+        gallery.querySelectorAll('.gallery-thumbnail')[latest].click();
+        // An obsolete completion event must not make the new request inspectable.
+        incoming.dispatchEvent(new AnimationEvent('animationend', { animationName: 'gallery-photo-in', bubbles: true }));
+        requestAnimationFrame(() => resolve({ connected: incoming.isConnected,
+          before: opacity, after: Number(getComputedStyle(incoming).opacity),
+          ready: !!gallery.querySelector('.gallery-photo.ready') }));
+      };
+      requestAnimationFrame(sample);
+    }), latest);
+    assert(retained.connected && retained.after >= retained.before, 'Interrupted fade retains its visible layer without restarting');
+    assert(!retained.ready, 'Obsolete transition cannot mark latest request ready');
+    await ready(gallery, sources[latest]);
+    assert.equal(await gallery.locator('.gallery-photo-layer').count(), 1);
+  } finally {
+    await page.evaluate(() => { window.decodeFixture.pending.splice(0).forEach(resolve => resolve()); window.restoreDecode(); });
+  }
+}
+
 export default async function checkPhotoChanges(page) {
   await page.setViewportSize({ width: 1366, height: 768 });
   const galleries = await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all();
@@ -24,27 +126,14 @@ export default async function checkPhotoChanges(page) {
       element.addEventListener('animationstart', recordAnimation);
       element.addEventListener('animationend', recordAnimation);
     });
-    // Capture the first frame together: separate browser calls can outlast the 250ms fades.
-    const transition = await previews.nth(2).evaluate(element => new Promise(resolve => {
-      element.click();
-      requestAnimationFrame(() => {
-        const gallery = element.closest('.game-gallery');
-        resolve({ selected: element.getAttribute('aria-pressed'), announcement: gallery.querySelector('[aria-live="polite"]').innerText,
-          openingBlocked: gallery.querySelector('.gallery-viewer .evidence-image-button').disabled });
-      });
-    }));
-    assert.equal(transition.selected, 'true');
-    assert(transition.announcement.includes('3 / 4'));
-    assert(transition.openingBlocked, 'Open is blocked during transition');
-    await ready(gallery, sources[2]);
+    await overlap(gallery, 2);
     const animations = await page.evaluate(() => window.photoAnimations);
     assert.deepEqual(animations.filter(a => a.type === 'animationstart').map(a => [a.name, a.duration, a.transform]), [
-      ['gallery-photo-out', '0.1s', 'none'], ['gallery-photo-in', '0.15s', 'none'],
-    ], 'Ordered photo fades use 100/150ms and no zoom');
+      ['gallery-photo-in', '0.3s', 'none'],
+    ], 'Overlapping photo crossfade uses 300ms and no zoom');
     assert.deepEqual(animations.map(a => [a.name, a.type, a.elapsed]), [
-      ['gallery-photo-out', 'animationstart', 0], ['gallery-photo-out', 'animationend', 0.1],
-      ['gallery-photo-in', 'animationstart', 0], ['gallery-photo-in', 'animationend', 0.15],
-    ], 'Outgoing fade completes before incoming fade; both finish their CSS durations');
+      ['gallery-photo-in', 'animationstart', 0], ['gallery-photo-in', 'animationend', 0.3],
+    ], 'Crossfade completes its CSS duration');
     const after = await viewer.boundingBox();
     assert.equal(after.width, before.width); assert.equal(after.height, before.height);
     const count = animations.length;
@@ -93,6 +182,7 @@ export default async function checkPhotoChanges(page) {
       await gallery.getByRole('status').waitFor();
       assert.equal(await open.count(), 0, 'Slow load has no main-image opener');
       assert.equal(await viewer.locator('.evidence-image-button').count(), 0, 'Loading has no activatable main photo');
+      assert.equal(await viewer.locator('.gallery-photo-backdrop img').getAttribute('src'), sources[1], 'Slow loading retains the outgoing photo');
       assert.equal((await viewer.boundingBox()).height, size.height, 'Loading keeps viewer height');
       await viewer.evaluate(element => {
         window.photoAnimations = [];
@@ -115,6 +205,7 @@ export default async function checkPhotoChanges(page) {
       await previews.nth(3).click();
       await gallery.getByRole('alert').waitFor();
       assert.equal(await open.count(), 0, 'Failure has no main-image opener');
+      assert.equal(await viewer.locator('.gallery-photo-backdrop img').getAttribute('src'), sources[2], 'Failure retains the outgoing photo');
       const original = gallery.getByRole('link', { name: 'Open original file' });
       assert.equal(await original.getAttribute('href'), sources[3]);
       assert.equal(await original.getAttribute('target'), '_blank');
@@ -145,5 +236,14 @@ export default async function checkPhotoChanges(page) {
       await page.unroute(failedUrl);
     }
   }
-  console.log('PASS: both galleries, ordered 100/150ms fades, no zoom, stable loading/failure, retry/original, stale responses, rapid image/video changes, active reselection and reduced motion');
+  // Image-only consumers inherit the same rendered overlap, including wraparound.
+  for (const gallery of await page.locator('.placeholder-project .game-gallery').all()) {
+    await gallery.locator('.gallery-thumbnail').first().click(); await ready(gallery);
+    await overlap(gallery, 1);
+    await overlap(gallery, 4);
+    await overlap(gallery, 0);
+  }
+  await decodeAndInterrupt(page, '.regulus-showcase .game-gallery');
+  await decodeAndInterrupt(page, '.placeholder-project .game-gallery');
+  console.log('PASS: shared 300ms overlap/completion, framing, accessible backdrops, stable loading/failure, retry/original, stale responses, rapid selection, inspection and reduced motion');
 }

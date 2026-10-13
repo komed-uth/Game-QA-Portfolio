@@ -1,0 +1,5 @@
+{
+  "base": "37e71f0f5f3afad5e0810dc1be69050a08a6a383",
+  "status": "expected baseline failure",
+  "assertion": "locator.evaluate: Error: No visible photo overlap within 180 render frames\n    at sample (eval at evaluate (:311:30), <anonymous>:7:36)"
+}
