@@ -40,7 +40,14 @@ try {
       await gallery.locator('.gallery-video-current.ready').waitFor({timeout:12000});
       await page.evaluate(i => window.realPlayers[i].player.pauseVideo(), index);
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 2, index, {timeout:10000});
-      await gallery.frameLocator('iframe').locator('.ytp-play-button, .player-control-play-pause-icon').click({timeout:10000});
+      await gallery.locator('iframe').hover();
+      const frame = gallery.frameLocator('iframe');
+      const visiblePlay = frame.locator('.ytp-play-button:visible, .player-control-play-pause-icon:visible, .ytmCuedOverlayPlayButton:visible, .ytp-large-play-button:visible');
+      if (!await visiblePlay.count() && await frame.locator('.ytmA11yStylesHiddenButton').count()) {
+        await frame.locator('.ytmA11yStylesHiddenButton').first().focus();
+        await page.keyboard.press('Enter');
+      }
+      await visiblePlay.first().click({timeout:10000});
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 1, index, {timeout:10000});
       evidence.push({width,index,nativePlay:true,fullscreenControl:await gallery.frameLocator('iframe').locator('.ytp-fullscreen-button, .fullscreen-icon').count() === 1});
       await page.mouse.move(0,0);await page.evaluate(()=>document.activeElement?.blur());
