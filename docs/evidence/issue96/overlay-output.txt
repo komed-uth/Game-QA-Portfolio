@@ -1,0 +1,45 @@
+
+> game-qa-portfolio@1.0.0 check:overlays
+> node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs
+
+TAP version 13
+# Subtest: empty screenshot lists report unavailable real overlay data
+ok 1 - empty screenshot lists report unavailable real overlay data
+  ---
+  duration_ms: 1.6245
+  ...
+# Subtest: readiness counts usable paths in visible graphs and ignores empty placeholders
+ok 2 - readiness counts usable paths in visible graphs and ignores empty placeholders
+  ---
+  duration_ms: 0.2869
+  ...
+# Subtest: absent or malformed report data fails instead of silently reporting readiness
+ok 3 - absent or malformed report data fails instead of silently reporting readiness
+  ---
+  duration_ms: 1.1156
+  ...
+# Subtest: replacement shares script matching and preserves surrounding report content
+ok 4 - replacement shares script matching and preserves surrounding report content
+  ---
+  duration_ms: 0.2679
+  ...
+# Subtest: replacement rejects missing and malformed original report data
+ok 5 - replacement rejects missing and malformed original report data
+  ---
+  duration_ms: 0.2744
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 79.6676
+SKIP: real capture overlay checks — S10_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Low_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Medium_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_Low_Fixed.html: screenshotPathList is empty.
+COVERAGE: the synthetic overlay fixture checks modal integration; it does not certify real capture images.

@@ -1,0 +1,27 @@
+
+> game-qa-portfolio@1.0.0 prebuild
+> npm run sync:reports
+
+
+> game-qa-portfolio@1.0.0 sync:reports
+> node scripts/sync-reports.mjs
+
+Prepared 5 responsive reports from unchanged original evidence.
+
+> game-qa-portfolio@1.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 49 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                           0.72 kB │ gzip:  0.43 kB
+dist/assets/Background-CDy1nQBN.jpg       6.60 kB
+dist/assets/PixelGame-CKmIpl_8.otf       20.12 kB
+dist/assets/ZenDots-Bgnw4vzE.ttf         36.88 kB
+dist/assets/PhoenixGaming-cI8QS7ot.ttf   37.50 kB
+dist/assets/Oxanium-zH6NCYuF.ttf         43.11 kB
+dist/assets/index-4dtbz5Ts.css           17.46 kB │ gzip:  4.40 kB
+dist/assets/index-CIeAYRjP.js           203.97 kB │ gzip: 65.07 kB
+✓ built in 922ms

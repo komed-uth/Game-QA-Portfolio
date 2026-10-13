@@ -1,0 +1,7 @@
+{
+  "base": "29a8a4334461e0fe344cada378e379184f7c0071",
+  "assertion": "Player-ready without playback retains the outgoing photo",
+  "expected": 1,
+  "actual": 0,
+  "status": "expected baseline failure"
+}

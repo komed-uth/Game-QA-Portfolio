@@ -1,28 +1,13 @@
 import assert from 'node:assert/strict';
 import { installPausedClock, waitForPhoto } from './gameplay-slideshow.mjs';
+import { installVideoFixture, playerIndex } from './fixtures/youtube-provider.mjs';
+import checkTransitions from './gameplay-video-transitions.mjs';
 
 // Substitute only the provider boundary; selection, inspection, fades and dwell
 // run through the production portfolio. This does not certify actual YouTube.
-const provider = `
-window.videoPlayers = [];
-window.YT = { Player: class {
-  constructor(iframe, {events}) {
-    this.iframe = iframe; this.events = events; this.state = -1;
-    this.mutes = 0; this.plays = 0; this.destroyed = false;
-    window.videoPlayers.push(this);
-    queueMicrotask(() => events.onReady({target:this}));
-  }
-  mute() { this.mutes++; }
-  playVideo() { this.plays++; }
-  getPlayerState() { return this.state; }
-  emit(state) { this.state = state; this.events.onStateChange({target:this,data:state}); }
-  destroy() { this.destroyed = true; this.emit(0); }
-} };
-window.onYouTubeIframeAPIReady();`;
-
 export default async function checkVideo(page) {
-  await page.route('https://www.youtube.com/iframe_api', route => route.fulfill({contentType:'text/javascript',body:provider}));
-  await page.route('https://www.youtube-nocookie.com/embed/**', route => route.fulfill({contentType:'text/html',body:'<p>Controlled provider fixture</p>'}));
+  await checkTransitions(page);
+  await installVideoFixture(page);
   await page.setViewportSize({width:1366,height:6000});
   await installPausedClock(page);
   await page.reload();
@@ -37,11 +22,6 @@ export default async function checkVideo(page) {
     assert.equal(await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed'), 'true', message);
   }
   async function emit(player, state) { await page.evaluate(([i,s]) => window.videoPlayers[i].emit(s), [player,state]); await settle(); }
-  async function playerIndex(gallery) {
-    const title = await gallery.locator('iframe').getAttribute('title');
-    await page.waitForFunction(t => window.videoPlayers?.some(p => !p.destroyed && p.iframe.title === t), title);
-    return page.evaluate(t => window.videoPlayers.findLastIndex(p => !p.destroyed && p.iframe.title === t), title);
-  }
   for (let index=0; index<2; index++) {
     await page.reload(); await release();
     const gallery = galleries.nth(index);
@@ -55,10 +35,6 @@ export default async function checkVideo(page) {
     for (const state of [-1,1,2,3,5]) {
       await emit(player,state); await page.clock.fastForward(20000);
       await selected(gallery,0,'Incomplete video is never skipped by time');
-    }
-    for (const event of ['onError','onAutoplayBlocked']) {
-      await page.evaluate(([i,e]) => window.videoPlayers[i].events[e]({target:window.videoPlayers[i]}),[player,event]);
-      await page.clock.fastForward(20000); await selected(gallery,0,'Blocked/failed video stays selected');
     }
     const identity = await gallery.locator('iframe').elementHandle();
     await gallery.locator('.gallery-thumbnail').first().evaluate(e => e.click());
@@ -158,5 +134,17 @@ export default async function checkVideo(page) {
   await page.route('https://www.youtube.com/iframe_api',route=>route.abort());
   await page.reload(); await release(); await page.clock.fastForward(60000);
   for (const gallery of await galleries.all()) await selected(gallery,0,'Unavailable API never introduces a fallback skip');
+  assert(await galleries.first().getByRole('button', { name: 'Retry', exact: true }).isVisible(), 'API failure provides recovery');
+  // A downloaded script that never calls readiness must also permit a fresh fetch.
+  await page.unroute('https://www.youtube.com/iframe_api');
+  await page.route('https://www.youtube.com/iframe_api', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.reload(); await page.waitForTimeout(150); await page.clock.fastForward(8000); await settle();
+  assert(await galleries.first().getByRole('button', { name: 'Retry', exact: true }).isVisible(), 'Hung API has a bounded error');
+  await page.unroute('https://www.youtube.com/iframe_api');
+  await installVideoFixture(page);
+  await galleries.first().getByRole('button', { name: 'Retry', exact: true }).evaluate(e => e.click());
+  await playerIndex(galleries.first()); await settle();
+  assert.equal(await galleries.first().getByRole('alert').count(), 0, 'Retry refetches a hung API and restores playback');
+  assert(await galleries.first().frameLocator('iframe').getByRole('button', { name: 'Play', exact: true }).isVisible());
   console.log('PASS: controlled YouTube boundary, both full cycles, deferred completion/replay, blocked/error states, cleanup, reduced motion, unavailable API and player independence');
 }

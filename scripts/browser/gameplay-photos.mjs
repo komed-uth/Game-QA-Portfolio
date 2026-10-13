@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import { waitForPhoto as ready } from "./gallery-photo-ready.mjs";
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 
 async function overlap(gallery, index) {
   const result = await gallery.locator('.gallery-thumbnail').nth(index).evaluate(element => new Promise((resolve, reject) => {
@@ -105,6 +106,8 @@ async function decodeAndInterrupt(page, selector) {
 }
 
 export default async function checkPhotoChanges(page) {
+  await installVideoFixture(page);
+  await page.reload();
   await page.setViewportSize({ width: 1366, height: 768 });
   const galleries = await page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').all();
   for (const gallery of galleries) {
@@ -145,10 +148,11 @@ export default async function checkPhotoChanges(page) {
     await ready(gallery, sources[3]);
     await previews.nth(2).evaluate(e => e.click());
     await previews.first().evaluate(e => e.click());
-    assert.equal(await viewer.locator('iframe').count(), 1, 'Video replaces photo immediately');
+    await viewer.locator('iframe').waitFor({ state: 'attached' });
+    assert.equal(await viewer.locator('iframe').count(), 1, 'Video request mounts its player while readiness is pending');
     const player = await viewer.locator('iframe').elementHandle();
     await previews.first().click();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
     assert(await player.evaluate(e => e.isConnected), 'Video reselection preserves the player');
     assert.equal(await viewer.locator('img').count(), 0, 'Cancelled photo work cannot replace video');
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -195,7 +199,8 @@ export default async function checkPhotoChanges(page) {
         'A new photo selected from loading still fades in');
       await previews.nth(2).click(); await gallery.getByRole('status').waitFor();
       await previews.first().click();
-      assert.equal(await viewer.locator('iframe').count(), 1, 'Video immediately cancels a held photo');
+      await viewer.locator('iframe').waitFor({ state: 'attached' });
+      assert.equal(await viewer.locator('iframe').count(), 1, 'Video selection cancels the held photo request');
       await previews.nth(1).click(); await ready(gallery, sources[1]);
       release();
       await page.waitForTimeout(350);

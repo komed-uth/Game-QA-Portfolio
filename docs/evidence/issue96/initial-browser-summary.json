@@ -1,0 +1,84 @@
+{
+  "suite": "complete portfolio suite",
+  "checks": [
+    {
+      "name": "skills",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:41:27.142Z",
+      "durationMs": 21223.6935
+    },
+    {
+      "name": "about-me",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:41:48.370Z",
+      "durationMs": 3629.724400000003
+    },
+    {
+      "name": "placeholder-showcases",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:41:52.008Z",
+      "durationMs": 258936.148
+    },
+    {
+      "name": "video",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:46:10.941Z",
+      "durationMs": 56975.02669999999
+    },
+    {
+      "name": "slideshow",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:47:07.917Z",
+      "durationMs": 63551.6507
+    },
+    {
+      "name": "photos",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:48:11.477Z",
+      "durationMs": 22455.256500000018
+    },
+    {
+      "name": "gameplay-previews",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:48:33.936Z",
+      "durationMs": 75815.23310000001
+    },
+    {
+      "name": "gameplay-fixtures",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:49:49.944Z",
+      "durationMs": 25881.648800000024
+    },
+    {
+      "name": "evidence-modal",
+      "status": "failed",
+      "startedAt": "2026-10-13T08:50:15.830Z",
+      "durationMs": 8565.979300000006
+    }
+  ],
+  "selectedChecks": [
+    "skills",
+    "about-me",
+    "placeholder-showcases",
+    "video",
+    "slideshow",
+    "photos",
+    "gameplay-previews",
+    "gameplay-fixtures",
+    "evidence-modal",
+    "evidence-interactions",
+    "report-layout",
+    "overlay-fixture",
+    "report-interactions"
+  ],
+  "commit": "b30fd324b61bdf20092c7040e3eed168c519aafe",
+  "trackedChanges": false,
+  "preview": "local",
+  "startedAt": "2026-10-13T08:41:25.739Z",
+  "status": "failed",
+  "inputFingerprint": "cea77c57977ecca042c7caf2f9f723ee5d930f9534353b30015fdef7e8289f11",
+  "error": "Expected values to be strictly equal:\n\n0 !== 1\n",
+  "endedAt": "2026-10-13T08:50:27.401Z",
+  "exitCode": 1,
+  "signal": null
+}

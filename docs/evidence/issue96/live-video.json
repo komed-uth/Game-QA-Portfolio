@@ -1,0 +1,128 @@
+[
+  {
+    "width": 1366,
+    "title": "Regulus the Advent video",
+    "ready": true,
+    "states": [],
+    "errors": [],
+    "duration": 59
+  },
+  {
+    "width": 1366,
+    "index": 0,
+    "nativePlay": true,
+    "fullscreenControl": true
+  },
+  {
+    "width": 1366,
+    "index": 0,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "width": 1366,
+    "index": 0,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "width": 1366,
+    "index": 0,
+    "eligibleCompletionAdvanced": true
+  },
+  {
+    "width": 1366,
+    "title": "Father, Son & Holy Guns video",
+    "ready": true,
+    "states": [],
+    "errors": [],
+    "duration": 116
+  },
+  {
+    "width": 1366,
+    "index": 1,
+    "nativePlay": true,
+    "fullscreenControl": true
+  },
+  {
+    "width": 1366,
+    "index": 1,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "width": 1366,
+    "index": 1,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "width": 1366,
+    "index": 1,
+    "eligibleCompletionAdvanced": true
+  },
+  {
+    "width": 390,
+    "title": "Regulus the Advent video",
+    "ready": true,
+    "states": [],
+    "errors": [],
+    "duration": 59
+  },
+  {
+    "width": 390,
+    "index": 0,
+    "nativePlay": true,
+    "fullscreenControl": true
+  },
+  {
+    "width": 390,
+    "index": 0,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "width": 390,
+    "index": 0,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "width": 390,
+    "index": 0,
+    "eligibleCompletionAdvanced": true
+  },
+  {
+    "width": 390,
+    "title": "Father, Son & Holy Guns video",
+    "ready": true,
+    "states": [
+      1
+    ],
+    "errors": [],
+    "duration": 116
+  },
+  {
+    "width": 390,
+    "index": 1,
+    "nativePlay": true,
+    "fullscreenControl": true
+  },
+  {
+    "width": 390,
+    "index": 1,
+    "completed": true,
+    "selected": "true"
+  },
+  {
+    "width": 390,
+    "index": 1,
+    "replayed": true,
+    "selected": "true"
+  },
+  {
+    "width": 390,
+    "index": 1,
+    "eligibleCompletionAdvanced": true
+  }
+]

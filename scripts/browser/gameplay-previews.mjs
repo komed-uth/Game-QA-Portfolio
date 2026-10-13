@@ -1,3 +1,4 @@
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 import assert from "node:assert/strict";
 import { waitForPhoto } from "./gallery-photo-ready.mjs";
 import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
@@ -19,6 +20,8 @@ async function waitForScroll(page) {
 }
 
 export default async function checkGameplay(page) {
+  await installVideoFixture(page.context());
+  await page.reload();
   for (const motion of ["no-preference", "reduce"]) {
     await page.emulateMedia({ reducedMotion: motion });
     for (const [width, height] of [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[901,700],[1366,768],[1920,1080]]) {
