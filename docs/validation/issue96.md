@@ -9,7 +9,7 @@ Final validation input commit: `2ee781a731da6f479571eab67130c7bfbed755f9`.
 > **Authorization status as of 2026-10-13**
 > - **Source:** owner instruction in this chat: implement #96, test after implementation, review, push the working branch, and create a PR to main.
 > - **Implementation and tests:** completed; all required final checks passed.
-> - **Branch push and PR:** authorized; final validation passed, ready for publication.
+> - **Branch push and PR:** completed; `codex/issue-96` pushed and [PR #113](https://github.com/komed-uth/Game-QA-Portfolio/pull/113) opened to main.
 > - **Merge and issue closure:** held; not authorized by this instruction.
 > - **Deployment:** held; no website deployment requested.
 > - **Separate content or release requirements:** existing content requirements remain outside #96.
