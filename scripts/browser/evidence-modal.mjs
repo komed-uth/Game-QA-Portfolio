@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { checkHomepageFooter } from './homepage-footer.mjs';
 import { waitForPhoto as galleryReady } from "./gallery-photo-ready.mjs";
 import { checkProjectLayout, checkShowcaseResizeAndKeyboard } from './project-showcase-layout.mjs';
+import checkVecchioGameplay from './vecchio-gameplay.mjs';
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
     const p = page;
@@ -58,15 +59,15 @@ export default async function check(page) {
         const detailsBox = await p.locator('.pc-project .project-info').boundingBox();
         const headingBox = await p.getByRole('heading', { name: 'Vecchio Furioso', exact: true }).boundingBox();
         if (p.viewportSize().width <= 900) {
-            assert(figureBox.y >= headingBox.y + headingBox.height && detailsBox.y >= figureBox.y + figureBox.height,
-                'Narrow-screen capture follows heading and precedes project details');
+            assert(figureBox.y >= detailsBox.y + detailsBox.height && detailsBox.y >= headingBox.y + headingBox.height,
+                'Narrow-screen capture follows project details and Steam');
         } else {
-            const eyebrowBox = await p.locator('.pc-project .eyebrow').boundingBox();
-            assert(figureBox.x >= detailsBox.x + detailsBox.width && Math.abs(figureBox.y - eyebrowBox.y) < 1,
-                'Desktop capture stays beside project details');
+            const galleryBox = await p.locator('.pc-project .game-gallery').boundingBox();
+            assert(figureBox.x >= detailsBox.x + detailsBox.width && figureBox.y >= galleryBox.y + galleryBox.height,
+                'Desktop capture stays below gameplay beside project details');
         }
         assert(await p.locator('.pc-project').getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' }).isVisible());
-        assert.equal(await p.locator('.pc-project .game-gallery, .pc-project .gallery-thumbnail').count(), 0);
+        assert.equal(await p.locator('.pc-project .gallery-thumbnail').count(), 5);
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Capture creates no page overflow');
     }
     async function checkCaptureContent() {
@@ -231,6 +232,7 @@ export default async function check(page) {
         await checkHomepageFooter(p);
     }
     await checkShowcaseResizeAndKeyboard(p);
+    await checkVecchioGameplay(p);
     await p.emulateMedia({ reducedMotion: 'reduce' });
     await p.locator('.capture-media .evidence-image-button').click();
     assert.equal(await d.evaluate(e => getComputedStyle(e).animationName), 'none');

@@ -75,6 +75,13 @@ export const fatherSonProject = {
 
 export const pcProject = {
   name: "Vecchio Furioso",
+  gameplay: [
+    { path: "images/vecchio-furioso/01-daytime-jungle.png", label: "Daytime jungle", alt: "Vecchio Furioso gameplay in a daytime jungle with a firearm in the foreground" },
+    { path: "images/vecchio-furioso/02-nighttime-opponent.png", label: "Nighttime opponent", alt: "Vecchio Furioso gameplay in a nighttime jungle with a pistol and nearby opponent" },
+    { path: "images/vecchio-furioso/03-daytime-aiming.png", label: "Daytime aiming", alt: "Vecchio Furioso gameplay aiming near a fence and opponents in daylight" },
+    { path: "images/vecchio-furioso/04-daytime-village.png", label: "Daytime village", alt: "Vecchio Furioso gameplay in a daytime village with a red firearm in the foreground" },
+    { path: "images/vecchio-furioso/05-nighttime-field.png", label: "Nighttime field", alt: "Vecchio Furioso gameplay in a nighttime open field" },
+  ],
   details: [
     {
       label: "Project overview",

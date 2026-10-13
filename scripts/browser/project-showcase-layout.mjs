@@ -20,7 +20,7 @@ export async function checkProjectLayout(page) {
     const project = page.locator(selector);
     const heading = project.getByRole('heading', { name, exact: true });
     const context = project.getByText(eyebrow, { exact: true });
-    const media = project.locator('.game-gallery, .capture-media');
+    const media = project.locator('.game-gallery');
     const details = project.locator('.project-details');
     assert.equal(await project.getAttribute('aria-labelledby'), await heading.getAttribute('id'), `${name}: named project`);
     await precedes(context, heading, `${name}: eyebrow stays before title`);
@@ -52,7 +52,7 @@ export async function checkProjectLayout(page) {
       });
       assert(complete, `${name}: complete original image framing`);
     }
-    if (name !== 'Vecchio Furioso') {
+    {
       assert(await media.getByRole('group', { name: `${name} media gameplay previews`, exact: true }).isVisible());
       const viewer = await media.locator('.gallery-viewer').boundingBox();
       assert(Math.abs(viewer.width / viewer.height - 16 / 9) < .02, `${name}: gallery frame proportions`);
@@ -66,6 +66,14 @@ export async function checkProjectLayout(page) {
       await precedes(details, stores, `${name}: store reading order follows details`);
       const links = await stores.boundingBox();
       assert(links.y >= info.y + info.height, `${name}: stores follow details visually`);
+    }
+    if (name === 'Vecchio Furioso') {
+      const capture = project.locator('.capture-media');
+      await precedes(stores, capture, 'Vecchio: PIX reading order follows Steam');
+      const pix = await capture.boundingBox();
+      const links = await stores.boundingBox();
+      assert(pix.y >= (narrow ? links.y + links.height : frame.y + frame.height), 'Vecchio: separate PIX below preceding content');
+      assert(narrow || pix.x >= info.x + info.width, 'Vecchio: PIX stays in desktop media column');
     }
   }
   const regulus = page.locator('.regulus-showcase');
@@ -141,8 +149,9 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       }, await gallery.getAttribute('aria-label'));
       await page.keyboard.press('Tab');
       assert(!await gallery.evaluate(element => element.contains(document.activeElement)), 'Tab leaves the final preview without replacement focus stops');
-      const next = index === 0 ? page.getByRole('link', { name: 'Regulus the Advent on the App Store (opens in a new tab)' }) :
-        page.getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' });
+      const next = index === 0 ? page.getByRole('link', { name: 'Regulus the Advent on the App Store (opens in a new tab)' }) : index === 1 ?
+        galleries[2].getByRole('button', { name: /Open full-size/ }) :
+        page.getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' });
       await visibleFocus(page, next);
       if (index === 0) {
         await page.keyboard.press('Tab');
@@ -154,13 +163,15 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       }
     }
     const capture = page.getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' });
+    await page.keyboard.press('Tab');
+    await visibleFocus(page, capture);
     await page.keyboard.press('Enter');
     await page.getByRole('dialog').waitFor();
     await page.keyboard.press('Escape');
     await page.getByRole('dialog').waitFor({ state: 'detached' });
     await visibleFocus(page, capture);
     await page.keyboard.press('Tab');
-    await visibleFocus(page, page.getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' }));
+    await visibleFocus(page, page.locator('.placeholder-project').first().getByRole('button', { name: /Open full-size/ }));
   }
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   console.log('PASS: showcase reading/keyboard order, visible focus, modal restoration and selection continuity across 900px in both directions');
