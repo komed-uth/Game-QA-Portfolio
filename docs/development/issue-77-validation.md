@@ -6,13 +6,20 @@ Ticket: [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77).
 Review base: `74dba92b12c5c44a8df1b0d14508b03e5968d153` (fetched main at implementation start).
 Implementation commit: `8f226b7`.
 
-## Owner handoff and release hold
+## Authorization status (historical snapshot)
 
-At implementation time on 2026-10-12, the owner explicitly authorized implementation, testing after implementation, branch push, and a PR to main. This superseded the ticket's historical implementation hold for those actions ([authorization record](https://github.com/komed-uth/Game-QA-Portfolio/issues/77#issuecomment-6122499549)). The approved page copy came from #77's owner-confirmed resume-based content; the resume remained a source only.
+> **Authorization status as of 2026-10-12 (implementation task)**
+> - **Source:** [owner authorization and content handoff](https://github.com/komed-uth/Game-QA-Portfolio/issues/77#issuecomment-6122499549)
+> - **Implementation and tests:** authorized; completed
+> - **Branch push and PR:** authorized; PR #82 created
+> - **Merge and issue closure:** not included in that instruction; check [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77) for current status
+> - **Deployment:** not included in that instruction; merging to main triggers the existing automatic Pages publication
+> - **Separate content or release requirements:** approved page copy came from #77's owner-confirmed resume-based content; the resume remained a source only. The Project Regulus coverage handoff below was later superseded in part by [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88).
+> - **Supersedes:** the instruction superseded the historical #77 implementation hold only for implementation, tests, branch push, and PR
 
 In this implementation conversation the owner answered the remaining content handoff: **Project Regulus** owns the planned gameplay coverage. Its public showcase is titled **Regulus the Advent**. The nine planned systems are placed there with **Work in progress**; no completed manual test suites or defect reports are claimed.
 
-**Scope of this validation record:** that implementation task did not merge, deploy, or close #77. Merging to main triggers GitHub Pages publishing, so deployment must be recorded separately from branch push and PR creation. Ticket #88 later superseded only the planned-coverage clauses ([tracker note](https://github.com/komed-uth/Game-QA-Portfolio/issues/77#issuecomment-6127361133)). Check the current tracker for later actions; this dated note is not a current authorization or ticket-state claim.
+Ticket #88 later superseded only the planned-coverage clauses ([tracker note](https://github.com/komed-uth/Game-QA-Portfolio/issues/77#issuecomment-6127361133)). Check the current tracker for later actions; this dated note is not a current authorization or ticket-state claim.
 
 ## Acceptance review
 

@@ -12,7 +12,7 @@ function parseArguments(args) {
     const name = args[index];
     if (name === '--help' || name === '-h') {
       console.log('Usage: node scripts/check-diff-whitespace.mjs --base <ref> [--head <ref>]');
-      console.log('Without --head, checks tracked and staged work against the base revision.');
+      console.log('Without --head, checks the staged snapshot against the base and unstaged tracked changes separately.');
       console.log('PR_BASE_SHA and PR_HEAD_SHA can provide an immutable pull-request comparison.');
       process.exit(0);
     }
@@ -27,7 +27,7 @@ function parseArguments(args) {
 }
 
 function runGit(args) {
-  return spawnSync('git', args, {
+  return spawnSync('git', ['-c', 'core.whitespace=blank-at-eol,blank-at-eof,space-before-tab', ...args], {
     encoding: 'utf8',
     windowsHide: true,
     timeout: 30000,
@@ -67,14 +67,25 @@ if (head) {
   }
 }
 
-const range = head ? base + '...' + head : base;
-const diff = runGit(['diff', '--check', '--no-ext-diff', range]);
-if (diff.error) fail('Unable to run Git diff --check: ' + diff.error.message);
-if (diff.status !== 0) {
-  console.error('FAIL: whitespace errors in ' + (head ? 'pull-request diff ' : 'working-tree diff ') + range);
-  const diagnostics = [diff.stdout, diff.stderr].filter(Boolean).join('').trimEnd();
-  console.error(diagnostics || 'Git could not inspect the requested diff. Fetch enough comparison history and retry.');
+const checks = head
+  ? [{ label: 'pull-request diff ' + base + '...' + head, args: ['diff', '--check', '--no-ext-diff', base + '...' + head] }]
+  : [
+      { label: 'staged diff against base ' + base, args: ['diff', '--cached', '--check', '--no-ext-diff', base] },
+      { label: 'unstaged tracked diff', args: ['diff', '--check', '--no-ext-diff'] },
+    ];
+const failures = [];
+for (const check of checks) {
+  const diff = runGit(check.args);
+  if (diff.error) fail('Unable to run Git diff --check: ' + diff.error.message);
+  if (diff.status !== 0) {
+    const diagnostics = [diff.stdout, diff.stderr].filter(Boolean).join('').trimEnd();
+    failures.push('FAIL: whitespace errors in ' + check.label + '\n' +
+      (diagnostics || 'Git could not inspect the requested diff. Fetch enough comparison history and retry.'));
+  }
+}
+if (failures.length > 0) {
+  console.error(failures.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log('PASS: no whitespace errors in ' + (head ? 'pull-request diff ' : 'working-tree diff ') + range);
+  console.log('PASS: no whitespace errors in ' + checks.map(check => check.label).join(' and '));
 }

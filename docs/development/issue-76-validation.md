@@ -2,9 +2,16 @@
 
 > Historical validation record. Use [#76](https://github.com/komed-uth/Game-QA-Portfolio/issues/76) and [PR #80](https://github.com/komed-uth/Game-QA-Portfolio/pull/80) for current tracker state.
 
-## Dated authorization history
+## Authorization status (historical snapshot)
 
-On 2026-10-12, a later owner instruction authorized implementation, tests, push, and PR #80, superseding the earlier implementation hold for #76 only ([authorization record](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6118472294)). A separate later instruction authorized merging PR #80 and closing #76 ([authorization record](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6119349340)). Merging into main triggers the existing Pages workflow, a consequence that was stated before the merge instruction; no separate manual deployment action is recorded. The reviewed biography remained a separate content requirement in #77 at the time; neither decision erased it.
+> **Authorization status as of 2026-10-12**
+> - **Source:** [implementation authorization](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6118472294); later [merge authorization](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6119349340)
+> - **Implementation and tests:** authorized by the first instruction; completed
+> - **Branch push and PR:** authorized by the first instruction; PR #80 created
+> - **Merge and issue closure:** separately authorized by the later instruction; PR #80 merged and #76 closed
+> - **Deployment:** the existing automatic Pages publication on merge was disclosed; no separate manual deployment action is recorded
+> - **Separate content or release requirements:** reviewed biography remained a separate requirement in [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77) at that time
+> - **Supersedes:** the later instruction superseded the earlier #76 implementation hold only for implementation, tests, push, and PR; merge and closure required and received a separate instruction
 
 Base: `6bb08cbed1083e661c7cd65147185412d2d3f71e` (fetched `origin/main`). Unrelated work in the parent checkout was preserved by using `.scratch/issue76` and `codex/issue-76-about-me`.
 

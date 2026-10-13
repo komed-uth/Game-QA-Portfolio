@@ -25,7 +25,7 @@ The #76 history is an example of scoped supersession: the issue body recorded an
 4. Resolve review findings, then rerun the affected focused checks.
 5. Run the required complete validation once against final relevant source: build, overlay checks, preview checks, runner checks, and the full browser suite. A running or interrupted run is not a pass; require the final input-stability result.
 6. Consolidate acceptance evidence and dated status notes before publication. Evidence should identify the tested commit and input fingerprint. A later documentation-only change may refer to the completed run only when the validated inputs are confirmed byte-for-byte unchanged.
-7. Run the diff-whitespace guardrail, stage explicit task files, and publish only after it and final source-stability checks pass. Do not repeat the full browser suite solely for documentation changes excluded from the input fingerprint.
+7. Stage explicit task files, run the diff-whitespace guardrail, and publish only after it and final source-stability checks pass. Do not repeat the full browser suite solely for documentation changes excluded from the input fingerprint.
 
 ## Skills and legacy links
 
@@ -83,7 +83,7 @@ Fetch and repeat the history checks above immediately before publishing so inter
 
 Stage explicit task files so unrelated local changes stay outside the commit. Before committing, run `node scripts/check-diff-whitespace.mjs --base <target-branch>` using the task's actual PR target.
 
-- Without `--head`, the command checks staged and unstaged tracked work against the supplied base.
+- Without `--head`, the command checks the staged snapshot against the supplied base and checks unstaged tracked changes separately. Its whitespace policy is pinned regardless of local Git configuration.
 - To inspect immutable commits, pass both `--base <base-sha> --head <head-sha>`. CI instead supplies PR_BASE_SHA and PR_HEAD_SHA to npm run check:whitespace after a full-history checkout.
 - Missing commits or a missing merge base fail with a fetch instruction; fix added-line whitespace before committing or publishing.
 

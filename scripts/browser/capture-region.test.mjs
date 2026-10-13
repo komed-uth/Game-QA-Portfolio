@@ -35,6 +35,17 @@ async function samplePng(page, png, points) {
   }, { base64: png.toString('base64'), points });
 }
 
+async function viewportSnapshot(page) {
+  return page.evaluate(() => ({
+    width: innerWidth,
+    height: innerHeight,
+    clientWidth: document.documentElement.clientWidth,
+    clientHeight: document.documentElement.clientHeight,
+    scrollX,
+    scrollY,
+  }));
+}
+
 test('captures the complete union below the viewport without moving or closing the page', async t => {
   const { page, directory } = await fixture(t);
   await page.setContent(`<style>body { margin: 0; height: 2400px; }
@@ -90,14 +101,7 @@ test('regional captures retain responsive layout and identifiable content at eve
   ]) {
     await page.setViewportSize(scenario.viewport);
     await page.evaluate(() => window.scrollTo(24, 120));
-    const before = await page.evaluate(() => ({
-      width: innerWidth,
-      height: innerHeight,
-      clientWidth: document.documentElement.clientWidth,
-      clientHeight: document.documentElement.clientHeight,
-      scrollX,
-      scrollY,
-    }));
+    const before = await viewportSnapshot(page);
     assert.equal(before.scrollX, 24, 'Fixture exercises a scrolled document coordinate');
     assert.equal(before.scrollY, 120, 'Fixture keeps the capture region below the viewport');
     const columns = await page.locator('#preview').evaluate(element =>
@@ -119,14 +123,8 @@ test('regional captures retain responsive layout and identifiable content at eve
       [0, 255, 0, 255],
       [0, 0, 255, 255],
     ], scenario.name + ' image contains the top-left, flowing content, and bottom-right edges');
-    assert.deepEqual(await page.evaluate(() => ({
-      width: innerWidth,
-      height: innerHeight,
-      clientWidth: document.documentElement.clientWidth,
-      clientHeight: document.documentElement.clientHeight,
-      scrollX,
-      scrollY,
-    })), before, scenario.name + ' capture preserves viewport, scrollbar layout, and document position');
+    assert.deepEqual(await viewportSnapshot(page), before,
+      scenario.name + ' capture preserves viewport, scrollbar layout, and document position');
     assert.equal(page.isClosed(), false, 'Caller retains control of page cleanup');
   }
 });

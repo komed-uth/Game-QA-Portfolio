@@ -51,6 +51,24 @@ test('fails on trailing whitespace added to the pull-request diff with a line di
   assert.match(result.stderr, /notes\.txt:2: trailing whitespace\./);
 });
 
+test('uses the same trailing-whitespace policy when local Git configuration disables it', async t => {
+  const directory = await repository(t);
+  await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
+  git(directory, 'add', '--all');
+  git(directory, 'commit', '--quiet', '-m', 'base');
+  const base = git(directory, 'rev-parse', 'HEAD');
+
+  await writeFile(path.join(directory, 'notes.txt'), 'clean line\nnew line with trailing space \n');
+  git(directory, 'add', '--all');
+  git(directory, 'commit', '--quiet', '-m', 'add whitespace');
+  const head = git(directory, 'rev-parse', 'HEAD');
+  git(directory, 'config', 'core.whitespace', '-blank-at-eol');
+
+  const result = check(directory, '--base', base, '--head', head);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /notes\.txt:2: trailing whitespace\./);
+});
+
 test('passes a clean diff without flagging unchanged historical whitespace', async t => {
   const directory = await repository(t);
   await writeFile(path.join(directory, 'legacy.txt'), 'historical trailing space \n');
@@ -68,7 +86,7 @@ test('passes a clean diff without flagging unchanged historical whitespace', asy
   assert.match(result.stdout, /PASS: no whitespace errors/);
 });
 
-test('checks staged and unstaged tracked work before a commit', async t => {
+test('checks unstaged tracked work before a commit', async t => {
   const directory = await repository(t);
   await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
   git(directory, 'add', '--all');
@@ -78,7 +96,24 @@ test('checks staged and unstaged tracked work before a commit', async t => {
   await writeFile(path.join(directory, 'notes.txt'), 'clean line\nunstaged trailing space \n');
   const result = check(directory, '--base', base);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /working-tree diff/);
+  assert.match(result.stderr, /unstaged tracked diff/);
+  assert.match(result.stderr, /notes\.txt:2: trailing whitespace\./);
+});
+
+test('checks staged content even when the unstaged copy has already been fixed', async t => {
+  const directory = await repository(t);
+  await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
+  git(directory, 'add', '--all');
+  git(directory, 'commit', '--quiet', '-m', 'base');
+  const base = git(directory, 'rev-parse', 'HEAD');
+
+  await writeFile(path.join(directory, 'notes.txt'), 'clean line\nstaged trailing space \n');
+  git(directory, 'add', 'notes.txt');
+  await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
+
+  const result = check(directory, '--base', base);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /FAIL: whitespace errors in staged diff against base/);
   assert.match(result.stderr, /notes\.txt:2: trailing whitespace\./);
 });
 
