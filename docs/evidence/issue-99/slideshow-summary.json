@@ -1,0 +1,23 @@
+{
+  "suite": "slideshow",
+  "checks": [
+    {
+      "name": "slideshow",
+      "status": "passed",
+      "startedAt": "2026-10-13T06:17:09.688Z",
+      "durationMs": 113951.4557
+    }
+  ],
+  "selectedChecks": [
+    "slideshow"
+  ],
+  "commit": "f0e9d32e5be78a1c024975f6cd39e7df81152163",
+  "trackedChanges": false,
+  "preview": "local",
+  "startedAt": "2026-10-13T06:17:07.117Z",
+  "status": "passed",
+  "inputFingerprint": "ee4e3881d7a96e29f106d806b00ab43eab38fa3d0db079febd96c8717ed91cfc",
+  "endedAt": "2026-10-13T06:19:07.259Z",
+  "exitCode": 0,
+  "signal": null
+}

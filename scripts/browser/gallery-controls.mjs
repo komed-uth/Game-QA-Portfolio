@@ -21,7 +21,7 @@ export default async function checkGalleryControls(page) {
     await page.emulateMedia({reducedMotion: motion});
     await page.reload();
     const galleries = await page.locator('.game-gallery').all();
-    assert.equal(galleries.length, 5);
+    assert.equal(galleries.length, 6);
     // Explicit pause persists across manual selection in every gallery.
     for (const gallery of galleries) {
       await checkGalleryControlLayout(gallery);
@@ -87,5 +87,5 @@ export default async function checkGalleryControls(page) {
       assert(await touchPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     }
   });
-  console.log('PASS: all five overlay controls, independent pause/resume, persistent manual pause, keyboard focus, reduced-motion Resume and touch gesture isolation');
+  console.log('PASS: all six overlay controls, independent pause/resume, persistent manual pause, keyboard focus, reduced-motion Resume and touch gesture isolation');
 }

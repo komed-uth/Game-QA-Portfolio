@@ -1,5 +1,6 @@
 import { useState } from "react";
 import EvidenceModal from "./EvidenceModal";
+import MediaGallery from "./MediaGallery";
 import { assetUrl, pcProject } from "../data";
 
 export default function PcPerformanceProject() {
@@ -15,17 +16,8 @@ export default function PcPerformanceProject() {
           {pcProject.name}
         </h2>
       </header>
-      <figure id="pix-capture" tabIndex={-1} className="capture-media">
-        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
-          aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
-        >
-          <img
-            src={assetUrl(pcProject.image)}
-            alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
-            loading="lazy"
-          />
-        </button>
-      </figure>
+      <MediaGallery projectName={pcProject.name} galleryName={pcProject.name + " media"}
+        media={pcProject.gameplay.map(photo => ({ ...photo, type: "image", source: assetUrl(photo.path) }))} />
       <div className="project-info">
         <div className="project-details" aria-label="Project details">
           {pcProject.details.map(({ label, value }) => (
@@ -48,6 +40,17 @@ export default function PcPerformanceProject() {
           </a>
         </div>
       </div>
+      <figure id="pix-capture" tabIndex={-1} className="capture-media">
+        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
+          aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
+        >
+          <img
+            src={assetUrl(pcProject.image)}
+            alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
+            loading="lazy"
+          />
+        </button>
+      </figure>
       {open && <EvidenceModal title="Vecchio Furioso · Microsoft PIX capture"
         source={assetUrl(pcProject.image)} alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
         onClose={() => setOpen(false)} />}
