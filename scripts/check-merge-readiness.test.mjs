@@ -19,7 +19,11 @@ if (config.failure && args[0] === config.failure.command && args[1] === config.f
   process.stderr.write('fixture GitHub access denied');
   process.exit(1);
 }
-if (args[0] === 'pr' && args[1] === 'view') output(config.pullRequest);
+if (args[0] === 'api' && args[1] === 'repos/' + config.repository + '/pulls/' + config.pullRequest.number) output(config.pullRequest);
+else if (args[0] === 'api') {
+  process.stderr.write('unexpected GitHub API endpoint: ' + args[1]);
+  process.exit(2);
+}
 else if (args[0] === 'pr' && args[1] === 'checks') output(config.checks);
 else if (args[0] === 'run' && args[1] === 'list') output(config.runs);
 else if (args[0] === 'run' && args[1] === 'download') {
@@ -76,15 +80,12 @@ async function createFixture(t) {
   const configPath = path.join(temporaryRoot, 'github-fixture.json');
   await writeFile(mockPath, fakeGitHubCli);
   const fixture = {
+    repository,
     pullRequest: {
       number: pullRequestNumber,
-      state: 'OPEN',
-      headRefName: 'codex/readiness-fixture',
-      headRefOid: headSha,
-      headRepository: { nameWithOwner: repository },
-      baseRefName: 'main',
-      baseRefOid: baseSha,
-      baseRepository: { nameWithOwner: repository },
+      state: 'open',
+      head: { ref: 'codex/readiness-fixture', sha: headSha, repo: { full_name: repository } },
+      base: { ref: 'main', sha: baseSha, repo: { full_name: repository } },
       mergeable: 'MERGEABLE',
       mergeStateStatus: 'CLEAN',
     },
@@ -181,7 +182,10 @@ test('fresh target history overrides a stale mergeable result after main advance
 
 test('local and published pull-request heads must match', async t => {
   const fixture = await createFixture(t);
-  const config = { ...fixture.fixture, pullRequest: { ...fixture.fixture.pullRequest, headRefOid: 'f'.repeat(40) } };
+  const config = {
+    ...fixture.fixture,
+    pullRequest: { ...fixture.fixture.pullRequest, head: { ...fixture.fixture.pullRequest.head, sha: 'f'.repeat(40) } },
+  };
   await writeFixtureConfig(fixture, config);
   const before = localState(fixture.checkout);
 
@@ -203,6 +207,7 @@ for (const scenario of [
     const result = runReadiness(fixture);
     assert.equal(result.status, 1);
     assert.match(result.stderr, scenario.expected);
+  assert.match(result.stderr, /Next: /);
   });
 }
 
@@ -264,12 +269,13 @@ test('GitHub API and Git fetch failures return non-ready results without checkou
   const githubFailure = await createFixture(t);
   await writeFixtureConfig(githubFailure, {
     ...githubFailure.fixture,
-    failure: { command: 'pr', action: 'view' },
+    failure: { command: 'api', action: `repos/${repository}/pulls/${pullRequestNumber}` },
   });
   const before = localState(githubFailure.checkout);
   const unavailable = runReadiness(githubFailure);
   assert.equal(unavailable.status, 1);
-  assert.match(unavailable.stderr, /GitHub CLI pr view failed/);
+  assert.match(unavailable.stderr, /GitHub CLI api repos\/komed-uth\/Game-QA-Portfolio\/pulls\/123 failed/);
+  assert.match(unavailable.stderr, /Next: Restore read access and connectivity for GitHub CLI/);
   assert.deepEqual(localState(githubFailure.checkout), before);
 
   const gitFailure = await createFixture(t);
@@ -279,6 +285,37 @@ test('GitHub API and Git fetch failures return non-ready results without checkou
   assert.equal(inaccessible.status, 1);
   assert.match(inaccessible.stderr, /Git fetch failed/);
   assert.deepEqual(localState(gitFailure.checkout), gitState);
+});
+
+test('pull-request base repository must match the explicit target repository', async t => {
+  const fixture = await createFixture(t);
+  const config = {
+    ...fixture.fixture,
+    pullRequest: {
+      ...fixture.fixture.pullRequest,
+      base: { ...fixture.fixture.pullRequest.base, repo: { full_name: 'other-owner/other-repo' } },
+    },
+  };
+  await writeFixtureConfig(fixture, config);
+  const before = localState(fixture.checkout);
+
+  const result = runReadiness(fixture);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /targets other-owner\/other-repo, not komed-uth\/Game-QA-Portfolio/);
+  assert.match(result.stderr, /Next: /);
+  assert.deepEqual(localState(fixture.checkout), before);
+});
+
+test('unavailable validation evidence explains how to recover', async t => {
+  const fixture = await createFixture(t);
+  await writeFixtureConfig(fixture, { ...fixture.fixture, downloadFailure: true });
+  const before = localState(fixture.checkout);
+
+  const result = runReadiness(fixture);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /GitHub CLI run download failed/);
+  assert.match(result.stderr, /Next: Confirm the successful validation run uploaded its browser-validation-evidence artifact/);
+  assert.deepEqual(localState(fixture.checkout), before);
 });
 
 test('dirty worktrees are rejected without changing their contents', async t => {

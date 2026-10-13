@@ -19,3 +19,5 @@ This is a single-context repository with a root `GLOSSARY.md` and `docs/adr/`. R
 ## Dependencies and publishing
 
 Run the workstation preflight before exploration, check dependencies in the intended checkout before build or preview work, and follow the validation and merge-readiness steps in [development guidance](docs/development/validation.md#project-dependency-readiness) and [merge readiness](docs/development/validation.md#merge-readiness). Readiness labels do not authorize publishing or merging.
+
+Keep tool discovery and file inspection bounded; see [bounded tool discovery](docs/development/validation.md#bounded-tool-discovery) and [generated report searching](docs/development/validation.md#searching-generated-reports).
