@@ -55,11 +55,16 @@ function startDevelopmentServer() {
 }
 
 const processExecPath = process.execPath;
+const terminalEscapeSequence = /\x1B\[[0-?]*[ -/]*[@-~]/g;
+
+function plainTerminalOutput(value) {
+  return value.replace(terminalEscapeSequence, "");
+}
 
 async function waitForDevelopmentOutput(server, fragment, startAt = 0) {
   const deadline = Date.now() + 15000;
   while (Date.now() < deadline) {
-    const recentOutput = server.output.slice(startAt);
+    const recentOutput = plainTerminalOutput(server.output.slice(startAt));
     if (recentOutput.includes(fragment)) return recentOutput;
     if (server.process.exitCode !== null) {
       throw new Error(`Development server exited before reporting ${JSON.stringify(fragment)}:\n${server.output}`);
@@ -72,7 +77,7 @@ async function waitForDevelopmentOutput(server, fragment, startAt = 0) {
 async function waitForDevelopmentUrl(server) {
   const deadline = Date.now() + 15000;
   while (Date.now() < deadline) {
-    const match = server.output.match(/Local:\s+(http:\/\/127\.0\.0\.1:\d+\/)/);
+    const match = plainTerminalOutput(server.output).match(/Local:\s+(http:\/\/127\.0\.0\.1:\d+\/)/);
     if (match) return match[1];
     if (server.process.exitCode !== null) {
       throw new Error(`Development server exited before becoming ready:\n${server.output}`);
