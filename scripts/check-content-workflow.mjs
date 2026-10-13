@@ -12,6 +12,16 @@ import {
 
 const sitePath = path.join(repositoryRoot, "src", "content", "site.ts");
 const aboutMePath = path.join(repositoryRoot, "src", "content", "pages", "aboutMe.ts");
+const projectFiles = {
+  projects: path.join(repositoryRoot, "src/content/projects.ts"),
+  evidence: path.join(repositoryRoot, "src/content/evidence.ts"),
+  portfolioPage: path.join(repositoryRoot, "src/content/pages/portfolio.ts"),
+};
+const originalProjectSources = Object.fromEntries(await Promise.all(Object.entries(projectFiles).map(async ([name, file]) => [name, await readFile(file, "utf8")])));
+
+async function writeProjectDefinition(name, value) {
+  await writeFile(projectFiles[name], `export const ${name} = ${JSON.stringify(value, null, 2)};\n`);
+}
 
 function runNpmScript(name, args = []) {
   const commandArgs = ["run", name, ...(args.length > 0 ? ["--", ...args] : [])];
@@ -312,6 +322,30 @@ try {
         ),
       ]);
       await page.getByText("A valid development edit after correction.", { exact: true }).waitFor();
+      await page.goto(new URL("#/", developmentServer.url ?? await waitForDevelopmentUrl(developmentServer)).href);
+      const editedProjects = structuredClone(definitions.projects);
+      editedProjects[0].name = "Regulus live content edit";
+      await writeProjectDefinition("projects", editedProjects);
+      await page.getByRole("heading", { name: "Regulus live content edit", exact: true }).waitFor();
+      const editedEvidence = structuredClone(definitions.evidence);
+      editedEvidence[0].reports[0].label = "Live Ultra";
+      await writeProjectDefinition("evidence", editedEvidence);
+      await page.getByRole("button", { name: "Live Ultra", exact: true }).waitFor();
+      assert.equal(await page.getByRole("button", { name: "Live Ultra", exact: true }).getAttribute("aria-pressed"), "true");
+      for (const [name, value, edit, diagnostic] of [
+        ["projects", editedProjects, records => { records[0].media[1].path = "images/missing.png"; }, "path: local media file does not exist"],
+        ["evidence", editedEvidence, records => { records[0].defaultReportId = "missing"; }, "defaultReportId: invalid report default"],
+        ["portfolioPage", definitions.portfolioPage, record => { record.sections[0].projectId = "missing"; }, "projectId: unknown project"],
+      ]) {
+        const invalid = structuredClone(value);
+        edit(invalid);
+        const startAt = developmentServer.output.length;
+        await writeProjectDefinition(name, invalid);
+        await waitForDevelopmentOutput(developmentServer, diagnostic, startAt);
+        await writeProjectDefinition(name, value);
+        await page.locator("vite-error-overlay").waitFor({ state: "detached" });
+      }
+      await page.getByRole("heading", { name: "Regulus live content edit", exact: true }).waitFor();
     });
   } finally {
     try {
@@ -328,6 +362,7 @@ try {
   await Promise.all([
     writeFile(sitePath, originalSiteSource, "utf8"),
     writeFile(aboutMePath, originalAboutMeSource, "utf8"),
+    ...Object.entries(projectFiles).map(([name, file]) => writeFile(file, originalProjectSources[name], "utf8")),
   ]);
   const restoredBuild = runNpmScript("build");
   if (restoredBuild.status !== 0) {
@@ -339,3 +374,4 @@ try {
 
 if (failure) throw failure;
 console.log("PASS: About me copy, shared contact, section addition/order/visibility, media, validation, live development updates, build, and browser workflow.");
+await import("./check-project-content-workflow.mjs");

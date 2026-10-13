@@ -1,29 +1,4 @@
-import type { PerformanceReport } from "./types";
-
-export const project = {
-  name: "Regulus the Advent",
-  details: [
-    {
-      label: "Project overview",
-      value:
-        "A mobile performance testing demonstration of a cutscene across five graphics quality settings.",
-    },
-    {
-      label: "My role",
-      value: "Mobile performance testing",
-    },
-    {
-      label: "Responsibilities",
-      value:
-        "Capture the cutscene at five graphics quality settings on a real Samsung Galaxy S10 using ARM Streamline.",
-    },
-    {
-      label: "Platforms / tools",
-      value:
-        "Android · Samsung Galaxy S10 · Mali-G76 MP12 · ARM Streamline / Performance Advisor",
-    },
-  ],
-};
+import { evidence } from "./content/evidence";
 
 export const fatherSonProject = {
   name: "Father, Son & Holy Guns",
@@ -84,23 +59,13 @@ export const pcProject = {
   imageCaption: "Microsoft PIX · GPU capture and event timeline",
 };
 
-export const reports: PerformanceReport[] = [
-  { label: "Very High", filename: "S10_Very_High_Fixed.html", kind: "html" },
-  { label: "High", filename: "S10_High_Fixed.html", kind: "html" },
-  { label: "Medium", filename: "S10_Medium_Fixed.html", kind: "html" },
-  { label: "Low", filename: "S10_Low_Fixed.html", kind: "html" },
-  { label: "Very Low", filename: "S10_Very_Low_Fixed.html", kind: "html" },
-  { label: "Overall", filename: "overall-performance-report.png", kind: "image" },
-];
-
-const androidEvidence = {
-  to: "/?evidence=android-reports",
-  label: "Regulus the Advent · Android performance reports",
+// Compatibility for the Skills migration: facts and destinations remain shared.
+const legacyEvidence = (id: string) => {
+  const record = evidence.find((entry) => entry.id === id)!;
+  return { to: record.destination, label: record.label };
 };
-const pixEvidence = {
-  to: "/?evidence=pix-capture",
-  label: "Vecchio Furioso · Microsoft PIX GPU capture",
-};
+const androidEvidence = legacyEvidence("android-reports");
+const pixEvidence = legacyEvidence("pix-capture");
 
 export const capabilities = [
   {
@@ -175,9 +140,3 @@ export const tools = [
 
 // Relative base keeps links working when hosted inside a repository subfolder.
 export const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
-export const reportUrl = (report: PerformanceReport) =>
-  assetUrl(
-    report.kind === "image"
-      ? `images/${report.filename}`
-      : `Performance-Testing-Mobile/Full%20Report/${report.filename}`,
-  );
