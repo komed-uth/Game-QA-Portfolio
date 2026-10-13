@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 
 
 import EvidenceModal from "./EvidenceModal";
 import GameplayPreviewStrip from "./GameplayPreviewStrip";
-import useGalleryPhoto from "./useGalleryPhoto";
+import useGalleryMedia from "./useGalleryMedia";
 import useGallerySlideshow from "./useGallerySlideshow";
 import YouTubeVideo from "./YouTubeVideo";
 
@@ -30,8 +30,9 @@ export default function MediaGallery({
   const [open, setOpen] = useState(false);
   const item = media[selected];
   const selectedRef = useRef(0);
-  const photo = useGalleryPhoto(item?.type === "image" ? item.source : null);
-  const photoReady = item?.type === "image" && photo.source === item.source && photo.phase === "ready";
+  const presentation = useGalleryMedia(item?.source ?? null, item?.type);
+  const presented = presentation.layers.some(layer => layer.request === presentation.request && layer.source === item?.source && layer.type === item?.type && layer.presented);
+  const photoReady = item?.type === "image" && presented && presentation.phase === "ready";
   const slideshow = useGallerySlideshow({ selected, ready: photoReady, count: media.length, inspecting: open, videoShowcase: !!videoId, advance: () => select(selectedRef.current + 1) });
   const imageButton = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
@@ -143,21 +144,28 @@ export default function MediaGallery({
           className={"gallery-viewer" + (activeItem.type === "image" ? " gallery-swipe-surface" : "")}
           {...(activeItem.type === "image" ? swipeHandlers : {})}
         >
-          {activeItem.type === "video" ? (
-            <YouTubeVideo videoId={videoId ?? ""} title={projectName + " video"}
-              eligible={slideshow.eligible} isCurrent={() => selectedRef.current === selected}
-              onComplete={() => select(selectedRef.current + 1)} />
-          ) : (
-            <>
-              {photo.layers.map((layer, index) => {
-                const current = index === photo.layers.length - 1 && layer.source === activeItem.source &&
-                  (photo.phase === "ready" || photo.phase === "fading-in");
+              {presentation.layers.map((layer) => {
+                const requested = layer.request === presentation.request && layer.source === activeItem.source && layer.type === activeItem.type;
+                const current = requested && layer.presented;
+                if (layer.type === "video") return <div key={layer.request}
+                  className={"gallery-media-layer " + (layer.animate ? "photo-crossfade " : "") +
+                    (!layer.presented ? "gallery-media-pending" : current ? "gallery-video-current " + presentation.phase : "gallery-photo-backdrop")}
+                  aria-hidden={!current || undefined} ref={element => { if (element) element.inert = !current; }}
+                  onAnimationEnd={event => {
+                    if (event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
+                  }}>
+                  <YouTubeVideo videoId={videoId ?? ""} title={projectName + " video"}
+                    eligible={current && presentation.phase === "ready" && slideshow.eligible}
+                    isCurrent={() => requested && selectedRef.current === selected}
+                    onReadiness={event => presentation.videoEvent(layer.request, event)}
+                    onComplete={() => select(selectedRef.current + 1)} />
+                </div>;
                 return <button key={layer.request} type="button"
                   className={"gallery-photo-layer " + (layer.animate ? "photo-crossfade " : "") +
-                    (current ? "evidence-image-button gallery-photo " + photo.phase : "gallery-photo-backdrop")}
+                    (current ? "evidence-image-button gallery-photo " + presentation.phase : "gallery-photo-backdrop")}
                   ref={current ? imageButton : undefined} onClick={current ? openPhoto : undefined}
                   onAnimationEnd={event => {
-                    if (event.target === event.currentTarget && event.animationName === "gallery-photo-in") photo.finishFade(layer.request);
+                    if (event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
                   }}
                   disabled={!current || !photoReady} draggable={false}
                   aria-hidden={!current || undefined} tabIndex={current ? undefined : -1}
@@ -166,13 +174,13 @@ export default function MediaGallery({
                   <img src={layer.source} alt={current ? activeItem.alt : ""} draggable={false} />
                 </button>;
               })}
-              {photo.phase === "failed" ? <div className="gallery-photo-status" role="alert">
-                <p>Could not load this photo.</p>
-                <button type="button" className="gallery-arrow" onClick={photo.retry}>Retry</button>
-                <a href={activeItem.source} target="_blank" rel="noopener noreferrer">Open original file ↗</a>
-              </div> : photo.phase === "loading" && <div className="gallery-photo-status" role="status">Loading photo…</div>}
-            </>
-          )}
+              {presentation.phase === "failed" ? <div className="gallery-photo-status" role="alert">
+                <p>Could not load this {activeItem.type === "video" ? "video" : "photo"}.</p>
+                <button type="button" className="gallery-arrow" onClick={presentation.retry}>Retry</button>
+                {activeItem.type === "image" && <a href={activeItem.source} target="_blank" rel="noopener noreferrer">Open original file ↗</a>}
+              </div> : presentation.phase === "loading" && <div className="gallery-photo-status" role="status">
+                Loading {activeItem.type === "video" ? "video" : "photo"}…
+              </div>}
           {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control"
             onClick={slideshow.togglePause}>
             {slideshow.paused ? "Resume slideshow" : "Pause slideshow"}

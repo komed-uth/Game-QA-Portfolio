@@ -1032,7 +1032,8 @@ footer {
   }
 }
 
-.gallery-viewer > .gallery-photo-layer {
+.gallery-viewer > .gallery-photo-layer,
+.gallery-viewer > .gallery-media-layer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1041,7 +1042,9 @@ footer {
   border: 0;
   background: #090e0c;
 }
-.gallery-photo-layer.photo-crossfade { animation: gallery-photo-in 300ms ease-in-out both; }
+.gallery-photo-layer.photo-crossfade,
+.gallery-media-layer.photo-crossfade { animation: gallery-photo-in 300ms ease-in-out both; }
+.gallery-media-pending { opacity: 0; pointer-events: none; }
 .gallery-photo-backdrop { pointer-events: none; }
 .gallery-viewer > .gallery-photo:disabled { cursor: default; }
 .evidence-open:disabled { opacity: 0.5; cursor: default; }
@@ -1060,7 +1063,8 @@ footer {
 .gallery-photo-status a { color: var(--green); min-height: 44px; display: flex; align-items: center; }
 @keyframes gallery-photo-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .gallery-photo-layer.photo-crossfade { animation: none; }
+  .gallery-photo-layer.photo-crossfade,
+  .gallery-media-layer.photo-crossfade { animation: none; }
 }
 
 /* Skills retains the shared typography and navigation while descriptions reflow. */

@@ -1,3 +1,4 @@
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 import checkGalleryControls from './gallery-controls.mjs';
@@ -20,6 +21,8 @@ export async function waitForPhoto(gallery) {
 }
 
 export default async function checkSlideshow(page) {
+  await installVideoFixture(page.context());
+  await page.reload();
   await checkGalleryControls(page);
   await page.emulateMedia({reducedMotion: 'no-preference'});
   await page.reload();
@@ -218,6 +221,7 @@ export default async function checkSlideshow(page) {
 
   // Native panning cancels pointer delivery while the finger remains down.
   await withBrowserContext(page.context().browser(), { viewport: {width:390,height:845}, hasTouch:true, isMobile:true }, async touchContext => {
+    await installVideoFixture(touchContext);
     const touchPage = await touchContext.newPage();
     await touchPage.goto(page.url());
     await installPausedClock(touchPage);

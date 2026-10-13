@@ -1,3 +1,4 @@
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from "node:assert/strict";
 import { build } from "vite";
@@ -51,6 +52,8 @@ async function checkScrollInterruption(page, gallery) {
 // Build representative lists in memory and serve only to isolated test contexts.
 // The actual portfolio, other showcase, and production media files stay intact.
 export default async function checkPreviewFixtures(page) {
+  await installVideoFixture(page.context());
+  await page.reload();
   const browser = page.context().browser();
   for (const fixture of ["empty", "single", "single-photo", "long"]) {
     const adjustment = fixture === "empty" ? "media.splice(0);" : fixture === "single" ?
@@ -66,6 +69,7 @@ export default async function checkPreviewFixtures(page) {
     await withBrowserContext(browser, { viewport: {width:390,height:845}, reducedMotion: "reduce",
       ...(fixture === 'long' ? { hasTouch: true, isMobile: true } : {}) }, async context => {
       await context.route('**/assets/index-*.js', route => route.fulfill({contentType:'text/javascript',body:entry.code}));
+      await installVideoFixture(context);
       const fixturePage=await context.newPage();
       await fixturePage.goto(page.url());
       await fixturePage.locator('.video-project').waitFor();
@@ -179,6 +183,7 @@ export default async function checkPreviewFixtures(page) {
     });
   }
   await withBrowserContext(browser, {viewport:{width:390,height:845},hasTouch:true,isMobile:true,reducedMotion:'reduce'}, async touchContext => {
+    await installVideoFixture(touchContext);
     const touchPage=await touchContext.newPage();await touchPage.goto(page.url());
     const gallery=touchPage.locator('.game-gallery').first();
     const strip=gallery.locator('.gallery-thumbnails');await strip.scrollIntoViewIfNeeded();

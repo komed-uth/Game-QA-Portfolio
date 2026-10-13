@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { VideoReadiness } from "./useGalleryMedia";
 
 type Player = {
   mute: () => void;
@@ -27,34 +28,44 @@ function loadAPI() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
   if (!api) api = new Promise<YouTubeAPI>((resolve, reject) => {
     const previous = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
+    const script = document.createElement("script");
+    const cleanup = () => {
+      clearTimeout(timeout);
+      script.remove();
+      if (window.onYouTubeIframeAPIReady === ready) window.onYouTubeIframeAPIReady = previous;
+    };
+    const fail = () => { cleanup(); api = undefined; reject(new Error("YouTube API unavailable")); };
+    const ready = () => {
       try { previous?.(); } finally {
-        if (window.YT?.Player) resolve(window.YT);
-        else reject(new Error("YouTube API unavailable"));
+        if (window.YT?.Player) { cleanup(); resolve(window.YT); }
+        else fail();
       }
     };
-    const script = document.createElement("script");
+    window.onYouTubeIframeAPIReady = ready;
+    // A hung API download must release its shared request so Retry can fetch anew.
+    const timeout = setTimeout(fail, 8000);
     script.src = "https://www.youtube.com/iframe_api";
-    script.onerror = () => reject(new Error("YouTube API unavailable"));
+    script.onerror = fail;
     document.head.append(script);
   });
   return api;
 }
 
 // A mounted player owns one video visit. Eligibility changes never recreate it.
-export default function YouTubeVideo({ videoId, title, eligible, isCurrent, onComplete }: {
+export default function YouTubeVideo({ videoId, title, eligible, isCurrent, onComplete, onReadiness }: {
   videoId: string;
   title: string;
   eligible: boolean;
   isCurrent: () => boolean;
   onComplete: () => void;
+  onReadiness: (event: VideoReadiness) => void;
 }) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const player = useRef<Player>();
   const ended = useRef(false);
   const [completion, setCompletion] = useState(0);
-  const current = useRef({ isCurrent, onComplete });
-  current.current = { isCurrent, onComplete };
+  const current = useRef({ isCurrent, onComplete, onReadiness });
+  current.current = { isCurrent, onComplete, onReadiness };
 
   useEffect(() => {
     let live = true;
@@ -65,17 +76,19 @@ export default function YouTubeVideo({ videoId, title, eligible, isCurrent, onCo
         onReady: event => {
           if (!active()) return;
           event.target.mute();
+          current.current.onReadiness("usable");
           event.target.playVideo();
         },
         onStateChange: event => {
           if (!active()) return;
           ended.current = event.data === 0;
+          if (event.data === 1) current.current.onReadiness("playing");
           setCompletion(value => value + 1);
         },
-        onError: () => { if (active()) ended.current = false; },
-        onAutoplayBlocked: () => { if (active()) ended.current = false; },
+        onError: () => { if (active()) { ended.current = false; current.current.onReadiness("failed"); } },
+        onAutoplayBlocked: () => { if (active()) { ended.current = false; current.current.onReadiness("blocked"); } },
       } });
-    }).catch(() => { /* Provider failure leaves manual playback/selection available. */ });
+    }).catch(() => { if (active()) current.current.onReadiness("failed"); });
     return () => {
       live = false; // Invalidate before destroy, which can itself emit state events.
       ended.current = false;

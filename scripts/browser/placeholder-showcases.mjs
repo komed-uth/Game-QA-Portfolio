@@ -1,3 +1,4 @@
+import { installVideoFixture } from './fixtures/youtube-provider.mjs';
 import assert from 'node:assert/strict';
 import { waitForPhoto } from './gallery-photo-ready.mjs';
 import { installPausedClock, waitForPhoto as waitForClockPhoto } from './gameplay-slideshow.mjs';
@@ -9,8 +10,11 @@ const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
 
 export default async function checkPlaceholders(page) {
+  await installVideoFixture(page.context());
+  await page.reload();
   for (const projectName of projectNames) {
     await withBrowserContext(page.context().browser(), {}, async context => {
+      await installVideoFixture(context);
       const projectPage = await context.newPage();
       await projectPage.goto(page.url());
       await checkProject(projectPage, projectName);
@@ -268,6 +272,7 @@ async function checkProject(page, projectName) {
   assert.equal(await page.locator('dialog').count(), 0, 'Swipe does not accidentally open inspection');
 
   await withBrowserContext(page.context().browser(), { viewport: { width: 390, height: 845 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce' }, async context => {
+    await installVideoFixture(context);
     const touchPage = await context.newPage();
     await touchPage.goto(page.url());
     const touchGallery = touchPage.getByRole('region', { name: galleryName, exact: true });
