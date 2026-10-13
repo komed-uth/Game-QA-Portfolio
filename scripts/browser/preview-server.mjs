@@ -1,9 +1,17 @@
 import { spawn } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { dependencyReadinessMessage, findMissingProjectDependencies } from "../project-dependencies.mjs";
 
 export async function startPreview(port = 0) {
+  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const missing = await findMissingProjectDependencies(projectRoot);
+  if (missing.length) throw new Error(dependencyReadinessMessage(projectRoot, missing));
+
   let output = "";
-  const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "preview",
+  const server = spawn(process.execPath, [path.join(projectRoot, "node_modules/vite/bin/vite.js"), "preview",
     "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
+    cwd: projectRoot,
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });

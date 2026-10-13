@@ -91,6 +91,26 @@ Check the active account through GitHub CLI when available or the connected GitH
 
 When transplanting commits onto remote history, compare the resulting file tree with the tested source before updating the ref. Preserve the remote head using an expected-SHA check. Verify the published head and PR file list afterwards.
 
+## Project dependency readiness
+
+`npm run check:workstation` uses Node built-ins and can run before `npm ci`. It checks workstation executables and Git metadata access; it does not install packages or establish that a project checkout is ready to build.
+
+Run `npm run check:project-dependencies` from the intended checkout after `npm ci`. The check requires the local Vite build/preview entry point, TypeScript compiler, and Playwright package inside that checkout's `node_modules`; packages discoverable only in a parent checkout do not count. `npm run build`, `npm run dev`, `npm start`, `npm run preview`, `npm run check:preview`, `npm run check:runner`, and `npm run check:browser` run this check before their work. If it fails, run `npm ci` from that checkout and retry. The check itself needs no project dependencies.
+
+## Merge readiness
+
+After the intended branch is pushed and its PR is open, check readiness with the actual repository, remote, and PR number:
+
+```sh
+npm run check:merge-readiness -- --repo komed-uth/Game-QA-Portfolio --remote origin --pr <number>
+```
+
+The command reads the PR's head and target branch from GitHub; it does not assume the target is `main`. It requires a clean checkout on the published PR branch at the exact published head, fetches the named target branch twice, and verifies that its fresh tip is an ancestor of the PR head. It checks the PR's `Validate pull requests` status and the latest workflow evidence artifact. That artifact must identify the complete portfolio suite and local preview, record the same PR number and head SHA, a passing terminal result, no tracked changes, and a valid input fingerprint. The pull-request workflow checks out `github.event.pull_request.head.sha` so its recorded commit identifies the code it tested.
+
+A `READY` result prints the target tip, exact PR head, validation run, and input fingerprint. A missing, pending, failed, cancelled, unavailable, stale, or wrong-head result exits nonzero with a next action. Target advancement requires the preservation and synchronization procedure above, followed by integration and full validation of the resulting head. The command only updates the named remote-tracking ref through fetch; it does not change working files, local branch heads, credentials, configuration, published history, or merge state. Temporary workflow evidence is removed after inspection.
+
+Readiness is not merge authorization and does not merge or deploy. When a separate owner instruction authorizes a merge, use the recorded exact head with GitHub CLI's `gh pr merge <number> --match-head-commit <head-sha>` guard. If GitHub rejects a race, fetch and inspect the current PR and target again, then rerun validation as needed; do not bypass the guard.
+
 ## Host runtime failures
 
 This session's sandbox failed before commands and browser-control tools started, with `helper_unknown_error: setup refresh had errors`. Commands worked through approved escalated execution. Repository changes cannot repair that host startup failure; diagnose the host runtime separately. Use approved tool execution without changing sandbox protections.
