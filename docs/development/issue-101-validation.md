@@ -3,7 +3,7 @@
 Ticket: [#101](https://github.com/komed-uth/Game-QA-Portfolio/issues/101).
 Parent specification: [#100](https://github.com/komed-uth/Game-QA-Portfolio/issues/100).
 Review base: `026424ccd46d2188c4d6cd0d1d9922dd9dc0fee8` (`origin/main`).
-Tested implementation commit: `993eaefa3b5a36575d9f68a1802800d0a101b439`.
+Tested implementation commit: `e3b766be562f34ea8ac121417b7db2a3c125b716`.
 Branch: `codex/issue-101`.
 
 ## Authorization status as of 2026-10-13
@@ -38,12 +38,12 @@ The implementation used a clean worktree based on the fetched current `origin/ma
 - `npm run check:overlays`: 5 tests passed. Real capture overlay checks explicitly skipped because all supplied screenshot path lists are empty; the synthetic fixture checks integration only.
 - `npm run check:preview`: 104 tests passed.
 - `npm run check:runner`: 131 tests passed.
-- `npm run check:browser`: all 13 selected checks passed. The runner recorded `trackedChanges: false`, exit code 0, and input fingerprint `a43dc59235f892eefbea03a64d8bdfcf33595bbc25da96cc50a47bb51add56e3` for the tested commit. See [browser summary](../evidence/issue-101/browser-summary.json) and [browser output](../evidence/issue-101/browser-output.txt).
+- `npm run check:browser`: all 13 selected checks passed on `e3b766be562f34ea8ac121417b7db2a3c125b716`. The runner recorded `trackedChanges: false`, exit code 0, and input fingerprint `06ad444077c2507e86bb76651ba48744c33489c3cb25ae62f0bd4a6ca33ceeb7`. See [browser summary](../evidence/issue-101/browser-summary.json) and [browser output](../evidence/issue-101/browser-output.txt).
+- PR #115's `build-and-browser` workflow passed on the tested implementation commit.
 
 ## Independent review
 
-Two parallel Sol 6.1 reviewers at high effort reviewed
-`git diff 026424ccd46d2188c4d6cd0d1d9922dd9dc0fee8...993eaefa3b5a36575d9f68a1802800d0a101b439`.
+Two parallel Sol 6.1 reviewers at high effort reviewed the final implementation and ticket requirements at `e3b766be562f34ea8ac121417b7db2a3c125b716`.
 
 ### Standards
 
