@@ -33,7 +33,7 @@ function check(cwd, ...args) {
   return run(cwd, process.execPath, [checker, ...args]);
 }
 
-test('fails on trailing whitespace added to the pull-request diff with a line diagnostic', async t => {
+async function whitespaceRevisionPair(t) {
   const directory = await repository(t);
   await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
   git(directory, 'add', '--all');
@@ -44,7 +44,11 @@ test('fails on trailing whitespace added to the pull-request diff with a line di
   git(directory, 'add', '--all');
   git(directory, 'commit', '--quiet', '-m', 'add whitespace');
   const head = git(directory, 'rev-parse', 'HEAD');
+  return { directory, base, head };
+}
 
+test('fails on trailing whitespace added to the pull-request diff with a line diagnostic', async t => {
+  const { directory, base, head } = await whitespaceRevisionPair(t);
   const result = check(directory, '--base', base, '--head', head);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /FAIL: whitespace errors in pull-request diff/);
@@ -52,16 +56,7 @@ test('fails on trailing whitespace added to the pull-request diff with a line di
 });
 
 test('uses the same trailing-whitespace policy when local Git configuration disables it', async t => {
-  const directory = await repository(t);
-  await writeFile(path.join(directory, 'notes.txt'), 'clean line\n');
-  git(directory, 'add', '--all');
-  git(directory, 'commit', '--quiet', '-m', 'base');
-  const base = git(directory, 'rev-parse', 'HEAD');
-
-  await writeFile(path.join(directory, 'notes.txt'), 'clean line\nnew line with trailing space \n');
-  git(directory, 'add', '--all');
-  git(directory, 'commit', '--quiet', '-m', 'add whitespace');
-  const head = git(directory, 'rev-parse', 'HEAD');
+  const { directory, base, head } = await whitespaceRevisionPair(t);
   git(directory, 'config', 'core.whitespace', '-blank-at-eol');
 
   const result = check(directory, '--base', base, '--head', head);
