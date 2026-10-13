@@ -652,6 +652,11 @@ footer {
   max-width: 760px;
   overflow-wrap: anywhere;
 }
+.biography-media {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 .profile-photo {
   width: 180px;
   height: 180px;

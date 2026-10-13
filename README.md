@@ -18,24 +18,15 @@ npm run build
 npm run preview
 ```
 
-The build checks TypeScript before creating `dist/`. Publish the contents of `dist/` to a static host. The root source `index.html` needs the development server; it is not the deployable site. Relative asset URLs support repository subfolders.
+The build validates editable content and checks TypeScript before creating `dist/`. Publish the contents of `dist/` to a static host. The root source `index.html` needs the development server; it is not the deployable site. Relative asset URLs support repository subfolders.
 
 GitHub Pages uses `.github/workflows/deploy-pages.yml` to build and publish every push to `main`. The repository's Pages publishing source must be **GitHub Actions**. Live site: https://komed-uth.github.io/Game-QA-Portfolio/.
 
-## Change your information later
+## Edit About me and shared site content
 
-Edit **`src/data.ts`**. The `personalInfo` object controls the name, role, introduction, description, profile links, and optional photo/CV. Missing photo, CV, and links are hidden automatically.
+About me copy, section order and visibility are in `src/content/pages/aboutMe.ts`. The portfolio name, shared navigation, footer label, contact destination and common interface text are in `src/content/site.ts`. Development and build commands validate these definitions and report the file, record and field for errors. See the [content editing guide](docs/content-editing.md) for examples, supported presets and optional media.
 
-```ts
-name: 'Your name',
-role: 'Game QA Tester',
-introduction: 'Your short introduction',
-image: 'images/profile.jpg',
-cvUri: 'files/my-cv.pdf',
-links: [{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/your-profile' }],
-```
-
-Place optional files in `public/`. Use relative paths without a leading slash. The browser title follows the profile name; edit `index.html` to customize the initial title and search description too. Project details, report settings, approved biography, capabilities, and tools also live in `src/data.ts`. About me uses `biography` and `linkedInProfileUrl`; no photo or CV is included in the approved presentation.
+Project details, report settings, capabilities, tools and other unmigrated portfolio content remain in `src/data.ts` for now. The current approved About me presentation does not include a photo or CV.
 
 ## Current evidence
 
@@ -58,8 +49,9 @@ On 2026-10-12 the owner authorized #77's implementation, testing, branch push, a
 ```text
 src/
   App.tsx              Shared shell and routes
-  data.ts              Editable portfolio content
-  types.ts             Content interfaces
+  data.ts              Project, report, capability, and tool content
+  content/             Typed About me and shared site definitions
+  types.ts             Report interfaces
   Components/          Header, project, report viewer, footer
   Pages/               Portfolio, Skills, and About me
   Styles/              Responsive styling
