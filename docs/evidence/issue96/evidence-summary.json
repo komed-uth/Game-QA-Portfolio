@@ -1,0 +1,30 @@
+{
+  "suite": "evidence",
+  "checks": [
+    {
+      "name": "evidence-modal",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:51:28.655Z",
+      "durationMs": 140215.9642
+    },
+    {
+      "name": "evidence-interactions",
+      "status": "passed",
+      "startedAt": "2026-10-13T08:53:48.879Z",
+      "durationMs": 7601.8701
+    }
+  ],
+  "selectedChecks": [
+    "evidence-modal",
+    "evidence-interactions"
+  ],
+  "commit": "b30fd324b61bdf20092c7040e3eed168c519aafe",
+  "trackedChanges": true,
+  "preview": "local",
+  "startedAt": "2026-10-13T08:51:27.208Z",
+  "status": "passed",
+  "inputFingerprint": "f9d6bae20a4f08206bead543a52ac7097a2f1e1a0c120a8e50a32a4332329b3a",
+  "endedAt": "2026-10-13T08:53:57.456Z",
+  "exitCode": 0,
+  "signal": null
+}
