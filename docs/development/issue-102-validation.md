@@ -19,4 +19,8 @@ Focused validation passed: workstation preflight, content validation, strict typ
 
 The original workflow test's Skills-link selector omitted the rendered arrow. It was corrected and the combined workflow passed. No application change was required for that failure.
 
+Two independent Sol 6.1 reviewers at high effort reviewed `372b962...5e57840`. Standards: no documented-standard breaches or meaningful baseline smells. Spec: no missing/incorrect requirements or scope creep identified against #102 and applicable #100 requirements.
+
+The first complete browser run found a stale gameplay-list fixture: it still replaced the removed component-local `RegulusShowcase()` signature and therefore silently failed to inject an empty media list. An isolated replay reproduced `Empty list omits gallery: 1 !== 0` in 4.19 seconds. The fixture now adjusts Regulus's shared project definition during its in-memory Vite build and assigns unique synthetic media IDs. All unchanged empty/single/long-list browser assertions passed in 26.60 seconds. Canonical content and interaction components were not changed by this correction.
+
 Final review and complete validation results will be recorded before publication. Browser viewports do not certify physical devices; report-owned high-resolution capture overlays remain limited by the supplied fixtures.
