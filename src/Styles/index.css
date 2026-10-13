@@ -1019,7 +1019,7 @@ footer {
   }
 }
 
-.gallery-photo-layer {
+.gallery-viewer > .gallery-photo-layer {
   position: absolute;
   inset: 0;
   width: 100%;

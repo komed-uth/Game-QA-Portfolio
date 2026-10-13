@@ -3,11 +3,13 @@ import assert from "node:assert/strict";
 import { waitForPhoto as ready } from "./gallery-photo-ready.mjs";
 
 async function overlap(gallery, index) {
-  const result = await gallery.locator('.gallery-thumbnail').nth(index).evaluate(element => new Promise(resolve => {
+  const result = await gallery.locator('.gallery-thumbnail').nth(index).evaluate(element => new Promise((resolve, reject) => {
     const gallery = element.closest('.game-gallery');
     const oldSource = gallery.querySelector('.gallery-photo img').getAttribute('src');
     element.click();
+    let frames = 0;
     const sample = () => {
+      if (++frames > 180) { reject(new Error('No visible photo overlap within 180 render frames')); return; }
       const incoming = gallery.querySelector('.gallery-photo.fading-in');
       const outgoing = gallery.querySelector('.gallery-photo-backdrop');
       const opacity = incoming && Number(getComputedStyle(incoming).opacity);
@@ -17,6 +19,7 @@ async function overlap(gallery, index) {
         resolve({ opacity, backdropOpacity: Number(getComputedStyle(outgoing).opacity),
           oldSource, backdropSource: outgoing.querySelector('img').getAttribute('src'),
           duration: style.animationDuration, easing: style.animationTimingFunction, transform: style.transform,
+          background: style.backgroundColor,
           decoded: image.complete && image.naturalWidth > 0, framing: getComputedStyle(image).objectFit,
           selected: element.getAttribute('aria-pressed'), announcement: gallery.querySelector('[aria-live]').textContent,
           blocked: incoming.disabled, hidden: outgoing.getAttribute('aria-hidden'),
@@ -30,6 +33,7 @@ async function overlap(gallery, index) {
   assert.equal(result.backdropSource, result.oldSource);
   assert.equal(result.duration, '0.3s'); assert.equal(result.easing, 'ease-in-out');
   assert.equal(result.transform, 'none'); assert.equal(result.framing, 'contain'); assert(result.decoded);
+  assert.equal(result.background, 'rgb(9, 14, 12)', 'Incoming canvas fades letterboxing as well as image pixels');
   assert.equal(result.selected, 'true'); assert(result.announcement.includes(`${index + 1} /`));
   assert(result.blocked && result.outgoingDisabled); assert.equal(result.hidden, 'true'); assert.equal(result.outgoingTabIndex, -1);
   await ready(gallery);
@@ -73,10 +77,12 @@ async function decodeAndInterrupt(page, selector) {
     await gallery.getByRole('button', { name: 'Retry', exact: true }).click(); await ready(gallery);
 
     // Interrupt a rendered fade; retained keyed layers must continue without reset.
-    const retained = await previews.nth(start).evaluate((element, latest) => new Promise(resolve => {
+    const retained = await previews.nth(start).evaluate((element, latest) => new Promise((resolve, reject) => {
       const gallery = element.closest('.game-gallery');
       element.click();
+      let frames = 0;
       const sample = () => {
+        if (++frames > 180) { reject(new Error('No interruptible rendered photo fade within 180 frames')); return; }
         const incoming = gallery.querySelector('.gallery-photo.fading-in');
         const opacity = incoming && Number(getComputedStyle(incoming).opacity);
         if (!incoming || opacity < 0.2 || opacity > 0.7) { requestAnimationFrame(sample); return; }
