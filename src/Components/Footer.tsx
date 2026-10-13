@@ -1,9 +1,9 @@
-import { personalInfo } from "../data";
+import { siteContent } from "../content/site";
 
 export default function Footer() {
   return (
-    <footer>
-      <span>{personalInfo.name}</span>
+    <footer aria-label={siteContent.footer.regionLabel}>
+      <span>{siteContent.identity.name}</span>
     </footer>
   );
 }

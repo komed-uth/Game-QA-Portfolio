@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { assetUrl, linkedInProfileUrl, personalInfo } from "../data";
+import { assetUrl } from "../data";
+import { siteContent } from "../content/site";
 
 export default function SelfSummary() {
   return (
@@ -8,43 +9,29 @@ export default function SelfSummary() {
         <NavLink
           to="/"
           className="identity"
-          aria-label={`${personalInfo.name} home`}
+          aria-label={`${siteContent.identity.name} ${siteContent.interface.identityHomeLabel}`}
         >
           <img className="qa-mark" src={assetUrl("favicon.svg")} alt="" />
-          <span className="site-title">{personalInfo.name}</span>
+          <span className="site-title">{siteContent.identity.name}</span>
         </NavLink>
-        <nav aria-label="Main navigation">
-          <NavLink to="/" end>
-            Portfolio
-          </NavLink>
-          <NavLink to="/skills">Skills</NavLink>
-          <NavLink to="/about-me">About me</NavLink>
+        <nav aria-label={siteContent.navigation.regionLabel}>
+          {siteContent.navigation.links.map((link) => (
+            <NavLink key={link.id} to={link.destination} end={link.exact}>
+              {link.label}
+            </NavLink>
+          ))}
         </nav>
         <a
           className="linkedin-link"
-          href={linkedInProfileUrl}
+          href={siteContent.contact.destination}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Komed Uthisanont on LinkedIn (opens in a new tab)"
-          title="Visit my LinkedIn profile"
+          aria-label={`${siteContent.contact.name} on ${siteContent.contact.platform} ${siteContent.interface.opensInNewTab}`}
+          title={siteContent.contact.tooltip}
         >
           <img src={assetUrl("images/linkedin-in-white.png")} alt="" />
         </a>
       </div>
-      {personalInfo.links.length > 0 && (
-        <div className="profile-links">
-          {personalInfo.links.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {link.label} ↗
-            </a>
-          ))}
-        </div>
-      )}
     </header>
   );
 }

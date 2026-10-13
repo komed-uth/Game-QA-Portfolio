@@ -32,6 +32,8 @@ jobs:
         run: npm run check:preview
       - name: Install browser
         run: npx playwright install --with-deps chromium
+      - name: Check content editing workflow
+        run: npm run check:content-workflow
       - name: Check browser runner diagnostics
         run: npm run check:runner
       - name: Check rendered portfolio

@@ -16,6 +16,9 @@ async function about(page) {
   await page.waitForFunction(() => document.title === "About me · Komed's Portfolio");
   const main = page.getByRole('main');
   assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(), headings);
+  assert.deepEqual(await main.locator('.approach-section h2').evaluateAll(nodes => nodes.map(node => node.id)), [
+    'introduction-heading', 'background-heading', 'motivation-heading', 'direction-heading', 'contact-heading',
+  ]);
   for (const [name, description] of copy) {
     assert.equal(await main.getByRole('region', { name, exact: true }).locator('p').innerText(), description);
   }
@@ -27,6 +30,9 @@ async function about(page) {
   assert.equal(await contact.getAttribute('target'), '_blank');
   assert.match(await contact.getAttribute('rel'), /noopener/);
   assert.match(await contact.getAttribute('rel'), /noreferrer/);
+  assert.equal(await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn (opens in a new tab)' }).getAttribute('href'), profile);
+  assert.equal(await page.locator('footer').getAttribute('aria-label'), 'Portfolio footer');
+  assert.equal(await page.locator('footer').innerText(), "Komed's Portfolio");
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
   assert.deepEqual(await nav.getByRole('link').allTextContents(), ['Portfolio', 'Skills', 'About me']);
   assert.equal(await nav.getByRole('link', { name: 'About me', exact: true }).getAttribute('aria-current'), 'page');

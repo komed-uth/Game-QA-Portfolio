@@ -5,13 +5,14 @@ import Footer from "./Components/Footer";
 import MainPage from "./Pages/MainPage";
 import Skills from "./Pages/Skills";
 import AboutMe from "./Pages/AboutMe";
-import { personalInfo } from "./data";
+import { siteContent } from "./content/site";
+import { aboutMePage } from "./content/pages/aboutMe";
 
 export default function App() {
   const { pathname, search } = useLocation();
   useEffect(() => {
-    const pageTitle = pathname === "/about-me" ? "About me · " : pathname === "/skills" ? "Skills · " : "";
-    document.title = `${pageTitle}${personalInfo.name}`;
+    const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? "Skills · " : "";
+    document.title = `${pageTitle}${siteContent.identity.name}`;
     const evidence = new URLSearchParams(search).get("evidence");
     if (pathname === "/" && (evidence === "android-reports" || evidence === "pix-capture")) {
       const destination = document.getElementById(evidence);
@@ -34,7 +35,7 @@ export default function App() {
           main?.scrollIntoView();
         }}
       >
-        Skip to content
+        {siteContent.interface.skipLinkLabel}
       </a>
       <SelfSummary />
       <main id="main-content" tabIndex={-1}>

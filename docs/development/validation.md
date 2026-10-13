@@ -236,4 +236,4 @@ After building, run `node scripts/browser/check-youtube-live.mjs` to check both 
 
 After building, run `node scripts/check-browser.mjs --about-me-only` for the exact #77 approved biography, absence of drafts/gaming anecdote/optional assets, LinkedIn activation, direct/reload/history navigation, legacy QA approach redirect, skip link, keyboard focus, scroll reset, and eleven responsive widths. This check also runs in the complete suite. It saves full-page 390px and 1366px captures under `.scratch/issue77-visuals/` for visual review. LinkedIn is intercepted at the external boundary to verify the destination and new-tab activation without relying on provider availability.
 
-Biography copy is editable in `src/data.ts`. Browser checks compare rendered wording with the owner-approved issue copy; they do not independently certify personal experience or grant deployment permission.
+Biography copy is editable in `src/content/pages/aboutMe.ts`; the shared contact destination is in `src/content/site.ts`. Browser checks compare rendered wording with the owner-approved issue copy; they do not independently certify personal experience or grant deployment permission.

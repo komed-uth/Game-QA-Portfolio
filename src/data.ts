@@ -1,27 +1,4 @@
-import type { PerformanceReport, Profile } from "./types";
-
-export const linkedInProfileUrl = "https://www.linkedin.com/in/komed-uthisanont-592388187/";
-
-// Owner-approved copy from ticket #77; the resume is a source, not a public asset.
-export const biography = {
-  sections: [
-    { id: "introduction", title: "Professional introduction", description: "I’m Komed Uthisanot, a Game QA Engineer with experience testing games across iOS, Android, Windows PC, and WebGL." },
-    { id: "background", title: "Background", description: "My game QA experience began in 2019 at Jumbojumps (True Axion Interactive), where my responsibilities as a Junior QA Engineer included functional, compatibility, performance, and regression testing. On Project Regulus, I coordinated QA planning, requirements analysis, and task allocation for 3–4 QA colleagues. I also collaborated with developers, technical artists, and designers on defect investigation, performance bottlenecks, and gameplay balance." },
-    { id: "motivation", title: "Why game QA", description: "I’m interested in how game design and player psychology shape the experience of playing." },
-    { id: "direction", title: "Career direction", description: "I want to develop further as a Game QA Engineer, combining structured testing with performance investigation." },
-  ],
-};
-
-// Edit this object when you are ready to add your name, bio, CV or profile links.
-// Optional image and CV paths are relative to public/, e.g. 'files/my-cv.pdf'.
-export const personalInfo: Profile = {
-  name: "Komed's Portfolio",
-  role: "Manual & performance testing",
-  introduction: "From player-facing risks to reproducible evidence.",
-  description:
-    "This portfolio documents my approach to game QA through requirements analysis, test design, exploratory testing, defect reporting, regression testing, and test documentation.",
-  links: [],
-};
+import type { PerformanceReport } from "./types";
 
 export const project = {
   name: "Regulus the Advent",
