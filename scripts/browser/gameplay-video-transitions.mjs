@@ -164,6 +164,32 @@ export default async function checkTransitions(page) {
         await waitForPhoto(gallery); await selected(gallery, 3);
         assert.equal(await gallery.getByRole('alert').count(), 0);
         assert.equal(await page.evaluate(i => window.videoPlayers[i].destroyed, player), true);
+        // A later slow request must not prolong a video already covered by a
+        // completed photo fade. Backdrop completion is distinct from readiness.
+        await choose(gallery, 0); player = await playerIndex(gallery);
+        await event(player, 'ready'); await event(player, 'state', 1); await videoReady(gallery);
+        const slowSource = await gallery.locator('.gallery-thumbnail img').nth(2).getAttribute('src');
+        await page.evaluate(source => {
+          const original = HTMLImageElement.prototype.decode;
+          window.pendingDecode = [];
+          HTMLImageElement.prototype.decode = async function() {
+            await original.call(this);
+            if (!this.isConnected && this.src === new URL(source, location.href).href) await new Promise(resolve => window.pendingDecode.push(resolve));
+          };
+          window.restoreDecode = () => { HTMLImageElement.prototype.decode = original; };
+        }, slowSource);
+        await choose(gallery, 1); await flush(); await overlap(gallery, '.gallery-photo', player, motion);
+        await choose(gallery, 2); await page.waitForFunction(() => window.pendingDecode.length > 0);
+        await tick(900); await page.waitForTimeout(350); await tick(16);
+        await selected(gallery, 2);
+        assert.equal(await gallery.locator('.gallery-photo-backdrop').evaluate(e => Number(getComputedStyle(e).opacity)), 1);
+        assert.equal(await page.evaluate(i => window.videoPlayers[i].destroyed, player), true, 'Covered video is released even when the latest decode remains pending');
+        assert.equal(await gallery.locator('iframe').count(), 0);
+        assert.equal(await gallery.getByRole('status').textContent(), 'Loading photo…');
+        assert.equal(await gallery.locator('.evidence-image-button').count(), 0, 'Backdrop completion cannot finish the pending selection');
+        await event(player, 'state', 0); await event(player, 'onError'); await selected(gallery, 2);
+        await page.evaluate(() => { window.restoreDecode(); window.pendingDecode.splice(0).forEach(resolve => resolve()); });
+        await waitForPhoto(gallery);
       }
       await captureRegion(page, { selectors: [await gallery.getAttribute('aria-label').then(name => `.game-gallery[aria-label="${name}"]`)], path: `.scratch/issue96-visuals/${motion}-${index}.png` });
       await selected(galleries.nth(1 - index), 0);

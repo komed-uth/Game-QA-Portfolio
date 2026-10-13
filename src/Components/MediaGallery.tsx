@@ -152,7 +152,7 @@ export default function MediaGallery({
                     (!layer.presented ? "gallery-media-pending" : current ? "gallery-video-current " + presentation.phase : "gallery-photo-backdrop")}
                   aria-hidden={!current || undefined} ref={element => { if (element) element.inert = !current; }}
                   onAnimationEnd={event => {
-                    if (event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
+                    if (event.isTrusted && event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
                   }}>
                   <YouTubeVideo videoId={videoId ?? ""} title={projectName + " video"}
                     eligible={current && presentation.phase === "ready" && slideshow.eligible}
@@ -165,7 +165,7 @@ export default function MediaGallery({
                     (current ? "evidence-image-button gallery-photo " + presentation.phase : "gallery-photo-backdrop")}
                   ref={current ? imageButton : undefined} onClick={current ? openPhoto : undefined}
                   onAnimationEnd={event => {
-                    if (event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
+                    if (event.isTrusted && event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
                   }}
                   disabled={!current || !photoReady} draggable={false}
                   aria-hidden={!current || undefined} tabIndex={current ? undefined : -1}

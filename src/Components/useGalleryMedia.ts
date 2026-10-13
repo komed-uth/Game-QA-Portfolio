@@ -26,11 +26,17 @@ export default function useGalleryMedia(source: string | null, type: "image" | "
     let deadline: ReturnType<typeof setTimeout> | undefined;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const image = new Image();
-    const complete = () => {
+    const complete = (ended?: number) => {
       if (cancelled) return;
       setMedia(current => {
-        const layer = current.layers.find(entry => entry.request === id && entry.presented);
-        return layer ? { request: id, phase: "ready", layers: [{ ...layer, animate: false }] } : current;
+        const index = ended === undefined ? current.layers.reduce((last, entry, index) => entry.presented ? index : last, -1) :
+          current.layers.findIndex(entry => entry.request === ended && entry.presented);
+        if (index < 0) return current;
+        const layer = { ...current.layers[index], animate: false };
+        // A completed backdrop may release covered players, but must never finish
+        // the newer selection that is still loading (or failed).
+        return layer.request === current.request ? { request: id, phase: "ready", layers: [layer] } :
+          { ...current, layers: [layer, ...current.layers.slice(index + 1)] };
       });
     };
     const present = () => {
@@ -51,7 +57,7 @@ export default function useGalleryMedia(source: string | null, type: "image" | "
       clearTimeout(deadline);
       setMedia(current => ({ ...current, phase: "failed", layers: current.layers.filter(layer => layer.presented && (!playerError || layer.request !== id)) }));
     };
-    finishFade.current = ended => { if (ended === id) complete(); };
+    finishFade.current = complete;
     videoEvent.current = (eventId, event) => {
       if (cancelled || eventId !== id) return;
       if (event === "usable") usable = true;

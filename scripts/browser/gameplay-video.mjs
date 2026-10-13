@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { installPausedClock, waitForPhoto } from './gameplay-slideshow.mjs';
-import { installVideoFixture } from './fixtures/youtube-provider.mjs';
+import { installVideoFixture, playerIndex } from './fixtures/youtube-provider.mjs';
 import checkTransitions from './gameplay-video-transitions.mjs';
 
 // Substitute only the provider boundary; selection, inspection, fades and dwell
@@ -22,11 +22,6 @@ export default async function checkVideo(page) {
     assert.equal(await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed'), 'true', message);
   }
   async function emit(player, state) { await page.evaluate(([i,s]) => window.videoPlayers[i].emit(s), [player,state]); await settle(); }
-  async function playerIndex(gallery) {
-    const title = await gallery.locator('iframe').getAttribute('title');
-    await page.waitForFunction(t => window.videoPlayers?.some(p => !p.destroyed && p.iframe.title === t), title);
-    return page.evaluate(t => window.videoPlayers.findLastIndex(p => !p.destroyed && p.iframe.title === t), title);
-  }
   for (let index=0; index<2; index++) {
     await page.reload(); await release();
     const gallery = galleries.nth(index);

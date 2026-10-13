@@ -40,9 +40,9 @@ try {
       await gallery.locator('.gallery-video-current.ready').waitFor({timeout:12000});
       await page.evaluate(i => window.realPlayers[i].player.pauseVideo(), index);
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 2, index, {timeout:10000});
-      await gallery.frameLocator('iframe').locator('.ytp-play-button').click();
+      await gallery.frameLocator('iframe').locator('.ytp-play-button, .player-control-play-pause-icon').click({timeout:10000});
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 1, index, {timeout:10000});
-      evidence.push({width,index,nativePlay:true,fullscreenControl:await gallery.frameLocator('iframe').locator('.ytp-fullscreen-button').count() === 1});
+      evidence.push({width,index,nativePlay:true,fullscreenControl:await gallery.frameLocator('iframe').locator('.ytp-fullscreen-button, .fullscreen-icon').count() === 1});
       await page.mouse.move(0,0);await page.evaluate(()=>document.activeElement?.blur());
       await page.evaluate(i=>{const p=window.realPlayers[i].player;p.mute();p.seekTo(Math.max(0,p.getDuration()-2),true);p.playVideo();},index);
       await page.waitForFunction(i=>window.realPlayers[i].states.includes(0),index,{timeout:20000});
