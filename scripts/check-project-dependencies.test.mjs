@@ -112,3 +112,78 @@ test('build and preview hooks stop before work even when a parent checkout suppl
   }
   await assert.rejects(access(path.join(checkout, 'sync-started')));
 });
+
+test('focused browser npm scripts run the checkout dependency preflight first', async t => {
+  const parent = await mkdtemp(path.join(tmpdir(), 'parent-focused-browser-install-'));
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const checkout = path.join(parent, 'worktree');
+  await createCheckout(parent, { installDependencies: true });
+  await createCheckout(checkout);
+  await mkdir(path.join(checkout, 'scripts'), { recursive: true });
+  await copyFile(checker, path.join(checkout, 'scripts/check-project-dependencies.mjs'));
+  await copyFile(projectDependencyModule, path.join(checkout, 'scripts/project-dependencies.mjs'));
+
+  const repositoryManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const focusedChecks = ['reports', 'report-layout', 'gameplay', 'slideshow', 'placeholders', 'photos', 'evidence'];
+  const scripts = { 'check:project-dependencies': 'node scripts/check-project-dependencies.mjs' };
+  for (const check of focusedChecks) {
+    scripts[`precheck:${check}`] = repositoryManifest.scripts[`precheck:${check}`];
+    scripts[`check:${check}`] = `node -e "require('node:fs').writeFileSync('check-${check}-started', 'yes')"`;
+  }
+  await writeFile(path.join(checkout, 'package.json'), JSON.stringify({ scripts }));
+
+  for (const check of focusedChecks) {
+    const result = runNpmScript(checkout, `check:${check}`);
+    assert.equal(result.error, undefined, result.error?.message);
+    assert.notEqual(result.status, 0, result.stdout);
+    assert.match(`${result.stdout}\n${result.stderr}`, /Run npm ci from/);
+    await assert.rejects(access(path.join(checkout, `check-${check}-started`)));
+  }
+});
+
+test('direct focused browser runs reject parent Playwright before external-preview checks', async t => {
+  const parent = await mkdtemp(path.join(tmpdir(), 'parent-browser-install-'));
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const checkout = path.join(parent, 'worktree');
+  await createCheckout(parent, { installDependencies: true });
+  await createCheckout(checkout);
+
+  const repositoryRoot = path.dirname(manifestPath);
+  const runnerFiles = [
+    'scripts/check-browser.mjs',
+    'scripts/project-dependencies.mjs',
+    'scripts/browser/check-suites.mjs',
+    'scripts/browser/recorded-run.mjs',
+    'scripts/browser/run-suite.mjs',
+    'scripts/browser/preview-server.mjs',
+    'scripts/browser/stable-inputs.mjs',
+    'scripts/browser/run-browser-check.mjs',
+  ];
+  for (const relative of runnerFiles) {
+    const destination = path.join(checkout, relative);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await copyFile(path.join(repositoryRoot, relative), destination);
+  }
+
+  const importMarker = path.join(parent, 'parent-playwright-loaded');
+  const playwrightDirectory = path.join(parent, 'node_modules', 'playwright');
+  await writeFile(path.join(playwrightDirectory, 'package.json'), JSON.stringify({ type: 'module', main: 'index.mjs' }));
+  await writeFile(path.join(playwrightDirectory, 'index.mjs'), [
+    "import { writeFileSync } from 'node:fs';",
+    "writeFileSync(process.env.PLAYWRIGHT_IMPORT_MARKER, 'loaded');",
+    "export const chromium = { launch: async () => { throw new Error('parent Playwright was imported'); } };",
+  ].join('\n'));
+
+  const result = spawnSync(process.execPath, [path.join(checkout, 'scripts/check-browser.mjs'), '--photos-only'], {
+    cwd: checkout,
+    encoding: 'utf8',
+    windowsHide: true,
+    env: { ...process.env, PORTFOLIO_URL: 'https://example.invalid', PLAYWRIGHT_IMPORT_MARKER: importMarker },
+  });
+  const output = `${result.stdout}\n${result.stderr}`;
+  assert.equal(result.error, undefined, result.error?.message);
+  assert.equal(result.status, 1, output);
+  assert.ok(output.includes(checkout), output);
+  assert.match(output, /Run npm ci from/);
+  await assert.rejects(access(importMarker));
+});

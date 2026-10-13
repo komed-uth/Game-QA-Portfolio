@@ -33,7 +33,14 @@
     "precheck:preview": "npm run check:project-dependencies",
     "precheck:runner": "npm run check:project-dependencies",
     "check:project-dependencies": "node scripts/check-project-dependencies.mjs",
-    "check:merge-readiness": "node scripts/check-merge-readiness.mjs"
+    "check:merge-readiness": "node scripts/check-merge-readiness.mjs",
+    "precheck:reports": "npm run check:project-dependencies",
+    "precheck:report-layout": "npm run check:project-dependencies",
+    "precheck:gameplay": "npm run check:project-dependencies",
+    "precheck:slideshow": "npm run check:project-dependencies",
+    "precheck:placeholders": "npm run check:project-dependencies",
+    "precheck:photos": "npm run check:project-dependencies",
+    "precheck:evidence": "npm run check:project-dependencies"
   },
   "dependencies": {
     "react": "^18.3.1",
