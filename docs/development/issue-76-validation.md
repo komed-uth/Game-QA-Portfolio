@@ -1,6 +1,10 @@
 # Ticket #76: About me implementation
 
-Implementation authorized by the owner on 2026-10-12 in this chat. This supersedes the earlier implementation hold for #76 only. Deployment remains on hold, and reviewed biography copy remains required in #77.
+> Historical validation record. Use [#76](https://github.com/komed-uth/Game-QA-Portfolio/issues/76) and [PR #80](https://github.com/komed-uth/Game-QA-Portfolio/pull/80) for current tracker state.
+
+## Dated authorization history
+
+On 2026-10-12, a later owner instruction authorized implementation, tests, push, and PR #80, superseding the earlier implementation hold for #76 only ([authorization record](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6118472294)). A separate later instruction authorized merging PR #80 and closing #76 ([authorization record](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6119349340)). Merging into main triggers the existing Pages workflow, a consequence that was stated before the merge instruction; no separate manual deployment action is recorded. The reviewed biography remained a separate content requirement in #77 at the time; neither decision erased it.
 
 Base: `6bb08cbed1083e661c7cd65147185412d2d3f71e` (fetched `origin/main`). Unrelated work in the parent checkout was preserved by using `.scratch/issue76` and `codex/issue-76-about-me`.
 

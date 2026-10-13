@@ -1,10 +1,37 @@
 # Validation and publishing
 
+## Authorization and action scope
+
+Use the latest explicit owner instruction for the action it names. Record authorization with its date, source, and separate decisions for implementation/testing, branch push/PR, merge/issue closure, and deployment. Keep content review or release requirements in their own field. An older hold remains historical and is superseded only for the action a later instruction addresses; a readiness label, approved specification, or issue state does not grant additional authority.
+
+Use this compact status block when a ticket or validation record contains a hold or separately authorized actions:
+
+> **Authorization status as of YYYY-MM-DD**
+> - **Source:** owner instruction or tracker comment
+> - **Implementation and tests:** authorized, held, or completed
+> - **Branch push and PR:** authorized, held, or completed
+> - **Merge and issue closure:** authorized, held, or completed
+> - **Deployment:** authorized, held, or an explained automatic consequence
+> - **Separate content or release requirements:** requirement and tracker link
+> - **Supersedes:** earlier decision and only the action scope changed
+
+The #76 history is an example of scoped supersession: the issue body recorded an earlier implementation hold; on 2026-10-12 a later owner instruction authorized implementation, tests, push, and PR #80, and a separate later instruction authorized merging PR #80 and closing #76. The merge's existing Pages-publishing consequence had been stated. Those instructions did not erase the separate biography-content requirement tracked in [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77). See the dated [implementation authorization](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6118472294) and [merge authorization](https://github.com/komed-uth/Game-QA-Portfolio/issues/76#issuecomment-6119349340); the issues remain the source for current status.
+
+## Implementation, review, and publishing order
+
+1. Read the current tracker state and repository guidance, then run the workstation preflight before exploration. Use the existing bounded tool-discovery procedure.
+2. Implement the authorized scope and run focused checks against the affected behavior.
+3. Pin the fixed comparison point and review the committed task diff against its originating issue or specification.
+4. Resolve review findings, then rerun the affected focused checks.
+5. Run the required complete validation once against final relevant source: build, overlay checks, preview checks, runner checks, and the full browser suite. A running or interrupted run is not a pass; require the final input-stability result.
+6. Consolidate acceptance evidence and dated status notes before publication. Evidence should identify the tested commit and input fingerprint. A later documentation-only change may refer to the completed run only when the validated inputs are confirmed byte-for-byte unchanged.
+7. Run the diff-whitespace guardrail, stage explicit task files, and publish only after it and final source-stability checks pass. Do not repeat the full browser suite solely for documentation changes excluded from the input fingerprint.
+
 ## Skills and legacy links
 
 After building current source, run `node scripts/check-browser.mjs --skills-only` for the rendered Skills and ticket #77 content checks. It uses the existing preview, diagnostics, and recorded-run workflow and is also included in `npm run check:browser`. It checks the exact owner-approved capabilities/tools copy and section order (QA capabilities, then Tools); absent Interests and development, workflow, draft labels and Skills coverage; absence of the removed planned coverage on Portfolio, Skills, About me, legacy and fallback routes; normal separation after the Regulus performance reports; direct links, reload, back/forward, the legacy `#/about` redirect, title/active navigation, all four capability/tool evidence links, Android report and PIX inspection, keyboard navigation, skip link, page-change scroll, and eleven narrow/wide layouts. It retains 1366px and 360px Skills screenshots in `.scratch/issue77-visuals/` and captures the Regulus-to-next-showcase transition in `.scratch/issue88-visuals/` for visual review. Coverage screenshots are no longer captured.
 
-Skills evidence links use `#/?evidence=android-reports` and `#/?evidence=pix-capture` to focus and reveal the existing report controls or capture. No new evidence viewer is introduced. On 2026-10-12 the owner authorized implementation/testing/push/PR for #77 and confirmed Project Regulus as the planned coverage's project. The previously approved copy is integrated for rendered review. Deployment remains on hold; merging into `main` triggers Pages publishing and needs separate owner authorization. See `docs/development/issue-77-validation.md` for historical acceptance and review evidence. Ticket #88 supersedes planned-coverage retention and placement; see `docs/specs/remove-planned-gameplay-coverage.md` for the current scope and `docs/development/issue-88-validation.md` for acceptance and review evidence.
+The Android-report and PIX evidence links focus and reveal the existing report controls or capture; no new evidence viewer is introduced. **Authorization snapshot (2026-10-12):** the owner authorized implementation, testing, push, and PR for #77 and confirmed Project Regulus as the planned coverage's project. That instruction did not include merge or deployment. See [#77](https://github.com/komed-uth/Game-QA-Portfolio/issues/77) and [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88) for current tracker state and superseding scope. The issue-77 validation file records historical acceptance and review evidence; #88 supersedes planned-coverage retention and placement, with current implementation evidence in the issue-88 validation file.
 
 ## Rendered portfolio checks
 
@@ -54,7 +81,13 @@ Completion requires the published SHA to be an ancestor of local `HEAD`, with on
 
 Fetch and repeat the history checks above immediately before publishing so intervening remote commits are included.
 
-Stage explicit task files so unrelated local changes stay outside the commit. Check the active account through GitHub CLI when available or the connected GitHub profile before writing remotely. The repository owner is `komed-uth`; this workstation's Git credential previously authenticated as `komeduth` and was denied write access. Use the owner-authenticated connector when Git authentication is unavailable. Credential setup belongs to the account owner; never print stored credentials.
+Stage explicit task files so unrelated local changes stay outside the commit. Before committing, run `node scripts/check-diff-whitespace.mjs --base <target-branch>` using the task's actual PR target.
+
+- Without `--head`, the command checks staged and unstaged tracked work against the supplied base.
+- To inspect immutable commits, pass both `--base <base-sha> --head <head-sha>`. CI instead supplies PR_BASE_SHA and PR_HEAD_SHA to npm run check:whitespace after a full-history checkout.
+- Missing commits or a missing merge base fail with a fetch instruction; fix added-line whitespace before committing or publishing.
+
+Check the active account through GitHub CLI when available or the connected GitHub profile before writing remotely. The repository owner is `komed-uth`; this workstation's Git credential previously authenticated as `komeduth` and was denied write access. Use the owner-authenticated connector when Git authentication is unavailable. Credential setup belongs to the account owner; never print stored credentials.
 
 When transplanting commits onto remote history, compare the resulting file tree with the tested source before updating the ref. Preserve the remote head using an expected-SHA check. Verify the published head and PR file list afterwards.
 
