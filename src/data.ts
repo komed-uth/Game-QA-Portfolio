@@ -436,35 +436,35 @@ export const projects: ProjectContent[] = [
     ],
     "media": [
       {
-        "path": "images/the-collectors/orbit.svg",
+        "path": "images/the-collectors/orbit.webp",
         "label": "Mock image 01 · Orbit",
         "alt": "The Collectors — Mock image 01, an abstract teal orbit panel; placeholder project content, not gameplay",
         "id": "mock-1",
         "type": "image"
       },
       {
-        "path": "images/the-collectors/prism.svg",
+        "path": "images/the-collectors/prism.webp",
         "label": "Mock image 02 · Prism",
         "alt": "The Collectors — Mock image 02, an abstract teal prism panel; placeholder project content, not gameplay",
         "id": "mock-2",
         "type": "image"
       },
       {
-        "path": "images/the-collectors/waves.svg",
+        "path": "images/the-collectors/waves.webp",
         "label": "Mock image 03 · Waves",
         "alt": "The Collectors — Mock image 03, an abstract teal wave panel; placeholder project content, not gameplay",
         "id": "mock-3",
         "type": "image"
       },
       {
-        "path": "images/the-collectors/tiles.svg",
+        "path": "images/the-collectors/tiles.webp",
         "label": "Mock image 04 · Tiles",
         "alt": "The Collectors — Mock image 04, an abstract teal tile panel; placeholder project content, not gameplay",
         "id": "mock-4",
         "type": "image"
       },
       {
-        "path": "images/the-collectors/arc.svg",
+        "path": "images/the-collectors/arc.webp",
         "label": "Mock image 05 · Arc",
         "alt": "The Collectors — Mock image 05, an abstract teal arc panel; placeholder project content, not gameplay",
         "id": "mock-5",
