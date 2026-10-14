@@ -12,4 +12,3 @@ export async function validateSkillsContent(definitions, options) {
   errors.push(...await validateContentSections({ ...definitions, page: skillsPage, context }, options));
   return errors;
 }
-
