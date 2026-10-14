@@ -21,10 +21,11 @@ The browser overlay check used the existing synthetic fixture. It does not certi
 
 ## Authorization status as of 2026-10-14
 
-- **Source:** Owner instruction in the PR #124 revision request dated 2026-10-14, which asks for this revision and directs use of the existing PR-publication authorization. The published snapshot and opened PR are recorded in [issue #123 comment 6167842789](https://github.com/komed-uth/Game-QA-Portfolio/issues/123#issuecomment-6167842789), posted 2026-10-14 12:00:30 UTC.
-- **Implementation and tests:** implementation completed and validated for commit `88f5f62`; this revision updates validation documentation only. No tests are claimed for the documentation-only change.
-- **Branch push and PR:** authorized for this PR revision by the owner instruction above.
-- **Merge and issue closure:** held; a separate instruction is required.
-- **Deployment:** held; a separate instruction is required. Merging to `main` triggers the repository's GitHub Pages deployment workflow.
-- **Separate content or release requirements:** none recorded for #123; the PR proposes to close #123 when merged.
-- **Supersedes:** the #123 issue body's earlier hold on publishing, for branch push and PR updates only. Merge, issue closure, and deployment remain separately held.
+> **Authorization status as of 2026-10-14**
+> - **Source:** Owner instruction in the PR #124 revision request dated 2026-10-14, which asks for this revision and directs use of the existing PR-publication authorization. The published snapshot and opened PR are recorded in [issue #123 comment 6167842789](https://github.com/komed-uth/Game-QA-Portfolio/issues/123#issuecomment-6167842789), posted 2026-10-14 12:00:30 UTC.
+> - **Implementation and tests:** implementation completed and validated for commit `88f5f62`; this revision updates validation documentation only. No tests are claimed for the documentation-only change.
+> - **Branch push and PR:** authorized for this PR revision by the owner instruction above.
+> - **Merge and issue closure:** held; a separate instruction is required.
+> - **Deployment:** held; a separate instruction is required. Merging to `main` triggers the repository's GitHub Pages deployment workflow.
+> - **Separate content or release requirements:** none recorded for #123; the PR proposes to close #123 when merged.
+> - **Supersedes:** the #123 issue body's earlier hold on publishing, for branch push and PR updates only. Merge, issue closure, and deployment remain separately held.
