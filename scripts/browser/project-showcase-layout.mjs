@@ -121,7 +121,6 @@ export async function checkShowcaseResizeAndKeyboard(page) {
     await gallery.locator('.gallery-thumbnail').nth(index + 1).click();
     await waitForPhoto(gallery);
   }
-  await page.getByRole('button', { name: 'Low', exact: true }).click();
   const selections = await page.locator('.gallery-thumbnail[aria-pressed=true]').evaluateAll(
     elements => elements.map(element => element.getAttribute('aria-label')));
   const sources = await page.locator('.gallery-viewer img').evaluateAll(elements => elements.map(element => element.getAttribute('src')));
@@ -132,8 +131,7 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       elements => elements.map(element => element.getAttribute('aria-label'))), selections, 'Resizing preserves both gallery selections');
     assert.deepEqual(await page.locator('.gallery-viewer img').evaluateAll(
       elements => elements.map(element => element.getAttribute('src'))), sources, 'Resizing preserves displayed photos');
-    assert.equal(await page.getByRole('button', { name: 'Low', exact: true }).getAttribute('aria-pressed'), 'true', 'Resizing preserves report selection');
-    assert((await page.locator('.report-output').getAttribute('aria-label')).startsWith('Low quality'), 'Report output follows retained selection');
+    assert.equal(await page.locator('.regulus-showcase .skill-evidence').getAttribute('href'), '#/skills?evidence=android-reports', 'Resizing preserves the relocated evidence link');
   }
   for (const width of [390, 900]) {
     await page.setViewportSize({ width, height: 845 });

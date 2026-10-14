@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { reportFiles as files, reportLabels as labels, selectReport } from './report-selection.mjs';
+import { reportFiles as files, reportLabels as labels, prepareReportInspection } from './report-source.mjs';
 import { reportViewports } from './report-viewports.mjs';
 import { reportProgress } from './run-browser-check.mjs';
 
@@ -15,7 +15,7 @@ export default async function check(page) {
 
     async function open(label, trigger = preview) {
         reportProgress('Open report', { viewport: page.viewportSize(), report: label, opener: trigger === action ? 'controls' : 'preview' });
-        await selectReport(page, label);
+        await prepareReportInspection(page);
         if (trigger === action) {
             await action.focus();
             await page.keyboard.press("Tab");
