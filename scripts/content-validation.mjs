@@ -1,6 +1,7 @@
 import { isObject, requiredString, registerIdentity, validateMediaPath } from "./content-validation-fields.mjs";
 import { validateSkillsContent } from "./skills-content-validation.mjs";
 import { validateContentSections } from "./page-section-validation.mjs";
+import { findEvidenceTarget } from "./project-evidence.mjs";
 import { validateProjectContent } from "./project-content-validation.mjs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -211,9 +212,8 @@ export async function validateContent(
           const selectors = url.searchParams.getAll("evidence");
           if (selectors.length > 0) {
             const target = Array.isArray(evidence) && evidence.find(record => record?.anchor === selectors[0]);
-            const project = target && Array.isArray(projects) && projects.find(record => [record?.reportEvidenceId, record?.captureEvidenceId].includes(target.id));
-            const section = project && portfolioPage?.sections?.find(record => record?.type === "project" && record.projectId === project.id && record.visible === true);
-            if (url.pathname !== "/" || selectors.length !== 1 || !target || !section) {
+            const { section } = findEvidenceTarget(Array.isArray(projects) ? projects : [], portfolioPage?.sections, target?.id);
+            if (url.pathname !== "/" || selectors.length !== 1 || !target || section?.visible !== true) {
               errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/content/pages/portfolio.ts"} and ${sourceFiles.evidence ?? "src/content/evidence.ts"}.`);
             }
           }

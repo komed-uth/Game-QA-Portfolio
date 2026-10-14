@@ -11,7 +11,7 @@ Begin in `src/content/`. These TypeScript files provide VS Code field suggestion
 | `projects.ts` | Project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
 | `evidence.ts` | Shared report/PIX destinations and labels, report headings/actions/alternatives/default/choices/files, PIX file/alternative/opening label/modal title |
 
-There is no second copy of project facts or evidence destinations in a page component. Original reports, captures, and videos remain evidence files rather than editable page prose. Public routes (`/`, `/skills`, `/about-me`), the legacy `/about` redirect, and public evidence anchors are stable application contracts. Styles, breakpoints, YouTube provider endpoints and control symbols are implementation; page editors do not configure arbitrary CSS or a new section engine.
+There is no second copy of project facts or evidence destinations in a page component. Original reports, captures, and videos remain evidence files rather than editable page prose. Public routes (`/`, `/skills`, `/about-me`), the legacy `/about` redirect, and public evidence anchors are stable application contracts. Styles, breakpoints, YouTube provider endpoints and decorative video indicators are implementation; page editors do not configure arbitrary CSS or a new section engine.
 
 ## Copy, links and media
 

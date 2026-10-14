@@ -1132,6 +1132,10 @@ footer {
   }
   .project-grid:not(.pc-project):not(.placeholder-project):not(:has(> .game-gallery)) > .project-heading,
   .project-grid:not(.pc-project):not(.placeholder-project):not(:has(> .game-gallery)) > .project-info { grid-column: 1; }
+  .regulus-showcase:not(:has(> .game-gallery)) > .report-block {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
+    column-gap: inherit;
+  }
   .content-section--media-left,
   .content-section--media-right {
     display: grid;

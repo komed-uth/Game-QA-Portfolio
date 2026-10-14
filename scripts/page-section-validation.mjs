@@ -1,4 +1,4 @@
-import { visibleProjectEvidence } from "./project-evidence.mjs";
+import { visibleProjectEvidence, findEvidenceTarget } from "./project-evidence.mjs";
 import { isObject, requiredString, records, validateMediaPath, registerIdentity } from "./content-validation-fields.mjs";
 
 export async function validateContentSections({ page, context, projects, evidence, portfolioPage, sourceFiles = {}, anchors = new Set(["main-content"]) }, { publicDirectory }) {
@@ -48,8 +48,7 @@ export async function validateContentSections({ page, context, projects, evidenc
         const record = evidenceRecords.find(record => record?.id === reference.evidenceId);
         if (!record) errors.push(`${referenceLocation}.evidenceId: unknown evidence reference ${JSON.stringify(reference.evidenceId)}.`);
         else if (section.visible === true && !visibleEvidence.has(record.id)) {
-          const target = projectRecords.find(project => [project.reportEvidenceId, project.captureEvidenceId].includes(record.id));
-          const targetSection = portfolioPage?.sections?.find(section => section.type === "project" && section.projectId === target?.id);
+          const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id);
           errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/content/pages/portfolio.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/content/evidence.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);
         }
         requiredString(reference.projectId, `${referenceLocation}.projectId`, errors);

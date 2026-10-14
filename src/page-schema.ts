@@ -1,26 +1,26 @@
 export type TextSectionPreset = "standard" | "media-left" | "media-right";
 
-export interface SkillsEvidenceReference {
+export interface EvidenceReference {
   evidenceId: string;
   projectId: string;
   label?: string;
 }
 
-export interface SkillsCard {
+export interface ContentCard {
   id: string;
   title: string;
   description: string;
-  evidence: SkillsEvidenceReference[];
+  evidence: EvidenceReference[];
 }
 
-interface SkillsSectionBase {
+interface SectionBase {
   id: string;
   visible: boolean;
   preset: "standard";
   title: string;
 }
 
-export type CardsSection = SkillsSectionBase & { type: "cards"; description?: string; cards: SkillsCard[] };
+export type CardsSection = SectionBase & { type: "cards"; description?: string; cards: ContentCard[] };
 export type SkillsSection = CardsSection | TextSection;
 
 export interface SkillsPageContent {

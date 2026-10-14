@@ -45,6 +45,8 @@ test("isolated invalid presets, rendered anchors and destinations identify their
     [v => { v.siteContent.navigation.links[0].destination = "/?evidence=missing"; }, /site\.ts.*destination:.*unresolved/],
     [v => { v.siteContent.navigation.links[0].destination = "/?evidence=android-reports"; v.portfolioPage.sections[0].visible = false; v.skillsPage.sections.forEach(s => { s.visible = false; }); }, /site\.ts.*destination:.*hidden.*android-reports/],
     [v => { v.portfolioPage.sections[0].visible = false; }, /skills\.ts.*performance-investigation.*evidence\[0\].*android-reports.*portfolio\.ts.*regulus/],
+    [v => { v.portfolioPage.sections[0].visible = false; v.portfolioPage.sections.push({ ...text, projectId: "regulus" }); }, /skills\.ts.*evidenceId: live reference targets hidden.*android-reports/],
+    [v => { v.portfolioPage.sections[0].preset = "media-left"; v.projects[0].media = []; }, /portfolio\.ts.*regulus.*preset:.*requires.*media/],
     [v => { delete v.skillsPage.sections[0].cards[1].evidence[0].projectId; }, /skills\.ts.*projectId: required/],
   ];
   for (const [edit, pattern] of cases) await fixture(edit, (status, output) => {

@@ -187,6 +187,21 @@ try {
     assert(await reportBody.evaluate(() => window.scrollY >= 390), "Preset and resize retain report position");
     await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
     assert(await page.locator(".report-preview").evaluate(node => node === document.activeElement));
+    definitions.portfolioPage.sections.find(section => section.projectId === "regulus").preset = "standard";
+    await writeDefinition("portfolioPage", definitions.portfolioPage);
+    await page.locator(".regulus-showcase.project-preset--standard").waitFor();
+    definitions.projects.find(project => project.id === "regulus").media = [];
+    await writeDefinition("projects", definitions.projects);
+    await page.locator(".regulus-showcase .game-gallery").waitFor({ state: "detached" });
+    for (const width of [1366, 901, 900, 899, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      const output = await page.locator(".report-output").boundingBox();
+      const controls = await page.locator(".report-controls").boundingBox();
+      assert(output.width > 100 && controls.width > 100, "Omitted gameplay keeps usable report columns");
+      if (width > 900) assert(controls.x + controls.width <= output.x + 1, "Omitted gameplay keeps report columns separate");
+      else assert(output.y + output.height <= controls.y + 1, "Omitted gameplay keeps narrow report order");
+      assert.equal(await renamed.getAttribute("aria-pressed"), "true");
+    }
     await page.locator(".report-preview").click(); await dialog.waitFor();
     await page.waitForFunction(() => document.querySelector("dialog iframe")?.contentWindow?.scrollY >= 390);
     await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
