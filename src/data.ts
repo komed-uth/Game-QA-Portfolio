@@ -487,7 +487,15 @@ export const projects: ProjectContent[] = [
     "galleryName": "The Collectors mock images",
     "detailsLabel": "The Collectors project details",
     "storesLabel": "Get The Collectors",
-    "stores": []
+    "stores": [
+      {
+        "id": "app-store",
+        "label": "App Store",
+        "accessibleLabel": "The Collectors on the App Store",
+        "destination": "https://apps.apple.com/th/app/the-collectors/id1599452727?l=th&platform=ipad",
+        "icon": "images/store-badges/app-store-icon.png"
+      }
+    ]
   },
   {
     "id": "meowmoney",
