@@ -509,7 +509,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Platforms",
-        "value": "Unity, Vue.js | iOS, Android",
+        "value": "Unity, Vue.js | iOS(WebGL), Android(WebGL)",
         "id": "platforms-tools"
       }
     ],
