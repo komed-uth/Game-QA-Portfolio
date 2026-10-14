@@ -340,6 +340,7 @@ export const projects: ProjectContent[] = [
   {
     "id": "invictus-lost-soul",
     "name": "Invictus: Lost Soul",
+    "accent": "#55DEDB",
     "details": [
       {
         "label": "Project overview",
@@ -415,6 +416,7 @@ export const projects: ProjectContent[] = [
   {
     "id": "the-collectors",
     "name": "The Collectors",
+    "accent": "#55DEDB",
     "details": [
       {
         "label": "Project overview",
@@ -498,6 +500,7 @@ export const projects: ProjectContent[] = [
   {
     "id": "meowmoney",
     "name": "MeowMoney",
+    "accent": "#55DEDB",
     "details": [
       {
         "label": "Project overview",
