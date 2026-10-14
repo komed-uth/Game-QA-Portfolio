@@ -791,7 +791,6 @@ export const aboutMePage: AboutMePageContent = {
       visible: true,
       preset: "standard",
       title: "Contact",
-      description: "komed.uth@gmail.com | 0999674270", 
       linkLabel: "Contact me on LinkedIn",
     },
   ],
