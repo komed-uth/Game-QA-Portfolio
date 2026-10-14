@@ -2,9 +2,10 @@ export type ProjectMedia = {
   id: string;
   label: string;
   alt: string;
-} & ({ type: "image"; path: string } | { type: "video"; videoId: string });
+} & ({ type: "image"; path: string; url?: never } | { type: "image"; url: string; path?: never } | { type: "video"; videoId: string });
 
 export interface ProjectContent {
+  presentation: "regulus" | "gameplay" | "pc" | "placeholder";
   id: string;
   name: string;
   headingId: string;
@@ -15,7 +16,9 @@ export interface ProjectContent {
   storesLabel: string;
   stores: Array<{ id: string; label: string; accessibleLabel: string; destination: string; icon: string }>;
   media: ProjectMedia[];
-  reportEvidenceId: string;
+  reportEvidenceId?: string;
+  captureEvidenceId?: string;
+  accent?: string;
 }
 
 export interface ReportContent {
@@ -50,6 +53,10 @@ export interface CaptureEvidence {
   destination: string;
   label: string;
   anchor: string;
+  path: string;
+  alt: string;
+  openLabel: string;
+  title: string;
 }
 
 export type EvidenceContent = ReportEvidence | CaptureEvidence;

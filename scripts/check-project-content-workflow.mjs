@@ -6,6 +6,8 @@ import { chromium } from "playwright";
 import { startPreview } from "./browser/preview-server.mjs";
 import { withBrowserContext } from "./browser/run-browser-check.mjs";
 import { loadContentDefinitions, repositoryRoot } from "./content-validation.mjs";
+import { installVideoFixture } from "./browser/fixtures/youtube-provider.mjs";
+import { waitForPhoto } from "./browser/gallery-photo-ready.mjs";
 
 const contentDirectory = path.join(repositoryRoot, "src/content");
 const files = { projects: "projects.ts", evidence: "evidence.ts", portfolioPage: "pages/portfolio.ts" };
@@ -47,9 +49,19 @@ async function checkInvalidDefinitions(definitions) {
       ["duplicate evidence", value => { value.evidence.push(structuredClone(value.evidence[0])); }, /evidence\.ts.*id: duplicate record identity/],
       ["duplicate report", value => { value.evidence[0].reports[1].id = value.evidence[0].reports[0].id; }, /evidence\.ts.*reports.*id: duplicate record identity/],
       ["duplicate anchor", value => { value.projects[0].headingId = "pc-project-title"; }, /projects\.ts.*headingId: duplicate rendered anchor/],
-      ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*anchor: unresolved unmigrated/],
+      ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*anchor: preserve the established/],
       ["malformed internal link", value => { value.evidence[0].destination = "/?evidence=missing"; }, /evidence\.ts.*destination: malformed or unresolved/],
       ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /evidence\.ts.*destination: live reference targets hidden/],
+      ["duplicate project", value => { value.projects.push(structuredClone(value.projects[1])); }, /projects\.ts.*id: duplicate record identity/],
+      ["missing Father media", value => { value.projects[1].media[1].path = "images/missing.png"; }, /projects\.ts.*father-son.*path: local media file does not exist/],
+      ["missing placeholder media", value => { value.projects[3].media[0].path = "images/missing.svg"; }, /projects\.ts.*invictus-lost-soul.*path: local media file does not exist/],
+      ["capture asset", value => { value.evidence[1].path = "images/missing.png"; }, /evidence\.ts.*pix-capture.*path: local media file does not exist/],
+      ["capture destination", value => { value.evidence[1].destination = "javascript:bad"; }, /evidence\.ts.*pix-capture.*destination: malformed/],
+      ["hidden capture", value => { value.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false; }, /evidence\.ts.*pix-capture.*destination: live reference targets hidden/],
+      ["wrong capture kind", value => { value.projects[2].captureEvidenceId = "android-reports"; }, /projects\.ts.*captureEvidenceId: unknown evidence/],
+      ["external media destination", value => { value.projects[1].media[1] = { ...value.projects[1].media[1], path: undefined, url: "javascript:bad" }; }, /projects\.ts.*url: malformed/],
+      ["ambiguous image source", value => { value.projects[1].media[1].url = "https://media.example.test/image.png"; }, /projects\.ts.*path: choose either/],
+      ["duplicate selected project", value => { value.portfolioPage.sections.push({ ...value.portfolioPage.sections[1], id: "second-father" }); }, /projects\.ts.*headingId: duplicate rendered anchor/],
       ["unsupported preset", value => { value.portfolioPage.sections[0].preset = "unknown"; }, /portfolio\.ts.*preset: unsupported project/],
     ];
     for (const [name, edit, diagnostic] of variants) {
@@ -72,6 +84,10 @@ async function checkRenderedEdits() {
   try {
     browser = await chromium.launch({ headless: true });
     await withBrowserContext(browser, { viewport: { width: 1366, height: 900 } }, async context => {
+      await installVideoFixture(context);
+      await context.route("https://media.example.test/panel.svg", route => route.fulfill({
+        contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><text y="50">Placeholder project content</text></svg>',
+      }));
       const page = await context.newPage();
       await page.goto(preview.url);
       const project = page.locator(".regulus-showcase");
@@ -112,6 +128,7 @@ async function checkRenderedEdits() {
       await page.locator("#pix-capture").waitFor();
       assert.equal(await page.locator("#pix-capture").evaluate(element => element === document.activeElement), true);
       assert.equal(await page.locator(".placeholder-project").count(), 3);
+      await checkRemainingEdits(page, preview.url);
     });
   } finally {
     try {
@@ -122,6 +139,88 @@ async function checkRenderedEdits() {
         await new Promise(resolve => preview.once("exit", resolve));
       }
     }
+  }
+}
+
+async function checkRemainingEdits(page, previewUrl) {
+  // Serve the built app under a subfolder without rewriting its relative references.
+  await page.context().route("**/portfolio-fixture/**", async route => {
+    const url = new URL(route.request().url());
+    url.pathname = url.pathname.replace(/^\/portfolio-fixture\//, "/");
+    const response = await route.fetch({ url: url.href });
+    await route.fulfill({ response });
+  });
+  for (const prefix of ["", "portfolio-fixture/"]) {
+    await page.goto(new URL(prefix, previewUrl).href);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const showcases = page.locator("main .project-grid");
+    const expected = ["Edited placeholder title", "Father edited title", "Regulus edited title", "MeowMoney", "Vecchio Furioso", "The Collectors"];
+    assert.deepEqual(await showcases.locator(".project-title").allTextContents(), expected, "Definition order is rendered reading order");
+    const father = page.locator(".video-project");
+    assert.equal(await father.getByText("Real project overview edited through the shared definition.", { exact: true }).count(), 1);
+    assert.match(await father.locator("iframe").getAttribute("src"), /abcdefghijk/);
+    await father.locator(".gallery-thumbnail").nth(1).click();
+    await waitForPhoto(father.locator(".game-gallery"));
+    assert.equal(await father.locator(".gallery-photo img").getAttribute("alt"), "Edited Father alternative");
+    assert((await father.locator(".gallery-photo img").getAttribute("src")).endsWith("images/father-son-holy-guns/combat-effects.png"));
+    const placeholder = showcases.first();
+    await waitForPhoto(placeholder.locator(".game-gallery"));
+    assert.equal(await placeholder.locator(".gallery-photo img").getAttribute("src"), "https://media.example.test/panel.svg");
+    assert.equal(await placeholder.locator(".gallery-photo img").getAttribute("alt"), "Edited placeholder alternative");
+    assert.equal(await placeholder.getByText("Placeholder project content. Edited designed panels remain unverified.", { exact: true }).count(), 1);
+    assert.equal(await placeholder.getByText("[to confirm]", { exact: true }).count(), 4);
+    await placeholder.locator(".gallery-thumbnail").nth(1).click();
+    await waitForPhoto(placeholder.locator(".game-gallery"));
+    assert.equal(await father.locator('.gallery-thumbnail[aria-pressed="true"]').getAttribute("aria-label"), await father.locator(".gallery-thumbnail").nth(1).getAttribute("aria-label"), "Gallery selection stays independent after reordering");
+    const pc = page.locator(".pc-project");
+    assert.equal(await pc.locator(".game-gallery").count(), 0);
+    assert.equal(await pc.getByRole("link").getAttribute("href"), "https://store.example.test/vecchio");
+    const capture = pc.getByRole("button", { name: "Inspect edited PIX", exact: true });
+    assert.equal(await capture.locator("img").getAttribute("alt"), "Edited PIX alternative");
+    await capture.click();
+    const dialog = page.getByRole("dialog", { name: "Edited PIX inspection" });
+    await dialog.waitFor();
+    const source = await dialog.locator("img").getAttribute("src");
+    assert(source.endsWith("images/regulus/shop.jpg"));
+    assert((await page.request.get(new URL(source, page.url()).href)).ok(), "Edited local original resolves under hosting base");
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "detached" });
+    assert(await capture.evaluate(e => e === document.activeElement), "PIX restores its independent opener");
+    for (const width of [360, 390, 845, 840, 800, 1200, 899, 900, 901, 1366, 1920, 390, 1366]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.evaluate(() => document.fonts.ready);
+      assert.deepEqual(await showcases.locator(".project-title").allTextContents(), expected);
+      assert.equal(await father.locator(".gallery-photo img").getAttribute("alt"), "Edited Father alternative", "Resize keeps selection");
+      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "No page overflow");
+      const meow = page.locator('[aria-labelledby="meowmoney-title"]');
+      assert.equal(await meow.locator(".game-gallery").count(), 0, "Optional media leaves no gallery frame");
+      const spacing = await meow.evaluate(e => {
+        const heading = e.querySelector("header").getBoundingClientRect();
+        const details = e.querySelector(".project-details").getBoundingClientRect();
+        return details.top - heading.bottom;
+      });
+      assert(Math.abs(spacing - (width <= 900 ? 24 : 20)) < 1, "Omitted placeholder media leaves natural spacing");
+      if (width <= 900) {
+        for (const section of [father, placeholder]) {
+          const order = await section.evaluate(e => [e.querySelector("header"), e.querySelector(".game-gallery"), e.querySelector(".project-details")].map(el => el.getBoundingClientRect().top));
+          assert(order[0] < order[1] && order[1] < order[2], "Narrow title/media/details order survives a page reorder");
+        }
+      }
+    }
+    // Crossing each section boundary with Tab follows the configured showcase order.
+    const interactiveSections = [0, 1, 2, 4, 5]; // Text-only MeowMoney has no tab stop.
+    for (let index = 0; index < interactiveSections.length - 1; index++) {
+      await showcases.nth(interactiveSections[index]).evaluate(e => {
+        const focusable = [...e.querySelectorAll('a[href],button:not([disabled]),iframe')].filter(el => el.getClientRects().length);
+        focusable.at(-1).focus();
+      });
+      await page.keyboard.press("Tab");
+      assert.equal(await page.evaluate(() => document.activeElement.closest(".project-grid")?.querySelector(".project-title").textContent), expected[interactiveSections[index + 1]], "Keyboard traversal follows configured order");
+    }
+    await page.goto(new URL(prefix + "#/skills", previewUrl).href);
+    await page.getByRole("link", { name: "Vecchio Furioso · Microsoft PIX GPU capture →", exact: true }).first().click();
+    await page.locator("#pix-capture").waitFor();
+    assert(await page.locator("#pix-capture").evaluate(e => e === document.activeElement), "Skills still resolves PIX after reordering");
   }
 }
 
@@ -138,6 +237,23 @@ try {
   [media[1], media[2]] = [media[2], media[1]];
   Object.assign(media[1], { path: "images/regulus/shop.jpg", label: "Edited boss photo", alt: "An edited gameplay alternative" });
   edited.evidence[0].reports[0].label = "Ultra";
+  const father = edited.projects.find(p => p.id === "father-son");
+  father.name = "Father edited title";
+  father.details[0].value = "Real project overview edited through the shared definition.";
+  father.media[0].videoId = "abcdefghijk";
+  [father.media[1], father.media[2]] = [father.media[2], father.media[1]];
+  Object.assign(father.media[1], { path: "images/father-son-holy-guns/combat-effects.png", label: "Edited Father photo", alt: "Edited Father alternative" });
+  const pc = edited.projects.find(p => p.id === "vecchio-furioso");
+  pc.media = [];
+  pc.stores[0].destination = "https://store.example.test/vecchio";
+  Object.assign(edited.evidence[1], { path: "images/regulus/shop.jpg", alt: "Edited PIX alternative", title: "Edited PIX inspection", openLabel: "Inspect edited PIX" });
+  const placeholder = edited.projects.find(p => p.id === "invictus-lost-soul");
+  placeholder.name = "Edited placeholder title";
+  placeholder.details[0].value = "Placeholder project content. Edited designed panels remain unverified.";
+  placeholder.media = [{ id: "external-panel", type: "image", url: "https://media.example.test/panel.svg", label: "Edited external panel", alt: "Edited placeholder alternative" }, placeholder.media[1]];
+  edited.projects.find(p => p.id === "meowmoney").media = [];
+  const sections = edited.portfolioPage.sections;
+  edited.portfolioPage.sections = [sections[3], sections[1], sections[0], sections[5], sections[2], sections[4]];
   await writeDefinitions(contentDirectory, edited);
   const editedBuild = build();
   assert.equal(editedBuild.status, 0, editedBuild.output);
@@ -150,4 +266,4 @@ try {
   if (restored.status !== 0) failure = new AggregateError([failure, new Error(restored.output)].filter(Boolean), "Canonical production build could not be restored.");
 }
 if (failure) throw failure;
-console.log("PASS: shared project copy/media/order/store edits, report-label rename/default/both openers, responsive order, and Android/PIX evidence destinations.");
+console.log("PASS: all six showcases, real/placeholder edits, Portfolio reordering, optional/external media, PIX inspection, hosting base, and shared project copy/media/order/store edits, report-label rename/default/both openers, responsive order, and Android/PIX evidence destinations.");
