@@ -10,14 +10,21 @@ A comparison of all six exported definitions against the original main files pas
 
 ## Verification
 
-- Production build and TypeScript: passed.
-- `npm run check:content`: 8 tests passed, including valid section additions and invalid definitions in isolated single-file fixtures.
-- Content editing workflow: About me/shared shell live updates, startup/build rejection, recovery after corrective saves, project/evidence/Portfolio edits and Skills edits passed. This includes all six showcases, placeholder image replacement, 28 invalid project/evidence/Portfolio examples and 15 invalid Skills examples.
-- `node scripts/check-layout-content-workflow.mjs`: passed after correcting the migrated fixture's definition iteration. Covers all-page section additions, order/visibility, presets, 899/900/901px and the responsive matrix, and retained gallery/report selection and inspection during live edits.
-- Every editing workflow restored the original `src/data.ts` and production build.
-- `npm run check:preview`: 107 tests passed.
-- `npm run check:browser`: complete suite passed, including Skills, About me, all placeholder panels and slideshows, video transitions, photo lifecycle, responsive gameplay browsing, short/long gallery fixtures, enlarged image/report inspection, report layout, synthetic overlays, and all six report choices across ten viewports plus 900px. The stable-input check passed.
+The reviewed implementation snapshot is commit [`88f5f6223bf685892d451a848ed77204560abb2a`](https://github.com/komed-uth/Game-QA-Portfolio/commit/88f5f6223bf685892d451a848ed77204560abb2a) on `codex/centralized-content`.
 
-The report overlay check uses the existing synthetic fixture. It does not certify missing original report-owned overlay capture images or physical devices.
+- **Production/TypeScript build:** passed in the independent review of commit `88f5f62`. The review summary did not include a runner ID or raw build log.
+- **Preview checks:** 107 passed, 0 failed. Saved output: [preview-check.log](runs/preview-check.log). The captured output has no runner-generated ID or input fingerprint.
+- **Content editing workflow:** the independent reviewer reported `npm run check:content-workflow` passed, covering About me/shared content, corrective saves, 28 invalid project/evidence/Portfolio cases, six showcases and placeholder edits, 15 invalid Skills cases, and layout/preset/live-edit workflows. The review supplied no unique runner ID or raw log; see [independent-review.md](runs/independent-review.md) for the source and scope.
+- **Full browser suite:** passed on the reviewed source snapshot. Run ID: `run-qrrTH8`. Its recorded validation-input fingerprint is `88558b01972ffd4152a89e9a50cd35c5567547546e31f923c455ca3e9f372899`. The saved [summary](runs/run-qrrTH8/summary.json), [output](runs/run-qrrTH8/output.log), and [progress log](runs/run-qrrTH8/progress.jsonl) identify all 13 checks and the final successful, stable-input result.
 
-The owner subsequently authorized branch publication and a PR targeting `main`. Merge and deployment require a separate instruction.
+The browser overlay check used the existing synthetic fixture. It does not certify missing original report-owned overlay capture images or physical devices. The independent reviewer did not rerun the full browser suite.
+
+## Authorization status as of 2026-10-14
+
+- **Source:** Owner instruction in the PR #124 revision request dated 2026-10-14, which asks for this revision and directs use of the existing PR-publication authorization. The published snapshot and opened PR are recorded in [issue #123 comment 6167842789](https://github.com/komed-uth/Game-QA-Portfolio/issues/123#issuecomment-6167842789), posted 2026-10-14 12:00:30 UTC.
+- **Implementation and tests:** implementation completed and validated for commit `88f5f62`; this revision updates validation documentation only. No tests are claimed for the documentation-only change.
+- **Branch push and PR:** authorized for this PR revision by the owner instruction above.
+- **Merge and issue closure:** held; a separate instruction is required.
+- **Deployment:** held; a separate instruction is required. Merging to `main` triggers the repository's GitHub Pages deployment workflow.
+- **Separate content or release requirements:** none recorded for #123; the PR proposes to close #123 when merged.
+- **Supersedes:** the #123 issue body's earlier hold on publishing, for branch push and PR updates only. Merge, issue closure, and deployment remain separately held.
