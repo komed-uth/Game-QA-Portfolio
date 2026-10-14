@@ -1,4 +1,4 @@
-import { assetUrl } from "../data";
+import PageSection from "../Components/PageSection";
 import { aboutMePage } from "../content/pages/aboutMe";
 import { siteContent } from "../content/site";
 
@@ -12,40 +12,16 @@ export default function AboutMe() {
         .map((section) => {
           const headingId = `${section.id}-heading`;
           if (section.type === "contact") {
-            return (
-              <section className="approach-section" aria-labelledby={headingId} key={section.id}>
-                <h2 id={headingId}>{section.title}</h2>
-                <a
-                  className="text-link"
-                  href={siteContent.contact.destination}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${section.linkLabel} ${siteContent.interface.opensInNewTab}`}
-                >
-                  {section.linkLabel} {siteContent.interface.opensInNewTab}{" "}
-                  <span aria-hidden="true">{siteContent.interface.externalLinkArrow}</span>
-                </a>
-              </section>
-            );
-          }
-
-          return (
-            <section
-              className={`approach-section biography-section biography-section--${section.preset}`}
-              aria-labelledby={headingId}
-              key={section.id}
-            >
+            return <section className="approach-section" aria-labelledby={headingId} key={section.id}>
               <h2 id={headingId}>{section.title}</h2>
-              <p>{section.description}</p>
-              {section.media && (
-                <img
-                  className="biography-media"
-                  src={assetUrl(section.media.path)}
-                  alt={section.media.alt}
-                />
-              )}
-            </section>
-          );
+              <a className="text-link" href={siteContent.contact.destination} target="_blank" rel="noopener noreferrer"
+                aria-label={`${section.linkLabel} ${siteContent.interface.opensInNewTab}`}>
+                {section.linkLabel} {siteContent.interface.opensInNewTab}{" "}
+                <span aria-hidden="true">{siteContent.interface.externalLinkArrow}</span>
+              </a>
+            </section>;
+          }
+          return <PageSection key={section.id} section={section} />;
         })}
     </article>
   );

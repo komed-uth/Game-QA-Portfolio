@@ -1,5 +1,6 @@
 import { isObject, requiredString, registerIdentity, validateMediaPath } from "./content-validation-fields.mjs";
 import { validateSkillsContent } from "./skills-content-validation.mjs";
+import { validateContentSections } from "./page-section-validation.mjs";
 import { validateProjectContent } from "./project-content-validation.mjs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -115,7 +116,7 @@ function isValidNavigationDestination(destination) {
   }
   try {
     const url = new URL(destination, "https://portfolio.invalid");
-    return url.origin === "https://portfolio.invalid" && supportedNavigationPaths.has(url.pathname);
+    return url.origin === "https://portfolio.invalid" && supportedNavigationPaths.has(url.pathname) && !url.hash;
   } catch {
     return false;
   }
@@ -134,7 +135,7 @@ export async function validateContent(
   { publicDirectory = defaultPublicDirectory } = {},
 ) {
   const errors = await validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory });
-  errors.push(...validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles }));
+  errors.push(...await validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }));
   const siteFile = sourceFiles.site ?? "src/content/site.ts";
   const aboutFile = sourceFiles.aboutMe ?? "src/content/pages/aboutMe.ts";
 
@@ -142,6 +143,7 @@ export async function validateContent(
     errors.push(`${siteFile}: siteContent: required record is missing.`);
   } else {
     requiredString(siteContent.identity?.name, `${siteFile}: siteContent.identity.name`, errors);
+    requiredString(siteContent.identity?.description, `${siteFile}: siteContent.identity.description`, errors);
     requiredString(
       siteContent.navigation?.regionLabel,
       `${siteFile}: siteContent.navigation.regionLabel`,
@@ -169,12 +171,18 @@ export async function validateContent(
       );
     }
 
-    for (const field of ["skipLinkLabel", "identityHomeLabel", "opensInNewTab", "externalLinkArrow"]) {
+    for (const field of ["skipLinkLabel", "identityHomeLabel", "opensInNewTab", "externalLinkArrow", "closeEvidence", "closeSymbol", "scrollableSummary", "previousScreenshot", "nextScreenshot", "openOriginal", "openOriginalFile", "openScreenshot", "videoTitle", "loadingPhoto", "loadingVideo", "failedPhoto", "failedVideo", "retry", "resumeSlideshow", "pauseSlideshow", "previews", "showPreview"]) {
       requiredString(
         siteContent.interface?.[field],
         `${siteFile}: siteContent.interface.${field}`,
         errors,
       );
+    }
+    for (const [owner, value] of [["identity", siteContent.identity?.icon], ["contact", siteContent.contact?.icon]]) {
+      await validateMediaPath(value, `${siteFile}: siteContent.${owner}.icon`, publicDirectory, errors);
+    }
+    for (const [field, token] of [["openScreenshot", "{label}"], ["showPreview", "{label}"], ["videoTitle", "{project}"]]) {
+      if (typeof siteContent.interface?.[field] === "string" && !siteContent.interface[field].includes(token)) errors.push(`${siteFile}: siteContent.interface.${field}: required placeholder ${token} is missing.`);
     }
     requiredString(siteContent.footer?.regionLabel, `${siteFile}: siteContent.footer.regionLabel`, errors);
 
@@ -198,6 +206,17 @@ export async function validateContent(
           !isValidNavigationDestination(link.destination)
         ) {
           errors.push(`${context}.destination: malformed destination or unresolved route; navigation paths must match /, /skills, or /about-me.`);
+        } else if (typeof link.destination === "string") {
+          const url = new URL(link.destination, "https://portfolio.invalid");
+          const selectors = url.searchParams.getAll("evidence");
+          if (selectors.length > 0) {
+            const target = Array.isArray(evidence) && evidence.find(record => record?.anchor === selectors[0]);
+            const project = target && Array.isArray(projects) && projects.find(record => [record?.reportEvidenceId, record?.captureEvidenceId].includes(target.id));
+            const section = project && portfolioPage?.sections?.find(record => record?.type === "project" && record.projectId === project.id && record.visible === true);
+            if (url.pathname !== "/" || selectors.length !== 1 || !target || !section) {
+              errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/content/pages/portfolio.ts"} and ${sourceFiles.evidence ?? "src/content/evidence.ts"}.`);
+            }
+          }
         }
       });
     }
@@ -216,7 +235,7 @@ export async function validateContent(
   }
 
   const sectionIds = new Set();
-  const renderedHeadingIds = new Set(["about-me-heading"]);
+  const renderedHeadingIds = new Set(["main-content", "about-me-heading"]);
   let contactSections = 0;
   for (const [index, section] of aboutMePage.sections.entries()) {
     const record = sectionRecordName(section, index);
@@ -244,33 +263,10 @@ export async function validateContent(
       errors.push(`${context}.visible: required boolean visibility is missing.`);
     }
 
-    if (section.type === "text") {
-      requiredString(section.preset, `${context}.preset`, errors);
-      if (
-        typeof section.preset === "string" &&
-        section.preset.trim().length > 0 &&
-        !allowedTextPresets.has(section.preset)
-      ) {
-        errors.push(
-          `${context}.preset: unsupported text preset ${JSON.stringify(section.preset)}; supported presets: ${[...allowedTextPresets].join(", ")}.`,
-        );
-      }
-      requiredString(section.title, `${context}.title`, errors);
-      requiredString(section.description, `${context}.description`, errors);
-      if (section.media !== undefined) {
-        if (!isObject(section.media)) {
-          errors.push(`${context}.media: expected a local media record.`);
-        } else {
-          await validateMediaPath(
-            section.media.path,
-            `${context}.media.path`,
-            publicDirectory,
-            errors,
-          );
-          requiredString(section.media.alt, `${context}.media.alt`, errors);
-        }
-      }
+    if (section.type === "text" || section.type === "cards") {
+      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${aboutFile}: aboutMePage`, projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }));
     } else if (section.type === "contact") {
+      if (section.preset !== "standard") errors.push(`${context}.preset: unsupported contact preset; supported presets: standard.`);
       contactSections += 1;
       requiredString(section.title, `${context}.title`, errors);
       requiredString(section.linkLabel, `${context}.linkLabel`, errors);

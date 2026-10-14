@@ -45,7 +45,7 @@ function assertCommandPassed(name, result) {
 }
 
 function contentModuleSource(typeImport, exportName, value) {
-  return `import type { ${typeImport} } from "${typeImport === "SiteContent" ? "./types" : "../types"}";\n\nexport const ${exportName}: ${typeImport} = ${JSON.stringify(value, null, 2)};\n`;
+  return `import type { ${typeImport} } from "${typeImport === "SiteContent" ? "../page-schema" : "../../page-schema"}";\n\nexport const ${exportName}: ${typeImport} = ${JSON.stringify(value, null, 2)};\n`;
 }
 
 async function stopProcess(process) {
@@ -396,3 +396,5 @@ console.log("PASS: About me copy, shared contact, section addition/order/visibil
 await import("./check-content-recovery.mjs");
 await import("./check-project-content-workflow.mjs");
 await import("./check-skills-content-workflow.mjs");
+
+await import("./check-layout-content-workflow.mjs");

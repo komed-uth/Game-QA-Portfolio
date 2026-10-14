@@ -13,6 +13,16 @@ const contentFiles = new Set([
 export function contentValidationPlugin() {
   return {
     name: "portfolio-content-validation",
+    transformIndexHtml: {
+      order: "pre",
+      async handler(html) {
+        const { siteContent } = await loadContentDefinitions();
+        const escape = value => value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        return html.replaceAll("__SITE_TITLE__", escape(siteContent.identity.name))
+          .replaceAll("__SITE_DESCRIPTION__", escape(siteContent.identity.description))
+          .replaceAll("__SITE_ICON__", escape(siteContent.identity.icon));
+      },
+    },
     async handleHotUpdate({ file, modules, server }) {
       if (!contentFiles.has(path.resolve(file))) return;
 

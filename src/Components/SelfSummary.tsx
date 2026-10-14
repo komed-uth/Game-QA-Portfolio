@@ -11,7 +11,7 @@ export default function SelfSummary() {
           className="identity"
           aria-label={`${siteContent.identity.name} ${siteContent.interface.identityHomeLabel}`}
         >
-          <img className="qa-mark" src={assetUrl("favicon.svg")} alt="" />
+          <img className="qa-mark" src={assetUrl(siteContent.identity.icon)} alt="" />
           <span className="site-title">{siteContent.identity.name}</span>
         </NavLink>
         <nav aria-label={siteContent.navigation.regionLabel}>
@@ -29,7 +29,7 @@ export default function SelfSummary() {
           aria-label={`${siteContent.contact.name} on ${siteContent.contact.platform} ${siteContent.interface.opensInNewTab}`}
           title={siteContent.contact.tooltip}
         >
-          <img src={assetUrl("images/linkedin-in-white.png")} alt="" />
+          <img src={assetUrl(siteContent.contact.icon)} alt="" />
         </a>
       </div>
     </header>
