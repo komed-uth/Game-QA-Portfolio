@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import SelfSummary from "./Components/SelfSummary";
 import Footer from "./Components/Footer";
 import MainPage from "./Pages/MainPage";
@@ -13,20 +13,26 @@ import { skillsPage } from "./data";
 
 export default function App() {
   const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? `${skillsPage.title} · ` : "";
     document.title = `${pageTitle}${siteContent.identity.name}`;
     document.querySelector('meta[name="description"]')?.setAttribute("content", siteContent.identity.description);
     document.querySelector('link[rel="icon"]')?.setAttribute("href", assetUrl(siteContent.identity.icon));
     const evidence = new URLSearchParams(search).get("evidence");
-    if (pathname === "/" && evidenceRecords.some(record => record.anchor === evidence)) {
+    const record = evidenceRecords.find(record => record.anchor === evidence);
+    if (record && pathname === "/" && record.destination.startsWith("/skills?")) {
+      navigate(record.destination, { replace: true });
+      return;
+    }
+    if (record && pathname === new URL(record.destination, "https://portfolio.invalid").pathname) {
       const destination = document.getElementById(evidence!);
       destination?.focus({ preventScroll: true });
       destination?.scrollIntoView();
       return;
     }
     window.scrollTo(0, 0);
-  }, [pathname, search, aboutMePage.title, skillsPage.title, siteContent.identity.name, siteContent.identity.description, siteContent.identity.icon]);
+  }, [pathname, search, navigate, aboutMePage.title, skillsPage.title, siteContent.identity.name, siteContent.identity.description, siteContent.identity.icon]);
 
   return (
     <div className="site-shell">

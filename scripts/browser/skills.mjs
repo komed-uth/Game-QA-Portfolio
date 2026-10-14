@@ -18,7 +18,7 @@ const tools = [
   ['ARM Streamline', 'Android performance profiling.'],
   ['Microsoft PIX', 'PC GPU capture and rendering analysis.'],
   ['Unity', 'Engine experience, including programming a university mixed-reality VR karaoke project.'],
-  ['Codex', 'Creating custom skills to support internal work.'],
+  ['Codex', 'Able to adatp AI workflow in initial workflow'],
 ];
 
 export default async function check(page) {
@@ -41,7 +41,7 @@ export default async function check(page) {
     const main = page.getByRole('main');
     await checkCoverageRemoval(page);
     assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(),
-      ['QA capabilities', 'Tools']);
+      ['QA capabilities', 'Tools', 'Performance testing']);
     for (const [region, copy] of [['QA capabilities', capabilities], ['Tools', tools]]) {
       const group = main.getByRole('region', { name: region, exact: true });
       assert.deepEqual(await group.getByRole('heading', { level: 3 }).allTextContents(), copy.map(([title]) => title));
@@ -97,7 +97,7 @@ export default async function check(page) {
         'Open full-size Microsoft PIX capture for Vecchio Furioso', 'Vecchio Furioso · Microsoft PIX capture'],
     ]) {
       await descriptions.getByRole('link', { name: name + ' →', exact: true }).click();
-      assert.equal(new URL(page.url()).hash, '#/?evidence=' + evidence);
+      assert.equal(new URL(page.url()).hash, (evidence === 'pix-capture' ? '#/skills' : '#/') + '?evidence=' + evidence);
       await page.waitForFunction(id => document.activeElement?.id === id, evidence);
       const target = page.locator('#' + evidence);
       const box = await target.boundingBox();
@@ -122,12 +122,35 @@ export default async function check(page) {
     }
   }
 
+  // Saved Portfolio arrivals are replaced once; direct arrivals and history retain focus.
+  for (const route of ['/?evidence=pix-capture', '/skills?evidence=pix-capture']) {
+    await visit('/about-me');
+    await page.evaluate(route => { location.hash = route; }, route);
+    await page.waitForFunction(() => location.hash === '#/skills?evidence=pix-capture' && document.activeElement?.id === 'pix-capture');
+    await page.reload();
+    await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
+    await page.goBack();
+    await page.getByRole('heading', { name: 'About me', exact: true }).waitFor();
+    await page.goForward();
+    await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
+  }
+  await skills.click();
   for (const [width, height] of [[1920,1080], [1366,768], [390,845], [845,390], [360,840],
     [840,360], [1200,800], [800,1200], [899,700], [901,700], [320,700]]) {
     await page.setViewportSize({ width, height });
     await page.evaluate(() => document.fonts.ready);
     await checkSkills();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Skills has no horizontal overflow');
+    const row = page.locator('#pix-capture');
+    assert.equal(await row.count(), 1, 'One stable PIX anchor');
+    const details = await row.locator('.performance-evidence-details').boundingBox();
+    const image = row.locator('.capture-media img');
+    await image.evaluate(img => img.decode());
+    const frame = await image.boundingBox();
+    if (width <= 900) assert(frame.y >= details.y + details.height, 'Mobile attribution precedes capture');
+    else assert(frame.x >= details.x + details.width, 'Desktop attribution beside capture');
+    const ratio = await image.evaluate(img => img.naturalWidth / img.naturalHeight);
+    assert(Math.abs(frame.width / frame.height - ratio) < .01, 'Complete PIX framing');
     assert(await page.getByRole('main').evaluate(element => [...element.querySelectorAll('h1, h2, h3, p, a')]
       .every(node => node.scrollWidth <= node.clientWidth)), 'Approved Skills copy wraps without clipping');
     for (const link of await page.getByRole('main').getByRole('link').all()) {
@@ -140,7 +163,7 @@ export default async function check(page) {
       assert(box.width >= 44 && box.height >= 44 && box.x >= 0 && box.x + box.width <= width,
         'Visible navigation fits and retains 44px targets');
     }
-    const linkedIn = page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn (opens in a new tab)', exact: true });
+    const linkedIn = page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗', exact: true });
     assert.match(await linkedIn.getAttribute('href'), /^https:\/\/www\.linkedin\.com\/in\//);
     await portfolio.focus();
     await page.keyboard.press('Tab');

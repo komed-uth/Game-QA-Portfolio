@@ -623,7 +623,7 @@ export const evidence: EvidenceContent[] = [
   {
     "id": "pix-capture",
     "kind": "capture",
-    "destination": "/?evidence=pix-capture",
+    "destination": "/skills?evidence=pix-capture",
     "label": "Vecchio Furioso · Microsoft PIX GPU capture",
     "anchor": "pix-capture",
     "path": "images/vecchio-furioso-pix.png",
@@ -755,6 +755,14 @@ export const skillsPage: SkillsPageContent = {
           "evidence": []
         }
       ]
+    },
+    {
+      id: "performance-testing",
+      type: "evidence",
+      visible: true,
+      preset: "standard",
+      title: "Performance testing",
+      evidence: [{ evidenceId: "pix-capture", projectId: "vecchio-furioso" }]
     }
   ]
 };

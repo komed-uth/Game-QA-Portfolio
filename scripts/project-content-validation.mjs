@@ -1,5 +1,5 @@
 import { validateContentSections } from "./page-section-validation.mjs";
-import { visibleProjectEvidence } from "./project-evidence.mjs";
+import { visibleProjectEvidence, findEvidenceTarget } from "./project-evidence.mjs";
 import { isObject, requiredString, registerIdentity, validateMediaPath, records } from "./content-validation-fields.mjs";
 
 const publicEvidenceIds = ["android-reports", "pix-capture"];
@@ -12,16 +12,16 @@ function webDestination(value) {
   } catch { return false; }
 }
 
-function evidenceDestination(value, anchor) {
-  if (typeof value !== "string" || !value.startsWith("/?") || /\s|\\/.test(value)) return false;
+function evidenceDestination(value, anchor, pathname) {
+  if (typeof value !== "string" || !value.startsWith(`${pathname}?`) || /\s|\\/.test(value)) return false;
   try {
     const url = new URL(value, "https://portfolio.invalid");
-    return !url.hash && url.searchParams.getAll("evidence").length === 1 && url.searchParams.get("evidence") === anchor;
+    return url.pathname === pathname && !url.hash && url.searchParams.getAll("evidence").length === 1 && url.searchParams.get("evidence") === anchor;
   } catch { return false; }
 }
 
 
-export async function validateProjectContent({ projects, evidence, portfolioPage, sourceFiles = {} }, { publicDirectory }) {
+export async function validateProjectContent({ projects, evidence, portfolioPage, skillsPage, sourceFiles = {} }, { publicDirectory }) {
   const errors = [];
   const projectFile = sourceFiles.projects ?? "src/data.ts";
   const evidenceFile = sourceFiles.evidence ?? "src/data.ts";
@@ -31,7 +31,7 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
   const sections = records(portfolioPage?.sections, `${pageFile}: portfolioPage.sections`, errors, { nonempty: false });
   const anchors = new Set(["main-content"]);
   const liveEvidence = new Set();
-  const visibleEvidence = visibleProjectEvidence(projectRecords, sections);
+  const visibleEvidence = visibleProjectEvidence(projectRecords, sections, skillsPage?.sections);
 
   const addAnchor = (value, context) => {
     requiredString(value, context, errors);
@@ -42,7 +42,7 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
   for (const section of sections) {
     const context = `${pageFile}: portfolioPage.sections[${JSON.stringify(section.id)}]`;
     if (section.type !== "project") {
-      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${pageFile}: portfolioPage`, projects, evidence, portfolioPage, sourceFiles, anchors }, { publicDirectory }));
+      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${pageFile}: portfolioPage`, projects, evidence, portfolioPage, skillsPage, sourceFiles, anchors }, { publicDirectory }));
       continue;
     }
     if (!["standard", "media-left", "media-right"].includes(section.preset)) errors.push(`${context}.preset: unsupported project preset; supported presets: standard, media-left, media-right.`);
@@ -53,7 +53,8 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     if (section.preset !== "standard" && !project.media?.length && project.presentation !== "pc") errors.push(`${context}.preset: this preset requires gallery media or a capture.`);
     if (section.visible === true) {
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
-      for (const id of [project.reportEvidenceId, project.captureEvidenceId].filter(Boolean)) {
+      if (project.captureEvidenceId) liveEvidence.add(project.captureEvidenceId);
+      for (const id of [project.reportEvidenceId].filter(Boolean)) {
         liveEvidence.add(id);
         const record = evidenceRecords.find(record => record.id === id);
         if (record) {
@@ -110,9 +111,10 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     if (record.kind !== "reports" && record.kind !== "capture") errors.push(`${context}.kind: unsupported evidence kind.`);
     if ((record.id === "android-reports" && record.kind !== "reports") || (record.id === "pix-capture" && record.kind !== "capture")) errors.push(`${context}.kind: preserve the established Android reports / PIX capture presentation.`);
     if (publicEvidenceIds.includes(record.id) && record.anchor !== record.id) errors.push(`${context}.anchor: preserve the established public destination ${record.id}.`);
-    const expected = `/?evidence=${record.anchor}`;
-    if (!evidenceDestination(record.destination, record.anchor) || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected} (additional query parameters are allowed).`);
-    if (liveEvidence.has(record.id) && (!visibleEvidence.has(record.id) || !anchors.has(record.anchor))) errors.push(`${context}.destination: live reference targets hidden or unresolved evidence.`);
+    const { pathname } = findEvidenceTarget(projectRecords, sections, record.id, skillsPage?.sections);
+    const expected = `${pathname}?evidence=${record.anchor}`;
+    if (!evidenceDestination(record.destination, record.anchor, pathname) || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected} (additional query parameters are allowed).`);
+    if (liveEvidence.has(record.id) && (!visibleEvidence.has(record.id) || (pathname === "/" && !anchors.has(record.anchor)))) errors.push(`${context}.destination: live reference targets hidden or unresolved evidence.`);
     if (record.kind === "capture") {
       for (const field of ["alt", "openLabel", "title"]) requiredString(record[field], `${context}.${field}`, errors);
       await validateMediaPath(record.path, `${context}.path`, publicDirectory, errors);

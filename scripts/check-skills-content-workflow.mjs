@@ -46,7 +46,7 @@ async function invalidEdits(definitions) {
       [v => { v.evidence[1].destination = "/?evidence=missing"; }, /data\.ts.*pix-capture.*destination: malformed or unresolved/],
       [v => { v.evidence[0].destination = "/?evidence=android-reports&evidence=pix-capture"; }, /data\.ts.*destination: malformed or unresolved/],
       [v => { v.portfolioPage.sections[0].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
-      [v => { v.portfolioPage.sections.find(section => section.projectId === "vecchio-furioso").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      [v => { v.skillsPage.sections.find(section => section.type === "evidence").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
     ];
     for (const [edit, diagnostic] of variants) {
       const invalid = structuredClone(definitions);
@@ -86,11 +86,12 @@ async function renderedEdits() {
       assert.equal(await page.getByRole("link", { name: "Skills", exact: true }).getAttribute("aria-current"), "page");
       assert.equal(await page.getByText("A page description edited through the Skills definition.", { exact: true }).count(), 1);
       const main = page.getByRole("main");
-      assert.deepEqual(await main.getByRole("heading", { level: 2 }).allTextContents(), ["Edited tools", "Added text", "QA capabilities", "Added cards"]);
+      assert.deepEqual(await main.getByRole("heading", { level: 2 }).allTextContents(), ["Edited tools", "Added text", "QA capabilities", "Added cards", "Performance testing"]);
       assert.equal(await main.getByText("Hidden copy", { exact: true }).count(), 0);
       assert.equal(await main.getByText("Edited capability description", { exact: true }).count(), 1);
       assert.equal(await main.getByText("Edited tool description", { exact: true }).count(), 1);
       assert.equal(await main.getByText("Added card description", { exact: true }).count(), 1);
+      assert.deepEqual(await main.getByRole("region", { name: "Performance testing", exact: true }).getByRole("heading", { level: 3 }).allTextContents(), ["Fixture project", "Vecchio Furioso"]);
       const links = main.getByRole("link");
       assert.deepEqual(await links.allTextContents().then(items => items.map(s => s.trim())), ["Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Added project evidence Inspect"]);
       // DOM and keyboard order follow the edited section list at desktop and mobile widths.
@@ -108,7 +109,7 @@ async function renderedEdits() {
       for (const [name, target] of [["Edited Android evidence Inspect", "android-reports"], ["Vecchio Furioso · Microsoft PIX GPU capture Inspect", "pix-capture"]]) {
         await visit("/skills");
         const relevant = main.getByRole("link", { name, exact: true });
-        for (const link of await relevant.all()) assert.equal(await link.getAttribute("href"), `#/?context=edited&evidence=${target}`);
+        for (const link of await relevant.all()) assert.equal(await link.getAttribute("href"), `#${target === "pix-capture" ? "/skills" : "/"}?context=edited&evidence=${target}`);
         await relevant.first().click();
         await page.waitForFunction(id => document.activeElement?.id === id, target);
         const opener = target === "android-reports" ? page.locator("#android-reports .report-preview") : page.locator("#pix-capture button");
@@ -148,9 +149,13 @@ try {
   page.sections[1].title = "Edited tools";
   page.sections[1].cards[0].description = "Edited tool description";
   const text = { id: "added-text", type: "text", title: "Added text", description: "A supported text section.", preset: "standard", visible: true };
-  page.sections = [page.sections[1], text, page.sections[0], { ...text, id: "hidden-text", title: "Hidden section", description: "Hidden copy", visible: false }, { id: "added-cards", type: "cards", title: "Added cards", preset: "standard", visible: true, cards: [{ id: "added-card", title: "Added card", description: "Added card description", evidence: [{ projectId: "regulus", evidenceId: "android-reports", label: "Added project evidence" }] }] }];
+  page.sections = [page.sections[1], text, page.sections[0], { ...text, id: "hidden-text", title: "Hidden section", description: "Hidden copy", visible: false }, { id: "added-cards", type: "cards", title: "Added cards", preset: "standard", visible: true, cards: [{ id: "added-card", title: "Added card", description: "Added card description", evidence: [{ projectId: "regulus", evidenceId: "android-reports", label: "Added project evidence" }] }] }, page.sections[2]];
+  const extraCapture = { ...edited.evidence[1], id: "fixture-capture", anchor: "fixture-capture", label: "Fixture capture attribution", title: "Fixture capture" };
+  edited.evidence.push(extraCapture);
+  edited.projects.push({ ...edited.projects.find(p => p.id === "vecchio-furioso"), id: "fixture-project", headingId: "fixture-project-heading", name: "Fixture project", captureEvidenceId: extraCapture.id });
+  page.sections.at(-1).evidence.unshift({ evidenceId: extraCapture.id, projectId: "fixture-project" });
   edited.evidence[0].label = "Edited Android evidence";
-  for (const record of edited.evidence) record.destination = `/?context=edited&evidence=${record.anchor}`;
+  for (const record of edited.evidence) record.destination = `${record.kind === "capture" ? "/skills" : "/"}?context=edited&evidence=${record.anchor}`;
   edited.evidence[0].reports[0].path = "Performance-Testing-Mobile/Full Report/S10_High_Fixed.html";
   await writeDefinitions(directory, edited);
   const invalid = structuredClone(edited);

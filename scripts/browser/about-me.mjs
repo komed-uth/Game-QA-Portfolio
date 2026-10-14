@@ -25,12 +25,12 @@ async function about(page) {
   assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|Personal gaming detail|\bFPS\b|\bpresent\b|\bcurrently employed\b/i);
   assert.equal(await main.locator('img, iframe, form, input, a[download]').count(), 0);
   assert.equal(await main.getByRole('link').count(), 1);
-  const contact = main.getByRole('link', { name: 'Contact me on LinkedIn (opens in a new tab)' });
+  const contact = main.getByRole('link', { name: 'Contact me on LinkedIn ↗' });
   assert.equal(await contact.getAttribute('href'), profile);
   assert.equal(await contact.getAttribute('target'), '_blank');
   assert.match(await contact.getAttribute('rel'), /noopener/);
   assert.match(await contact.getAttribute('rel'), /noreferrer/);
-  assert.equal(await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn (opens in a new tab)' }).getAttribute('href'), profile);
+  assert.equal(await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗' }).getAttribute('href'), profile);
   assert.equal(await page.locator('footer').getAttribute('aria-label'), 'Portfolio footer');
   assert.equal(await page.locator('footer').innerText(), "Komed's Portfolio");
   const nav = page.getByRole('navigation', { name: 'Main navigation' });

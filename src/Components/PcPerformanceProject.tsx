@@ -1,11 +1,8 @@
-import { useState } from "react";
-import EvidenceModal from "./EvidenceModal";
-import { assetUrl } from "../data";
+import { Link } from "react-router-dom";
 import type { ProjectContent, CaptureEvidence, ProjectPreset } from "../content-schema";
 import { ProjectDetails, ProjectGallery, ProjectStores } from "./ProjectContent";
 
 export default function PcPerformanceProject({ project, capture, preset }: { project: ProjectContent; preset: ProjectPreset; capture: CaptureEvidence }) {
-  const [open, setOpen] = useState(false);
   return <article className={`project-grid pc-project project-preset--${preset}`} aria-labelledby={project.headingId}>
     <header className="project-heading">
       <p className="eyebrow">{project.eyebrow}</p>
@@ -16,11 +13,6 @@ export default function PcPerformanceProject({ project, capture, preset }: { pro
       <ProjectDetails project={project} />
       <ProjectStores project={project} />
     </div>
-    <figure id={capture.anchor} tabIndex={-1} className="capture-media">
-      <button type="button" className="evidence-image-button" onClick={() => setOpen(true)} aria-label={capture.openLabel}>
-        <img src={assetUrl(capture.path)} alt={capture.alt} loading="lazy" />
-      </button>
-    </figure>
-    {open && <EvidenceModal title={capture.title} source={assetUrl(capture.path)} alt={capture.alt} onClose={() => setOpen(false)} />}
+    <Link className="skill-evidence" to={capture.destination}>{capture.label} →</Link>
   </article>;
 }

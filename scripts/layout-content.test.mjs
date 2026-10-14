@@ -56,7 +56,38 @@ test("hiding sections without incoming live references remains valid", async () 
   await fixture(v => {
     v.portfolioPage.sections[0].visible = false;
     v.skillsPage.sections.forEach(s => { s.visible = false; });
+    v.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false;
     v.aboutMePage.sections[0].visible = false;
     v.portfolioPage.sections.push({ ...text, visible: false });
+  }, (status, output) => assert.equal(status, 0, output));
+});
+
+
+test("Skills capture placement/order and visibility track the actual rendered page", async () => {
+  await fixture(v => {
+    v.skillsPage.sections.unshift(v.skillsPage.sections.pop());
+    v.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false;
+    v.siteContent.navigation.links[1].destination = "/skills?evidence=pix-capture";
+  }, (status, output) => assert.equal(status, 0, output));
+  const cases = [
+    [v => { v.skillsPage.sections[2].visible = false; }, /hidden.*evidence/],
+    [v => { v.skillsPage.sections[2].evidence[0].evidenceId = "missing"; }, /unknown evidence reference/],
+    [v => { v.skillsPage.sections[2].evidence.push(v.skillsPage.sections[2].evidence[0]); }, /duplicate.*(anchor|reference)/],
+    [v => { v.skillsPage.sections.push({ ...v.skillsPage.sections[2], id: "another-capture" }); }, /duplicate rendered anchor/],
+    [v => { v.skillsPage.sections[2].preset = "media-left"; }, /preset: unsupported/],
+    [v => { v.skillsPage.sections[2].evidence[0].projectId = "regulus"; }, /does not belong/],
+    [v => { v.skillsPage.sections[2].evidence[0] = { evidenceId: "android-reports", projectId: "regulus" }; }, /captures only/],
+    [v => { v.skillsPage.sections[2].id = "pix-capture"; v.evidence[1].anchor = "pix-capture-heading"; v.evidence[1].destination = "/skills?evidence=pix-capture-heading"; }, /duplicate.*anchor/],
+    [v => { v.siteContent.navigation.links[1].destination = "/?evidence=pix-capture"; }, /unresolved or hidden/],
+    [v => { v.aboutMePage.sections.push(v.skillsPage.sections[2]); }, /unsupported section type/],
+  ];
+  for (const [edit, pattern] of cases) await fixture(edit, (status, output) => {
+    assert.equal(status, 1, output); assert.match(output, pattern);
+  });
+  await fixture(v => {
+    v.skillsPage.sections[2].visible = false;
+    for (const section of v.skillsPage.sections.filter(s => s.type === "cards"))
+      for (const card of section.cards) card.evidence = card.evidence.filter(r => r.evidenceId !== "pix-capture");
+    v.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false;
   }, (status, output) => assert.equal(status, 0, output));
 });

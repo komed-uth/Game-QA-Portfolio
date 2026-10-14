@@ -111,8 +111,8 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
         1,
       );
 
-      const aboutContact = main.getByRole("link", { name: "Contact me on LinkedIn (opens in a new tab)" });
-      const shellContact = page.getByRole("link", { name: "Komed Uthisanont on LinkedIn (opens in a new tab)" });
+      const aboutContact = main.getByRole("link", { name: "Contact me on LinkedIn ↗" });
+      const shellContact = page.getByRole("link", { name: "Komed Uthisanont on LinkedIn ↗" });
       assert.equal(await aboutContact.getAttribute("href"), siteContent.contact.destination);
       assert.equal(await shellContact.getAttribute("href"), siteContent.contact.destination);
 
@@ -129,8 +129,8 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
         "Portfolio",
         "Skills",
         "About me",
-        "Komed Uthisanont on LinkedIn (opens in a new tab)",
-        "Contact me on LinkedIn (opens in a new tab)",
+        "Komed Uthisanont on LinkedIn ↗",
+        "Contact me on LinkedIn ↗",
       ]);
     });
   } finally {

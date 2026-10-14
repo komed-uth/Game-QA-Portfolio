@@ -112,7 +112,7 @@ export async function validateContent(
   { siteContent, aboutMePage, skillsPage, projects, evidence, portfolioPage, sourceFiles = {} },
   { publicDirectory = defaultPublicDirectory } = {},
 ) {
-  const errors = await validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory });
+  const errors = await validateProjectContent({ projects, evidence, portfolioPage, skillsPage, sourceFiles }, { publicDirectory });
   errors.push(...await validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }));
   const siteFile = sourceFiles.site ?? "src/data.ts";
   const aboutFile = sourceFiles.aboutMe ?? "src/data.ts";
@@ -189,8 +189,8 @@ export async function validateContent(
           const selectors = url.searchParams.getAll("evidence");
           if (selectors.length > 0) {
             const target = Array.isArray(evidence) && evidence.find(record => record?.anchor === selectors[0]);
-            const { section } = findEvidenceTarget(Array.isArray(projects) ? projects : [], portfolioPage?.sections, target?.id);
-            if (url.pathname !== "/" || selectors.length !== 1 || !target || section?.visible !== true) {
+            const { section, pathname } = findEvidenceTarget(Array.isArray(projects) ? projects : [], portfolioPage?.sections, target?.id, skillsPage?.sections);
+            if (url.pathname !== pathname || selectors.length !== 1 || !target || section?.visible !== true) {
               errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/data.ts"} and ${sourceFiles.evidence ?? "src/data.ts"}.`);
             }
           }
@@ -241,7 +241,7 @@ export async function validateContent(
     }
 
     if (section.type === "text" || section.type === "cards") {
-      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${aboutFile}: aboutMePage`, projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }));
+      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${aboutFile}: aboutMePage`, projects, evidence, portfolioPage, skillsPage, sourceFiles }, { publicDirectory }));
     } else if (section.type === "contact") {
       if (section.preset !== "standard") errors.push(`${context}.preset: unsupported contact preset; supported presets: standard.`);
       contactSections += 1;

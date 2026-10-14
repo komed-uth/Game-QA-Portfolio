@@ -21,7 +21,8 @@ interface SectionBase {
 }
 
 export type CardsSection = SectionBase & { type: "cards"; description?: string; cards: ContentCard[] };
-export type SkillsSection = CardsSection | TextSection;
+export type EvidenceSection = SectionBase & { type: "evidence"; evidence: EvidenceReference[] };
+export type SkillsSection = CardsSection | TextSection | EvidenceSection;
 
 export interface SkillsPageContent {
   title: string;

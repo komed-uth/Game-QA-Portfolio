@@ -64,12 +64,8 @@ export async function checkProjectLayout(page) {
       assert(links.y >= info.y + info.height, `${name}: stores follow details visually`);
     }
     if (name === 'Vecchio Furioso') {
-      const capture = project.locator('.capture-media');
-      await precedes(stores, capture, 'Vecchio: PIX reading order follows Steam');
-      const pix = await capture.boundingBox();
-      const links = await stores.boundingBox();
-      assert(pix.y >= (narrow ? links.y + links.height : frame.y + frame.height), 'Vecchio: separate PIX below preceding content');
-      assert(narrow || pix.x >= info.x + info.width, 'Vecchio: PIX stays in desktop media column');
+      assert.equal(await project.locator('.capture-media').count(), 0, 'PIX has moved to Skills');
+      assert.equal(await project.getByRole('link', { name: /Microsoft PIX GPU capture/ }).getAttribute('href'), '#/skills?evidence=pix-capture');
     }
   }
   const regulus = page.locator('.regulus-showcase');
@@ -180,27 +176,22 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       }, await gallery.getAttribute('aria-label'));
       await page.keyboard.press('Tab');
       assert(!await gallery.evaluate(element => element.contains(document.activeElement)), 'Tab leaves the final preview without replacement focus stops');
-      const next = index === 0 ? page.getByRole('link', { name: 'Regulus the Advent on the App Store (opens in a new tab)' }) : index === 1 ?
+      const next = index === 0 ? page.getByRole('link', { name: 'Regulus the Advent on the App Store ↗' }) : index === 1 ?
         galleries[2].getByRole('button', { name: /Open full-size/ }) :
-        page.getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' });
+        page.getByRole('link', { name: 'Vecchio Furioso on Steam ↗' });
       await visibleFocus(page, next);
       if (index === 0) {
         await page.keyboard.press('Tab');
-        await visibleFocus(page, page.getByRole('link', { name: 'Regulus the Advent on Google Play (opens in a new tab)' }));
+        await visibleFocus(page, page.getByRole('link', { name: 'Regulus the Advent on Google Play ↗' }));
         await page.keyboard.press('Tab');
         await visibleFocus(page, page.locator('.report-preview'));
         await page.keyboard.press('Tab');
         await visibleFocus(page, page.getByRole('button', { name: 'Very High', exact: true }));
       }
     }
-    const capture = page.getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' });
+    const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ });
     await page.keyboard.press('Tab');
-    await visibleFocus(page, capture);
-    await page.keyboard.press('Enter');
-    await page.getByRole('dialog').waitFor();
-    await page.keyboard.press('Escape');
-    await page.getByRole('dialog').waitFor({ state: 'detached' });
-    await visibleFocus(page, capture);
+    await visibleFocus(page, evidenceLink);
     await page.keyboard.press('Tab');
     await visibleFocus(page, page.locator('.placeholder-project').first().getByRole('button', { name: /Open full-size/ }));
   }

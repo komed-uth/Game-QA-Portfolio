@@ -61,10 +61,13 @@ export default async function checkVecchioGameplay(page) {
   await page.keyboard.press('Enter');
   await waitForPhoto(gallery, sources[1]);
   assert.equal(await selected(gallery), 1, 'Keyboard activates the focused preview');
-  await gallery.page().getByRole('button', { name: 'Open full-size Microsoft PIX capture for Vecchio Furioso' }).click();
+  const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ });
+  await evidenceLink.click();
+  await page.locator('#pix-capture button').click();
   assert.equal(await dialog.getByRole('button', { name: /screenshot/ }).count(), 0, 'PIX stays outside gameplay navigation');
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'detached' });
+  await page.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
 
   // Exercise the new durable sources through the shared readiness and retry UI.
   const delayedUrl = new URL(sources[2], page.url()).href;

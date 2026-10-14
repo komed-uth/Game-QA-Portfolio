@@ -52,7 +52,7 @@ async function checkInvalidDefinitions(definitions) {
       ["missing placeholder media", value => { value.projects[3].media[0].path = "images/missing.svg"; }, /data\.ts.*invictus-lost-soul.*path: local media file does not exist/],
       ["capture asset", value => { value.evidence[1].path = "images/missing.png"; }, /data\.ts.*pix-capture.*path: local media file does not exist/],
       ["capture destination", value => { value.evidence[1].destination = "javascript:bad"; }, /data\.ts.*pix-capture.*destination: malformed/],
-      ["hidden capture", value => { value.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      ["hidden capture", value => { value.skillsPage.sections.find(s => s.type === "evidence").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
       ["wrong capture kind", value => { value.projects[2].captureEvidenceId = "android-reports"; }, /data\.ts.*captureEvidenceId: unknown evidence/],
       ["external media destination", value => { value.projects[1].media[1] = { ...value.projects[1].media[1], path: undefined, url: "javascript:bad" }; }, /data\.ts.*url: malformed/],
       ["ambiguous image source", value => { value.projects[1].media[1].url = "https://media.example.test/image.png"; }, /data\.ts.*path: choose either/],
@@ -88,7 +88,7 @@ async function checkRenderedEdits() {
       const project = page.locator(".regulus-showcase");
       await project.getByRole("heading", { name: "Regulus edited title", exact: true }).waitFor();
       assert.equal(await project.getByText("A project overview edited in the shared definition.", { exact: true }).count(), 1);
-      assert.equal(await project.getByRole("link", { name: "Edited store destination (opens in a new tab)" }).getAttribute("href"), "https://store.example.test/regulus");
+      assert.equal(await project.getByRole("link", { name: "Edited store destination ↗" }).getAttribute("href"), "https://store.example.test/regulus");
       const previews = project.locator(".gallery-thumbnail");
       assert.match(await previews.nth(1).getAttribute("aria-label"), /edited boss photo/);
       assert.equal(await previews.nth(1).locator("img").getAttribute("src"), "./images/regulus/shop.jpg");
@@ -122,6 +122,7 @@ async function checkRenderedEdits() {
       await page.getByRole("link", { name: "Vecchio Furioso · Microsoft PIX GPU capture →", exact: true }).first().click();
       await page.locator("#pix-capture").waitFor();
       assert.equal(await page.locator("#pix-capture").evaluate(element => element === document.activeElement), true);
+      await page.getByRole("navigation").getByRole("link", { name: "Portfolio", exact: true }).click();
       assert.equal(await page.locator(".placeholder-project").count(), 3);
       await checkRemainingEdits(page, preview.url);
     });
@@ -169,8 +170,9 @@ async function checkRemainingEdits(page, previewUrl) {
     assert.equal(await father.locator('.gallery-thumbnail[aria-pressed="true"]').getAttribute("aria-label"), await father.locator(".gallery-thumbnail").nth(1).getAttribute("aria-label"), "Gallery selection stays independent after reordering");
     const pc = page.locator(".pc-project");
     assert.equal(await pc.locator(".game-gallery").count(), 0);
-    assert.equal(await pc.getByRole("link").getAttribute("href"), "https://store.example.test/vecchio");
-    const capture = pc.getByRole("button", { name: "Inspect edited PIX", exact: true });
+    assert.equal(await pc.getByRole("link", { name: "Vecchio Furioso on Steam ↗", exact: true }).getAttribute("href"), "https://store.example.test/vecchio");
+    await pc.getByRole("link", { name: /Microsoft PIX GPU capture/ }).click();
+    const capture = page.getByRole("button", { name: "Inspect edited PIX", exact: true });
     assert.equal(await capture.locator("img").getAttribute("alt"), "Edited PIX alternative");
     await capture.click();
     const dialog = page.getByRole("dialog", { name: "Edited PIX inspection" });
@@ -181,6 +183,9 @@ async function checkRemainingEdits(page, previewUrl) {
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "detached" });
     assert(await capture.evaluate(e => e === document.activeElement), "PIX restores its independent opener");
+    await page.getByRole("navigation").getByRole("link", { name: "Portfolio", exact: true }).click();
+    await father.locator(".gallery-thumbnail").nth(1).click();
+    await waitForPhoto(father.locator(".game-gallery"));
     for (const width of [360, 390, 845, 840, 800, 1200, 899, 900, 901, 1366, 1920, 390, 1366]) {
       await page.setViewportSize({ width, height: 900 });
       await page.evaluate(() => document.fonts.ready);
