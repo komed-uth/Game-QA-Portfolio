@@ -5,8 +5,8 @@
 - Source: owner's chat instruction, “Implement ticket #129 … After implementation, push working branch and create PR to main”.
 - Implementation and tests: authorized; supersedes the earlier implementation/testing hold in [#129](https://github.com/komed-uth/Game-QA-Portfolio/issues/129).
 - Branch push and PR: authorized; supersedes that hold for these actions only.
-- Merge and issue closure: not authorized; issue remains open.
-- Deployment: not authorized. The existing main publishing workflow requires a separately authorized merge.
+- Merge and issue closure: authorized by the owner's later 2026-10-15 instruction, “You may merge and close the ticket”; supersedes the prior hold for these actions.
+- Deployment: the existing Pages publishing workflow is an explained automatic consequence of the authorized merge to main.
 - Separate content/release requirements: use the exact owner-confirmed email and Thai international phone number in the ticket, retaining LinkedIn and existing page content.
 
 ## Acceptance mapping
@@ -47,4 +47,8 @@ The code-review skill ran independent GPT-6.1 Sol high-effort reviews against fi
 
 This is a reversible presentation/content-validation change with a narrow Contact-section scope. Native-link checks stop at application activation requests: they do not send mail, complete calls, or certify installed visitor applications. LinkedIn is intercepted at its external boundary. Viewport checks do not certify physical devices. Real report screenshot path lists are empty; synthetic overlay checks do not certify unavailable real captures.
 
-No PR workflow monitoring or merge-readiness polling is part of this task, per the owner's explicit instruction. No merge, issue closure or deployment is performed.
+The initial implementation task ended after PR creation without workflow monitoring. The later merge authorization requires the repository's exact-head merge-readiness guard before merging and issue closure. No separate deployment operation is requested.
+
+## Integration for authorized merge
+
+Main advanced to `5f653becaaa75a26cd31669124e597943354e92e` via #132 / ticket #128 before merge readiness was checked. Integration commit `56aeb0a` retains main's published performance-evidence changes and #129's contact changes. The only textual conflict was at the end of the stylesheet; both independent rule sets were preserved. Incoming content and test changes merged automatically. The diff against the new target remains scoped to #129. Combined-source validation is recorded below when complete.
