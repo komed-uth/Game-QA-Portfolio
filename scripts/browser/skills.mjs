@@ -90,14 +90,14 @@ export default async function check(page) {
   for (const region of ['QA capabilities', 'Tools']) {
     const descriptions = page.getByRole('region', { name: region });
     for (const [name, evidence, opener, title] of [
-      ['Regulus the Advent · Android performance reports', 'android-reports',
-        'Open Very High quality — Samsung Galaxy S10 Performance Advisor report',
-        'Very High quality — Samsung Galaxy S10 Performance Advisor report'],
+      ['Regulus the Advent · Samsung Galaxy S10 Very High performance evidence', 'android-reports',
+        'Open full-size Samsung Galaxy S10 Very High screenshot for Regulus the Advent',
+        'Regulus the Advent · Samsung Galaxy S10 · Very High · ARM Streamline / Performance Advisor'],
       ['Vecchio Furioso · Microsoft PIX GPU capture', 'pix-capture',
         'Open full-size Microsoft PIX capture for Vecchio Furioso', 'Vecchio Furioso · Microsoft PIX capture'],
     ]) {
       await descriptions.getByRole('link', { name: name + ' →', exact: true }).click();
-      assert.equal(new URL(page.url()).hash, (evidence === 'pix-capture' ? '#/skills' : '#/') + '?evidence=' + evidence);
+      assert.equal(new URL(page.url()).hash, '#/skills' + '?evidence=' + evidence);
       await page.waitForFunction(id => document.activeElement?.id === id, evidence);
       const target = page.locator('#' + evidence);
       const box = await target.boundingBox();
@@ -107,14 +107,8 @@ export default async function check(page) {
       await target.getByRole('button', { name: opener, exact: true }).first().click();
       const dialog = page.getByRole('dialog', { name: title, exact: true });
       await dialog.waitFor();
-      if (evidence === 'android-reports') {
-        const frame = await (await dialog.locator('iframe').elementHandle()).contentFrame();
-        await frame.waitForLoadState();
-        assert((await frame.locator('svg').count()) > 0, 'Android link reaches the supplied report charts');
-      } else {
-        await dialog.locator('img').evaluate(image => image.decode());
-        assert.match(await dialog.locator('img').getAttribute('src'), /vecchio-furioso-pix\.png$/);
-      }
+      await dialog.locator('img').evaluate(image => image.decode());
+      assert((await dialog.locator('img').getAttribute('src')).endsWith(evidence === 'android-reports' ? 'regulus-s10-very-high.png' : 'vecchio-furioso-pix.png'));
       await dialog.getByRole('button', { name: 'Close evidence', exact: true }).click();
       await dialog.waitFor({ state: 'detached' });
       await skills.click();
@@ -123,16 +117,16 @@ export default async function check(page) {
   }
 
   // Saved Portfolio arrivals are replaced once; direct arrivals and history retain focus.
-  for (const route of ['/?evidence=pix-capture', '/skills?evidence=pix-capture']) {
+  for (const id of ['android-reports', 'pix-capture']) for (const route of ['/?evidence=' + id, '/skills?evidence=' + id]) {
     await visit('/about-me');
     await page.evaluate(route => { location.hash = route; }, route);
-    await page.waitForFunction(() => location.hash === '#/skills?evidence=pix-capture' && document.activeElement?.id === 'pix-capture');
+    await page.waitForFunction(id => location.hash === '#/skills?evidence=' + id && document.activeElement?.id === id, id);
     await page.reload();
-    await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
+    await page.waitForFunction(id => document.activeElement?.id === id, id);
     await page.goBack();
     await page.getByRole('heading', { name: 'About me', exact: true }).waitFor();
     await page.goForward();
-    await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
+    await page.waitForFunction(id => document.activeElement?.id === id, id);
   }
   await page.getByRole('region', { name: 'Tools', exact: true }).getByRole('link', { name: /Microsoft PIX GPU capture/ }).click();
   await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
@@ -182,7 +176,7 @@ export default async function check(page) {
     await checkRegulusTransition(page);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Portfolio has no horizontal overflow');
     if (width === 1366 || width === 360) {
-      await captureRegion(page, { selectors: ['#android-reports', '#father-son-showcase-title'], path: `.scratch/issue88-visuals/transition-${width}.png` });
+      await captureRegion(page, { selectors: ['.regulus-showcase .skill-evidence', '#father-son-showcase-title'], path: `.scratch/issue88-visuals/transition-${width}.png` });
     }
     await skills.focus();
     await page.keyboard.press('Enter');

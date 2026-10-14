@@ -1,9 +1,9 @@
 import { useState } from "react";
 import EvidenceModal from "./EvidenceModal";
 import { assetUrl } from "../data";
-import type { CaptureEvidence } from "../content-schema";
+import type { CaptureEvidence, ReportEvidence } from "../content-schema";
 
-export default function CaptureViewer({ capture }: { capture: CaptureEvidence }) {
+export default function CaptureViewer({ capture }: { capture: CaptureEvidence | ReportEvidence }) {
   const [open, setOpen] = useState(false);
   return <>
     <figure className="capture-media">

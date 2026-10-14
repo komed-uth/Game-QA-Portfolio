@@ -196,7 +196,6 @@ async function checkProject(page, projectName) {
   await waitForPhoto(existing.first());
   await existing.nth(1).locator('.gallery-thumbnail').nth(3).click();
   await waitForPhoto(existing.nth(1));
-  await page.getByRole('button', { name: 'High', exact: true }).click();
 
   for (const motion of ['no-preference', 'reduce']) {
     await page.emulateMedia({ reducedMotion: motion });
@@ -253,7 +252,7 @@ async function checkProject(page, projectName) {
   }
   assert.equal(await selected(existing.first()), 2, 'This project leaves Regulus selection unchanged');
   assert.equal(await selected(existing.nth(1)), 3, 'This project leaves Father Son selection unchanged');
-  assert.equal(await page.getByRole('button', { name: 'High', exact: true }).getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('.regulus-showcase .skill-evidence').getAttribute('href'), '#/skills?evidence=android-reports', 'Placeholder inspection retains the Regulus evidence destination');
   console.log('PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes');
 
   await page.emulateMedia({ reducedMotion: 'reduce' });

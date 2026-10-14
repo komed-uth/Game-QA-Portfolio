@@ -189,7 +189,7 @@ export async function validateContent(
           const selectors = url.searchParams.getAll("evidence");
           if (selectors.length > 0) {
             const target = Array.isArray(evidence) && evidence.find(record => record?.anchor === selectors[0]);
-            const { section, pathname } = findEvidenceTarget(Array.isArray(projects) ? projects : [], portfolioPage?.sections, target?.id, skillsPage?.sections);
+            const { section, pathname } = findEvidenceTarget(Array.isArray(projects) ? projects : [], target?.id, skillsPage?.sections);
             if (url.pathname !== pathname || selectors.length !== 1 || !target || section?.visible !== true) {
               errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/data.ts"} and ${sourceFiles.evidence ?? "src/data.ts"}.`);
             }

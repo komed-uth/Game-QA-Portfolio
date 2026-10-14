@@ -1,0 +1,37 @@
+
+> game-qa-portfolio@1.0.0 prebuild
+> npm run check:project-dependencies && npm run sync:reports
+
+
+> game-qa-portfolio@1.0.0 check:project-dependencies
+> node scripts/check-project-dependencies.mjs
+
+PASS: build and preview dependencies resolve inside D:\Personal Project\Improve google sheet worklog\Game QA Portfolio\.scratch\issue128\node_modules
+
+> game-qa-portfolio@1.0.0 sync:reports
+> node scripts/sync-reports.mjs
+
+Prepared 5 responsive reports from unchanged original evidence.
+
+> game-qa-portfolio@1.0.0 build
+> npm run validate:content && tsc --noEmit && vite build
+
+
+> game-qa-portfolio@1.0.0 validate:content
+> node scripts/validate-content.mjs
+
+Content validation passed.
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 52 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                           0.70 kB │ gzip:  0.42 kB
+dist/assets/Background-CDy1nQBN.jpg       6.60 kB
+dist/assets/PixelGame-CKmIpl_8.otf       20.12 kB
+dist/assets/ZenDots-Bgnw4vzE.ttf         36.88 kB
+dist/assets/PhoenixGaming-cI8QS7ot.ttf   37.50 kB
+dist/assets/Oxanium-zH6NCYuF.ttf         43.11 kB
+dist/assets/index-CGZLyjnZ.css           17.83 kB │ gzip:  4.38 kB
+dist/assets/index-B4stZHZv.js           209.74 kB │ gzip: 66.62 kB
+✓ built in 1.17s

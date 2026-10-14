@@ -295,13 +295,13 @@ try {
       await writeProjectDefinition("projects", editedProjects);
       await page.getByRole("heading", { name: "Regulus live content edit", exact: true }).waitFor();
       const editedEvidence = structuredClone(definitions.evidence);
-      editedEvidence[0].reports[0].label = "Live Ultra";
+      editedEvidence[0].report.title = "Live Ultra";
       await writeProjectDefinition("evidence", editedEvidence);
-      await page.getByRole("button", { name: "Live Ultra", exact: true }).waitFor();
-      assert.equal(await page.getByRole("button", { name: "Live Ultra", exact: true }).getAttribute("aria-pressed"), "true");
+      await page.goto(new URL("#/skills", developmentUrl).href);
+      await page.getByRole("button", { name: "View full report — Live Ultra", exact: true }).waitFor();
       for (const [name, value, edit, diagnostic] of [
         ["projects", editedProjects, records => { records[0].media[1].path = "images/missing.png"; }, "path: local media file does not exist"],
-        ["evidence", editedEvidence, records => { records[0].defaultReportId = "missing"; }, "defaultReportId: invalid report default"],
+        ["evidence", editedEvidence, records => { records[0].report.path = "missing.html"; }, "report.path: local media file does not exist"],
         ["portfolioPage", definitions.portfolioPage, record => { record.sections[0].projectId = "missing"; }, "projectId: unknown project"],
       ]) {
         const invalid = structuredClone(value);

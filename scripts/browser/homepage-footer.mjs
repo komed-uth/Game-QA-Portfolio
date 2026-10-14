@@ -17,7 +17,7 @@ export async function checkRegulusTransition(page) {
   await checkCoverageRemoval(page);
   const regulus = page.getByRole('region', { name: 'Regulus the Advent', exact: true });
   const layout = await regulus.evaluate(element => {
-    const report = element.querySelector('#android-reports');
+    const report = element.querySelector('.skill-evidence');
     const next = element.nextElementSibling;
     const bounds = element.getBoundingClientRect();
     const reportBounds = report.getBoundingClientRect();
@@ -29,9 +29,9 @@ export async function checkRegulusTransition(page) {
       tail: bounds.bottom - reportBounds.bottom,
     };
   });
-  assert(layout.last, 'Regulus ends with performance reports');
+  assert(layout.last, 'Regulus ends with a Skills evidence link');
   assert.equal(layout.nextTitle, 'Father, Son & Holy Guns');
-  assert(Math.abs(layout.tail) <= 1, 'No empty section space after the reports');
+  assert(Math.abs(layout.tail) <= 1, 'No empty section space after the evidence link');
   assert(layout.gap >= 0 && layout.gap <= 80 && Math.abs(layout.gap - layout.margin) <= 1,
     'Next showcase uses the ordinary project margin');
 }

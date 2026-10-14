@@ -54,12 +54,6 @@ async function layouts(page, side) {
         assert(Math.abs(c.x - m.x) < 1, `${width}: capture shares media column`);
       }
     }
-    const preview = page.locator(".report-output"), controls = page.locator(".report-controls");
-    await order(preview, controls);
-    if (width <= 900) {
-      const p = await preview.boundingBox(), c = await controls.boundingBox();
-      assert(p.y + p.height <= c.y + 1, `${width}: report preview before controls`);
-    }
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width}: no horizontal overflow`);
   }
 }
@@ -78,7 +72,7 @@ async function addedSections(page, base) {
     await order(image, main.getByText("An independently asserted editing example.", { exact: true }));
     await order(image, main.getByRole("heading", { name: "Added evidence cards", exact: true }));
     const link = main.getByRole("link", { name: /Inspect shared report/ });
-    assert.equal(await link.getAttribute("href"), "#/?evidence=android-reports");
+    assert.equal(await link.getAttribute("href"), "#/skills?evidence=android-reports");
     for (const width of [1366, 901, 900, 899, 390]) {
       await page.setViewportSize({ width, height: 900 });
       const img = await image.boundingBox();
@@ -106,15 +100,15 @@ try {
   for (const section of definitions.portfolioPage.sections) if (section.type === "project") section.preset = "media-left";
   for (const name of ["portfolioPage", "skillsPage", "aboutMePage", "siteContent", "projects", "evidence"])
     await writeDefinition(name, definitions[name]);
-  const invalid = structuredClone(definitions.portfolioPage);
-  invalid.sections.find(s => s.projectId === "regulus").visible = false;
-  await writeDefinition("portfolioPage", invalid);
+  const invalid = structuredClone(definitions.skillsPage);
+  invalid.sections.find(s => s.type === "evidence").visible = false;
+  await writeDefinition("skillsPage", invalid);
   for (const script of ["build", "dev"]) {
     const result = command(script, script === "dev" ? ["--help"] : []);
     assert.notEqual(result.status, 0, result.output);
     assert.match(result.output, /evidenceId: live reference targets hidden.*android-reports.*data\.ts/);
   }
-  await writeDefinition("portfolioPage", definitions.portfolioPage);
+  await writeDefinition("skillsPage", definitions.skillsPage);
   passed("build");
   preview = await startPreview();
   browser = await chromium.launch({ headless: true });
@@ -152,49 +146,35 @@ try {
     await writeDefinition("projects", definitions.projects);
     await gallery.getByRole("button", { name: "Show edited surviving image", exact: true }).waitFor();
     assert.equal(await gallery.locator('.gallery-thumbnail[aria-pressed="true"] img').getAttribute("src"), source);
-    const low = page.getByRole("button", { name: "Low", exact: true });
-    await low.click();
-    const lowRecord = definitions.evidence[0].reports.find(report => report.id === "low");
-    lowRecord.label = "Edited low quality";
-    await writeDefinition("evidence", definitions.evidence);
-    const renamed = page.getByRole("button", { name: "Edited low quality", exact: true });
-    await renamed.waitFor(); assert.equal(await renamed.getAttribute("aria-pressed"), "true");
     await layouts(page, "media-right");
-    assert.equal(await renamed.getAttribute("aria-pressed"), "true");
     assert.equal(await gallery.locator('.gallery-thumbnail[aria-pressed="true"] img').getAttribute("src"), source);
-    await page.locator(".report-preview").click(); await dialog.waitFor();
+    await page.getByRole('navigation').getByRole('link', { name: 'Skills', exact: true }).click();
+    const reportAction = page.locator('#android-reports .evidence-open');
+    await reportAction.click(); await dialog.waitFor();
     const reportBody = dialog.frameLocator("iframe").locator("body");
     await reportBody.waitFor();
     await reportBody.evaluate(() => window.scrollTo(0, 400));
     await page.waitForFunction(() => document.querySelector("dialog iframe")?.contentWindow?.scrollY >= 390);
-    for (const section of definitions.portfolioPage.sections) if (section.type === "project") section.preset = "media-left";
-    await writeDefinition("portfolioPage", definitions.portfolioPage);
-    await page.locator(".project-preset--media-left").first().waitFor();
-    assert(await dialog.isVisible(), "Preset edit keeps report inspection open");
-    assert((await dialog.locator("iframe").getAttribute("src")).endsWith("S10_Low_Fixed.html"));
+    definitions.skillsPage.sections.reverse();
+    definitions.skillsPage.sections.find(s => s.type === 'evidence').evidence.reverse();
+    await writeDefinition("skillsPage", definitions.skillsPage);
+    await page.waitForFunction(() => document.querySelector('.performance-evidence')?.id === 'pix-capture');
+    assert(await dialog.isVisible(), 'Reordering Skills sections and evidence rows retains report inspection');
     await page.setViewportSize({ width: 900, height: 900 });
-    assert(await dialog.isVisible());
-    assert(await reportBody.evaluate(() => window.scrollY >= 390), "Preset and resize retain report position");
+    assert(await reportBody.evaluate(() => window.scrollY >= 390));
     await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
-    assert(await page.locator(".report-preview").evaluate(node => node === document.activeElement));
+    assert(await reportAction.evaluate(node => node === document.activeElement));
+    await reportAction.click(); await dialog.waitFor();
+    await page.waitForFunction(() => document.querySelector("dialog iframe")?.contentWindow?.scrollY >= 390);
+    await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
+    await page.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
+    for (const section of definitions.portfolioPage.sections) if (section.type === 'project') section.preset = 'media-left';
     definitions.portfolioPage.sections.find(section => section.projectId === "regulus").preset = "standard";
     await writeDefinition("portfolioPage", definitions.portfolioPage);
-    await page.locator(".regulus-showcase.project-preset--standard").waitFor();
     definitions.projects.find(project => project.id === "regulus").media = [];
     await writeDefinition("projects", definitions.projects);
     await page.locator(".regulus-showcase .game-gallery").waitFor({ state: "detached" });
-    for (const width of [1366, 901, 900, 899, 390]) {
-      await page.setViewportSize({ width, height: 900 });
-      const output = await page.locator(".report-output").boundingBox();
-      const controls = await page.locator(".report-controls").boundingBox();
-      assert(output.width > 100 && controls.width > 100, "Omitted gameplay keeps usable report columns");
-      if (width > 900) assert(controls.x + controls.width <= output.x + 1, "Omitted gameplay keeps report columns separate");
-      else assert(output.y + output.height <= controls.y + 1, "Omitted gameplay keeps narrow report order");
-      assert.equal(await renamed.getAttribute("aria-pressed"), "true");
-    }
-    await page.locator(".report-preview").click(); await dialog.waitFor();
-    await page.waitForFunction(() => document.querySelector("dialog iframe")?.contentWindow?.scrollY >= 390);
-    await page.keyboard.press("Escape"); await dialog.waitFor({ state: "detached" });
+    assert.equal(await page.locator('.regulus-showcase .skill-evidence').count(), 1, 'Omitting gameplay retains the Skills link');
     for (const [name, route] of [["portfolioPage", "/"], ["skillsPage", "/skills"], ["aboutMePage", "/about-me"]]) {
       await page.goto(new URL(`#${route}`, development.resolvedUrls.local[0]).href);
       const section = definitions[name].sections.find(s => s.id === "editor-note");
