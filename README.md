@@ -22,11 +22,11 @@ The build validates editable content and checks TypeScript before creating `dist
 
 GitHub Pages uses `.github/workflows/deploy-pages.yml` to build and publish every push to `main`. The repository's Pages publishing source must be **GitHub Actions**. Live site: https://komed-uth.github.io/Game-QA-Portfolio/.
 
-## Edit About me and shared site content
+## Edit portfolio content
 
-About me copy, section order and visibility are in `src/content/pages/aboutMe.ts`. The portfolio name, shared navigation, footer label, contact destination and common interface text are in `src/content/site.ts`. Development validates definitions on startup and when saved edits are made; builds validate them before typechecking. Errors identify the file, record and field. See the [content editing guide](docs/content-editing.md) for examples, supported presets and optional media.
+Open **`src/data.ts`** to edit every page. Its labeled sections contain `siteContent` (shared name, navigation, contact and footer), `portfolioPage` (showcase order/layout), `projects` (all project descriptions and gallery images), `evidence` (reports and PIX capture), `skillsPage`, and `aboutMePage`. Search for a project name to replace its pictures. Development validates definitions on startup and when saved edits are made; builds validate them before typechecking. Errors identify `src/data.ts`, the record and field. See the [content editing guide](docs/content-editing.md) for examples, including replacing placeholder pictures.
 
-Project details, report settings, capabilities, tools and other unmigrated portfolio content remain in `src/data.ts` for now. The current approved About me presentation does not include a photo or CV.
+Local pictures and files stay in `public/`; edit their relative paths in `src/data.ts`. The current approved About me presentation does not include a photo or CV.
 
 ## Current evidence
 
@@ -38,7 +38,7 @@ Project details, report settings, capabilities, tools and other unmigrated portf
 - Father, Son & Holy Guns: a media gallery with its video and three gameplay screenshots directly below Regulus the Advent.
 - The PC environment is documented as Intel Core i7-7700K, NVIDIA GeForce GTX 1060 6GB, 16 GB RAM, and Windows 10 Home (build 19045). These specifications were read from this PC when the project was added.
 
-Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to `pcProject` in `src/data.ts` when documented.
+Vecchio Furioso currently presents the supplied screenshot as rendering-event and timing evidence. Performance findings can be added to its record in `projects` in `src/data.ts` when documented.
 
 Manual test cases, defect reports, and coverage documents remain **work in progress**. The Planned gameplay coverage section is removed without replacement under [#88](https://github.com/komed-uth/Game-QA-Portfolio/issues/88); this supersedes its retention and placement under #49, #74, and #77 and makes no claim of completed manual testing. Skills at `#/skills` presents the approved QA capabilities and Tools, with links to supplied Android and PC performance evidence. Legacy `#/about` links redirect to Skills. About me at `#/about-me` presents the approved biography and LinkedIn contact. The former QA approach and numbered workflow are removed. The original `test-cases/TC-MOV-001` is a placeholder, not completed evidence.
 
@@ -49,8 +49,9 @@ On 2026-10-12 the owner authorized #77's implementation, testing, branch push, a
 ```text
 src/
   App.tsx              Shared shell and routes
-  data.ts              Project, report, capability, and tool content
-  content/             Typed About me and shared site definitions
+  data.ts              Single editable file for every page, project, and shared content
+  content-schema.ts    Project and evidence types
+  page-schema.ts       Page section and shared site types
   types.ts             Report interfaces
   Components/          Header, project, report viewer, footer
   Pages/               Portfolio, Skills, and About me

@@ -7,14 +7,9 @@ import { withBrowserContext } from "./browser/run-browser-check.mjs";
 import path from "node:path";
 
 const definitions = await loadContentDefinitions();
-const sources = {
-  projects: "src/content/projects.ts",
-  evidence: "src/content/evidence.ts",
-  portfolioPage: "src/content/pages/portfolio.ts",
-  skillsPage: "src/content/pages/skills.ts",
-};
-const originals = Object.fromEntries(await Promise.all(Object.entries(sources).map(async ([name, file]) =>
-  [name, await readFile(path.join(repositoryRoot, file), "utf8")])));
+import { contentPath, createContentEditor } from "./content-editing-fixture.mjs";
+const contentEditor = await createContentEditor();
+const originalSource = await readFile(contentPath, "utf8");
 let correction;
 let invalidMessage;
 const logger = createLogger("silent");
@@ -23,7 +18,7 @@ logger.error = message => {
     invalidMessage = message;
     // Match the CI failure: save the correction as soon as validation reports it,
     // while the filesystem watcher may still be throttling this file's events.
-    correction.saved = writeFile(path.join(repositoryRoot, sources[correction.name]), originals[correction.name]);
+    correction.saved = writeFile(contentPath, originalSource);
   }
 };
 const server = await createServer({ root: repositoryRoot, customLogger: logger, server: { host: "127.0.0.1", port: 0 } });
@@ -50,7 +45,7 @@ try {
       const start = messages.length;
       const invalid = structuredClone(definitions[name]);
       edit(invalid);
-      await writeFile(path.join(repositoryRoot, sources[name]), `export const ${name} = ${JSON.stringify(invalid)};\n`);
+      await contentEditor.write(name, invalid);
       const waitForMessage = async predicate => {
         const deadline = Date.now() + 5000;
         while (!messages.slice(start).some(predicate)) {
@@ -71,7 +66,7 @@ try {
 } finally {
   try { await browser?.close(); } finally {
     await server.close();
-    for (const [name, file] of Object.entries(sources)) await writeFile(path.join(repositoryRoot, file), originals[name]);
+    await contentEditor.restore();
   }
 }
 console.log("PASS: rapid corrective saves for project, evidence, Portfolio, and Skills reach the browser and dismiss validation overlays.");

@@ -60,7 +60,7 @@ export default async function checkPreviewFixtures(page) {
       "media.splice(1);" : fixture === "single-photo" ? "media.splice(0, media.length, media[1]);" : "media.push(...Array.from({length:12}, (_,index) => ({...media[1],id:'fixture-photo-'+(index+1),label:'Fixture photo '+(index+1)})));";
     const result = await build({ logLevel: "silent", plugins: [{ name: "gameplay-list-fixture", enforce: "pre",
       transform(code, id) {
-        if (!id.replaceAll('\\', '/').endsWith('/src/content/projects.ts')) return;
+        if (!id.replaceAll('\\', '/').endsWith('/src/data.ts')) return;
         return code + "\nconst media = projects.find(project => project.id === 'regulus')!.media;\n" + adjustment;
       } }], build: { write: false } });
     const output = Array.isArray(result) ? result[0].output : result.output;

@@ -1,4 +1,4 @@
-import { skillsPage } from "../content/pages/skills";
+import { skillsPage } from "../data";
 import PageSection from "../Components/PageSection";
 
 export default function Skills() {

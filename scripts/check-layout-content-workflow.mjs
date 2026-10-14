@@ -9,21 +9,10 @@ import { startPreview } from "./browser/preview-server.mjs";
 import { withBrowserContext } from "./browser/run-browser-check.mjs";
 import { waitForPhoto } from "./browser/gallery-photo-ready.mjs";
 
-const files = {
-  portfolioPage: ["pages/portfolio.ts", "PortfolioPageContent", "../../content-schema"],
-  skillsPage: ["pages/skills.ts", "SkillsPageContent", "../../page-schema"],
-  aboutMePage: ["pages/aboutMe.ts", "AboutMePageContent", "../../page-schema"],
-  siteContent: ["site.ts", "SiteContent", "../page-schema"],
-  projects: ["projects.ts", "ProjectContent[]", "../content-schema"],
-  evidence: ["evidence.ts", "EvidenceContent[]", "../content-schema"],
-};
-const directory = path.join(repositoryRoot, "src/content");
-const originals = Object.fromEntries(await Promise.all(Object.entries(files).map(async ([name, [file]]) =>
-  [name, await readFile(path.join(directory, file), "utf8")])));
-async function writeDefinition(name, value) {
-  const [file, type, source] = files[name];
-  await writeFile(path.join(directory, file), `import type { ${type.replace("[]", "")} } from "${source}";\nexport const ${name}: ${type} = ${JSON.stringify(value, null, 2)};\n`);
-}
+import { createContentEditor } from "./content-editing-fixture.mjs";
+const contentEditor = await createContentEditor();
+const writeDefinition = (name, value) => contentEditor.write(name, value);
+
 function command(script, args = []) {
   const result = spawnSync("npm", ["run", script, ...(args.length ? ["--", ...args] : [])],
     { cwd: repositoryRoot, shell: process.platform === "win32", encoding: "utf8", windowsHide: true });
@@ -115,14 +104,15 @@ try {
       { ...text, id: "hidden-editor", visible: false, description: "Hidden editor text" });
   }
   for (const section of definitions.portfolioPage.sections) if (section.type === "project") section.preset = "media-left";
-  for (const [name] of Object.entries(files)) await writeDefinition(name, definitions[name]);
+  for (const name of ["portfolioPage", "skillsPage", "aboutMePage", "siteContent", "projects", "evidence"])
+    await writeDefinition(name, definitions[name]);
   const invalid = structuredClone(definitions.portfolioPage);
   invalid.sections.find(s => s.projectId === "regulus").visible = false;
   await writeDefinition("portfolioPage", invalid);
   for (const script of ["build", "dev"]) {
     const result = command(script, script === "dev" ? ["--help"] : []);
     assert.notEqual(result.status, 0, result.output);
-    assert.match(result.output, /evidenceId: live reference targets hidden.*android-reports.*portfolio\.ts/);
+    assert.match(result.output, /evidenceId: live reference targets hidden.*android-reports.*data\.ts/);
   }
   await writeDefinition("portfolioPage", definitions.portfolioPage);
   passed("build");
@@ -230,7 +220,7 @@ try {
   try { await browser?.close(); } finally {
     await development?.close();
     if (preview?.exitCode === null) { preview.kill(); await new Promise(resolve => preview.once("exit", resolve)); }
-    for (const [name, [file]] of Object.entries(files)) await writeFile(path.join(directory, file), originals[name]);
+    await contentEditor.restore();
     const restored = command("build");
     if (restored.status !== 0) failure = new AggregateError([failure, new Error(restored.output)].filter(Boolean), "Canonical build could not be restored.");
   }

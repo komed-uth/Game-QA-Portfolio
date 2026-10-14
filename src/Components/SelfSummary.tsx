@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { assetUrl } from "../data";
-import { siteContent } from "../content/site";
+import { siteContent } from "../data";
 
 export default function SelfSummary() {
   return (

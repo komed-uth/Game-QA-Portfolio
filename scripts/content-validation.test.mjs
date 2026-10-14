@@ -47,10 +47,10 @@ test("diagnostics identify missing fields, unsupported presets, duplicate identi
 
   const errors = await validateContent(invalid, { publicDirectory });
   const output = errors.join("\n");
-  assert.match(output, /src\/content\/site\.ts: siteContent\.contact\.destination: malformed destination/);
+  assert.match(output, /src\/data\.ts: siteContent\.contact\.destination: malformed destination/);
   assert.match(output, /siteContent\.navigation\.links\[0\]\.destination: malformed destination/);
   assert.match(output, /siteContent\.navigation\.links\[1\]\.destination: malformed destination or unresolved route/);
-  assert.match(output, /src\/content\/pages\/aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.description: required non-empty string is missing/);
+  assert.match(output, /src\/data\.ts: aboutMePage\.sections\["introduction"\]\.description: required non-empty string is missing/);
   assert.match(output, /sections\["introduction"\]\.preset: unsupported text preset/);
   assert.match(output, /sections\["introduction"\]\.id: duplicate section identity/);
 });
@@ -66,7 +66,7 @@ test("optional media is omitted cleanly while a missing supplied file fails with
   const errors = await validateContent(invalid, { publicDirectory });
   assert.match(
     errors.join("\n"),
-    /aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: local media file does not exist/,
+    /data\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: local media file does not exist/,
   );
 });
 
@@ -81,6 +81,6 @@ test("media paths cannot escape the deployed public base even when filesystem no
   const errors = await validateContent(invalid, { publicDirectory });
   assert.match(
     errors.join("\n"),
-    /aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: must stay within public\/ and cannot contain parent-directory segments/,
+    /data\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: must stay within public\/ and cannot contain parent-directory segments/,
   );
 });

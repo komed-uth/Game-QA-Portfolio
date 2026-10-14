@@ -9,18 +9,13 @@ import { loadContentDefinitions, repositoryRoot } from "./content-validation.mjs
 import { installVideoFixture } from "./browser/fixtures/youtube-provider.mjs";
 import { waitForPhoto } from "./browser/gallery-photo-ready.mjs";
 
-const contentDirectory = path.join(repositoryRoot, "src/content");
-const files = { projects: "projects.ts", evidence: "evidence.ts", portfolioPage: "pages/portfolio.ts" };
-const types = { projects: "ProjectContent[]", evidence: "EvidenceContent[]", portfolioPage: "PortfolioPageContent" };
-const originals = Object.fromEntries(await Promise.all(Object.entries(files).map(async ([name, file]) =>
-  [name, await readFile(path.join(contentDirectory, file), "utf8")])));
-
-async function writeDefinitions(directory, definitions) {
-  for (const [name, file] of Object.entries(files)) {
-    const type = types[name];
-    const source = `import type { ${type.replace("[]", "")} } from "${name === "portfolioPage" ? "../../" : "../"}content-schema";\n\nexport const ${name}: ${type} = ${JSON.stringify(definitions[name], null, 2)};\n`;
-    await writeFile(path.join(directory, file), source);
-  }
+import { contentPath, createContentEditor, writeContentFixture } from "./content-editing-fixture.mjs";
+const contentDirectory = path.dirname(contentPath);
+const contentEditor = await createContentEditor();
+async function writeDefinitions(target, definitions) {
+  if (target !== contentDirectory) return writeContentFixture(target, definitions);
+  for (const name of ["siteContent", "portfolioPage", "projects", "evidence", "skillsPage", "aboutMePage"])
+    await contentEditor.write(name, definitions[name]);
 }
 
 function build() {
@@ -33,36 +28,36 @@ async function checkInvalidDefinitions(definitions) {
   await mkdir(path.join(repositoryRoot, ".scratch"), { recursive: true });
   const directory = await mkdtemp(path.join(repositoryRoot, ".scratch/project-content-"));
   try {
-    await cp(contentDirectory, directory, { recursive: true });
+    await cp(contentPath, path.join(directory, "data.ts"));
     const variants = [
-      ["unknown project", value => { value.portfolioPage.sections[0].projectId = "missing"; }, /portfolio\.ts.*projectId: unknown project/],
-      ["unknown evidence", value => { value.projects[0].reportEvidenceId = "missing"; }, /projects\.ts.*reportEvidenceId: unknown evidence/],
-      ["missing copy", value => { value.projects[0].details[0].value = ""; }, /projects\.ts.*details.*value: required/],
-      ["invalid media", value => { value.projects[0].media[0].videoId = "bad"; }, /projects\.ts.*videoId: expected/],
-      ["media kind", value => { value.projects[0].media[1].type = "audio"; }, /projects\.ts.*type: unsupported media/],
-      ["multiple videos", value => { value.projects[0].media.push({ ...value.projects[0].media[0], id: "second-video" }); }, /projects\.ts.*at most one video/],
-      ["missing asset", value => { value.projects[0].media[1].path = "images/missing.png"; }, /projects\.ts.*path: local media file does not exist/],
-      ["traversal", value => { value.projects[0].media[1].path = "../public/favicon.svg"; }, /projects\.ts.*path: must stay within/],
-      ["store destination", value => { value.projects[0].stores[0].destination = "javascript:alert(1)"; }, /projects\.ts.*destination: malformed/],
-      ["report default", value => { value.evidence[0].defaultReportId = "Ultra"; }, /evidence\.ts.*defaultReportId: invalid report default/],
-      ["report asset", value => { value.evidence[0].reports[0].path = "missing.html"; }, /evidence\.ts.*reports.*path: local media file does not exist/],
-      ["duplicate evidence", value => { value.evidence.push(structuredClone(value.evidence[0])); }, /evidence\.ts.*id: duplicate record identity/],
-      ["duplicate report", value => { value.evidence[0].reports[1].id = value.evidence[0].reports[0].id; }, /evidence\.ts.*reports.*id: duplicate record identity/],
-      ["duplicate anchor", value => { value.projects[0].headingId = "pc-project-title"; }, /projects\.ts.*headingId: duplicate rendered anchor/],
-      ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*anchor: preserve the established/],
-      ["malformed internal link", value => { value.evidence[0].destination = "/?evidence=missing"; }, /evidence\.ts.*destination: malformed or unresolved/],
-      ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
-      ["duplicate project", value => { value.projects.push(structuredClone(value.projects[1])); }, /projects\.ts.*id: duplicate record identity/],
-      ["missing Father media", value => { value.projects[1].media[1].path = "images/missing.png"; }, /projects\.ts.*father-son.*path: local media file does not exist/],
-      ["missing placeholder media", value => { value.projects[3].media[0].path = "images/missing.svg"; }, /projects\.ts.*invictus-lost-soul.*path: local media file does not exist/],
-      ["capture asset", value => { value.evidence[1].path = "images/missing.png"; }, /evidence\.ts.*pix-capture.*path: local media file does not exist/],
-      ["capture destination", value => { value.evidence[1].destination = "javascript:bad"; }, /evidence\.ts.*pix-capture.*destination: malformed/],
-      ["hidden capture", value => { value.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
-      ["wrong capture kind", value => { value.projects[2].captureEvidenceId = "android-reports"; }, /projects\.ts.*captureEvidenceId: unknown evidence/],
-      ["external media destination", value => { value.projects[1].media[1] = { ...value.projects[1].media[1], path: undefined, url: "javascript:bad" }; }, /projects\.ts.*url: malformed/],
-      ["ambiguous image source", value => { value.projects[1].media[1].url = "https://media.example.test/image.png"; }, /projects\.ts.*path: choose either/],
-      ["duplicate selected project", value => { value.portfolioPage.sections.push({ ...value.portfolioPage.sections[1], id: "second-father" }); }, /projects\.ts.*headingId: duplicate rendered anchor/],
-      ["unsupported preset", value => { value.portfolioPage.sections[0].preset = "unknown"; }, /portfolio\.ts.*preset: unsupported project/],
+      ["unknown project", value => { value.portfolioPage.sections[0].projectId = "missing"; }, /data\.ts.*projectId: unknown project/],
+      ["unknown evidence", value => { value.projects[0].reportEvidenceId = "missing"; }, /data\.ts.*reportEvidenceId: unknown evidence/],
+      ["missing copy", value => { value.projects[0].details[0].value = ""; }, /data\.ts.*details.*value: required/],
+      ["invalid media", value => { value.projects[0].media[0].videoId = "bad"; }, /data\.ts.*videoId: expected/],
+      ["media kind", value => { value.projects[0].media[1].type = "audio"; }, /data\.ts.*type: unsupported media/],
+      ["multiple videos", value => { value.projects[0].media.push({ ...value.projects[0].media[0], id: "second-video" }); }, /data\.ts.*at most one video/],
+      ["missing asset", value => { value.projects[0].media[1].path = "images/missing.png"; }, /data\.ts.*path: local media file does not exist/],
+      ["traversal", value => { value.projects[0].media[1].path = "../public/favicon.svg"; }, /data\.ts.*path: must stay within/],
+      ["store destination", value => { value.projects[0].stores[0].destination = "javascript:alert(1)"; }, /data\.ts.*destination: malformed/],
+      ["report default", value => { value.evidence[0].defaultReportId = "Ultra"; }, /data\.ts.*defaultReportId: invalid report default/],
+      ["report asset", value => { value.evidence[0].reports[0].path = "missing.html"; }, /data\.ts.*reports.*path: local media file does not exist/],
+      ["duplicate evidence", value => { value.evidence.push(structuredClone(value.evidence[0])); }, /data\.ts.*id: duplicate record identity/],
+      ["duplicate report", value => { value.evidence[0].reports[1].id = value.evidence[0].reports[0].id; }, /data\.ts.*reports.*id: duplicate record identity/],
+      ["duplicate anchor", value => { value.projects[0].headingId = "pc-project-title"; }, /data\.ts.*headingId: duplicate rendered anchor/],
+      ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /data\.ts.*anchor: preserve the established/],
+      ["malformed internal link", value => { value.evidence[0].destination = "/?evidence=missing"; }, /data\.ts.*destination: malformed or unresolved/],
+      ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      ["duplicate project", value => { value.projects.push(structuredClone(value.projects[1])); }, /data\.ts.*id: duplicate record identity/],
+      ["missing Father media", value => { value.projects[1].media[1].path = "images/missing.png"; }, /data\.ts.*father-son.*path: local media file does not exist/],
+      ["missing placeholder media", value => { value.projects[3].media[0].path = "images/missing.svg"; }, /data\.ts.*invictus-lost-soul.*path: local media file does not exist/],
+      ["capture asset", value => { value.evidence[1].path = "images/missing.png"; }, /data\.ts.*pix-capture.*path: local media file does not exist/],
+      ["capture destination", value => { value.evidence[1].destination = "javascript:bad"; }, /data\.ts.*pix-capture.*destination: malformed/],
+      ["hidden capture", value => { value.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      ["wrong capture kind", value => { value.projects[2].captureEvidenceId = "android-reports"; }, /data\.ts.*captureEvidenceId: unknown evidence/],
+      ["external media destination", value => { value.projects[1].media[1] = { ...value.projects[1].media[1], path: undefined, url: "javascript:bad" }; }, /data\.ts.*url: malformed/],
+      ["ambiguous image source", value => { value.projects[1].media[1].url = "https://media.example.test/image.png"; }, /data\.ts.*path: choose either/],
+      ["duplicate selected project", value => { value.portfolioPage.sections.push({ ...value.portfolioPage.sections[1], id: "second-father" }); }, /data\.ts.*headingId: duplicate rendered anchor/],
+      ["unsupported preset", value => { value.portfolioPage.sections[0].preset = "unknown"; }, /data\.ts.*preset: unsupported project/],
     ];
     for (const [name, edit, diagnostic] of variants) {
       const invalid = structuredClone(definitions);
@@ -261,7 +256,7 @@ try {
 } catch (error) {
   failure = error;
 } finally {
-  for (const [name, file] of Object.entries(files)) await writeFile(path.join(contentDirectory, file), originals[name]);
+  await contentEditor.restore();
   const restored = build();
   if (restored.status !== 0) failure = new AggregateError([failure, new Error(restored.output)].filter(Boolean), "Canonical production build could not be restored.");
 }

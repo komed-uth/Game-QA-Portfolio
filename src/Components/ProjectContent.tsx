@@ -1,5 +1,5 @@
 import { assetUrl } from "../data";
-import { siteContent } from "../content/site";
+import { siteContent } from "../data";
 import type { ProjectContent } from "../content-schema";
 import MediaGallery from "./MediaGallery";
 

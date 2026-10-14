@@ -10,20 +10,9 @@ import {
   repositoryRoot,
 } from "./content-validation.mjs";
 
-const sitePath = path.join(repositoryRoot, "src", "content", "site.ts");
-const aboutMePath = path.join(repositoryRoot, "src", "content", "pages", "aboutMe.ts");
-const skillsPath = path.join(repositoryRoot, "src/content/pages/skills.ts");
-const originalSkillsSource = await readFile(skillsPath, "utf8");
-const projectFiles = {
-  projects: path.join(repositoryRoot, "src/content/projects.ts"),
-  evidence: path.join(repositoryRoot, "src/content/evidence.ts"),
-  portfolioPage: path.join(repositoryRoot, "src/content/pages/portfolio.ts"),
-};
-const originalProjectSources = Object.fromEntries(await Promise.all(Object.entries(projectFiles).map(async ([name, file]) => [name, await readFile(file, "utf8")])));
-
-async function writeProjectDefinition(name, value) {
-  await writeFile(projectFiles[name], `export const ${name} = ${JSON.stringify(value, null, 2)};\n`);
-}
+import { createContentEditor } from "./content-editing-fixture.mjs";
+const contentEditor = await createContentEditor();
+const writeProjectDefinition = (name, value) => contentEditor.write(name, value);
 
 function runNpmScript(name, args = []) {
   const commandArgs = ["run", name, ...(args.length > 0 ? ["--", ...args] : [])];
@@ -44,9 +33,6 @@ function assertCommandPassed(name, result) {
   assert.equal(result.status, 0, `${name} failed:\n${result.output}`);
 }
 
-function contentModuleSource(typeImport, exportName, value) {
-  return `import type { ${typeImport} } from "${typeImport === "SiteContent" ? "../page-schema" : "../../page-schema"}";\n\nexport const ${exportName}: ${typeImport} = ${JSON.stringify(value, null, 2)};\n`;
-}
 
 async function stopProcess(process) {
   if (!process || process.exitCode !== null) return;
@@ -156,10 +142,6 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
   }
 }
 
-const [originalSiteSource, originalAboutMeSource] = await Promise.all([
-  readFile(sitePath, "utf8"),
-  readFile(aboutMePath, "utf8"),
-]);
 let failure;
 
 try {
@@ -192,12 +174,8 @@ try {
     contactSection,
   ];
 
-  await writeFile(sitePath, contentModuleSource("SiteContent", "siteContent", editedSite), "utf8");
-  await writeFile(
-    aboutMePath,
-    contentModuleSource("AboutMePageContent", "aboutMePage", editedAboutMe),
-    "utf8",
-  );
+  await contentEditor.write("siteContent", editedSite);
+  await contentEditor.write("aboutMePage", editedAboutMe);
 
   assertCommandPassed("npm run validate:content", runNpmScript("validate:content"));
   assertCommandPassed("valid edited content build", runNpmScript("build"));
@@ -206,11 +184,7 @@ try {
   const invalidIntroduction = invalidAboutMe.sections.find((section) => section.id === "introduction");
   assert(invalidIntroduction?.type === "text");
   invalidIntroduction.preset = "unsupported";
-  await writeFile(
-    aboutMePath,
-    contentModuleSource("AboutMePageContent", "aboutMePage", invalidAboutMe),
-    "utf8",
-  );
+  await contentEditor.write("aboutMePage", invalidAboutMe);
 
   for (const [name, result] of [
     ["development startup validation", runNpmScript("dev", ["--help"])],
@@ -219,15 +193,11 @@ try {
     assert.notEqual(result.status, 0, `${name} unexpectedly accepted an unsupported preset.`);
     assert.match(
       result.output,
-      /aboutMe\.ts: aboutMePage\.sections\["introduction"\]\.preset: unsupported text preset "unsupported"/,
+      /data\.ts: aboutMePage\.sections\["introduction"\]\.preset: unsupported text preset "unsupported"/,
     );
   }
 
-  await writeFile(
-    aboutMePath,
-    contentModuleSource("AboutMePageContent", "aboutMePage", editedAboutMe),
-    "utf8",
-  );
+  await contentEditor.write("aboutMePage", editedAboutMe);
   assertCommandPassed("edited content build", runNpmScript("build"));
 
   const developmentServer = startDevelopmentServer();
@@ -293,11 +263,9 @@ try {
       });
 
       for (const variant of invalidVariants) {
-        const file = variant.source === "aboutMe" ? aboutMePath : sitePath;
-        const typeName = variant.source === "aboutMe" ? "AboutMePageContent" : "SiteContent";
         const exportName = variant.source === "aboutMe" ? "aboutMePage" : "siteContent";
         const startAt = developmentServer.output.length;
-        await writeFile(file, contentModuleSource(typeName, exportName, variant.value), "utf8");
+        await contentEditor.write(exportName, variant.value);
         await waitForDevelopmentOutput(developmentServer, variant.diagnostic, startAt);
         if (variant.source === "aboutMe") {
           assert.equal(
@@ -316,12 +284,8 @@ try {
       correctedAboutMe.sections.find((section) => section.id === "introduction").description =
         "A valid development edit after correction.";
       await Promise.all([
-        writeFile(sitePath, contentModuleSource("SiteContent", "siteContent", editedSite), "utf8"),
-        writeFile(
-          aboutMePath,
-          contentModuleSource("AboutMePageContent", "aboutMePage", correctedAboutMe),
-          "utf8",
-        ),
+        contentEditor.write("siteContent", editedSite),
+        contentEditor.write("aboutMePage", correctedAboutMe),
       ]);
       await page.getByText("A valid development edit after correction.", { exact: true }).waitFor();
       await page.goto(new URL("#/", developmentServer.url ?? await waitForDevelopmentUrl(developmentServer)).href);
@@ -351,17 +315,17 @@ try {
       await page.goto(new URL("#/skills", developmentUrl).href);
       const editedSkills = structuredClone(definitions.skillsPage);
       editedSkills.sections[0].cards[0].description = "A live Skills capability edit.";
-      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", editedSkills));
+      await contentEditor.write("skillsPage", editedSkills);
       await page.getByText("A live Skills capability edit.", { exact: true }).waitFor();
       const invalidSkills = structuredClone(editedSkills);
       invalidSkills.sections[0].cards[1].evidence[0].evidenceId = "missing";
       const skillsStartAt = developmentServer.output.length;
-      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", invalidSkills));
+      await contentEditor.write("skillsPage", invalidSkills);
       await waitForDevelopmentOutput(developmentServer, "evidenceId: unknown evidence reference", skillsStartAt);
       await page.locator("vite-error-overlay").waitFor();
       assert.equal(await page.getByText("A live Skills capability edit.", { exact: true }).count(), 1);
       editedSkills.sections[0].cards[0].description = "A corrected live Skills edit.";
-      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", editedSkills));
+      await contentEditor.write("skillsPage", editedSkills);
       await page.locator("vite-error-overlay").waitFor({ state: "detached" });
       await page.getByText("A corrected live Skills edit.", { exact: true }).waitFor();
     });
@@ -377,12 +341,7 @@ try {
 } catch (error) {
   failure = error;
 } finally {
-  await Promise.all([
-    writeFile(sitePath, originalSiteSource, "utf8"),
-    writeFile(skillsPath, originalSkillsSource, "utf8"),
-    writeFile(aboutMePath, originalAboutMeSource, "utf8"),
-    ...Object.entries(projectFiles).map(([name, file]) => writeFile(file, originalProjectSources[name], "utf8")),
-  ]);
+  await contentEditor.restore();
   const restoredBuild = runNpmScript("build");
   if (restoredBuild.status !== 0) {
     const restoreError = new Error(`Could not restore the canonical production build:\n${restoredBuild.output}`);

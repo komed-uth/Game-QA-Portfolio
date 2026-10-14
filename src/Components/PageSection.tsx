@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { CardsSection, TextSection } from "../page-schema";
-import { evidence } from "../content/evidence";
+import { evidence } from "../data";
 import { assetUrl } from "../data";
 
 export default function PageSection({ section, actionSuffix = "" }: {

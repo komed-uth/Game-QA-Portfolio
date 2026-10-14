@@ -1,6 +1,6 @@
 import PageSection from "../Components/PageSection";
-import { aboutMePage } from "../content/pages/aboutMe";
-import { siteContent } from "../content/site";
+import { aboutMePage } from "../data";
+import { siteContent } from "../data";
 
 export default function AboutMe() {
   return (
