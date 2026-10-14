@@ -126,7 +126,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "Champion QA Enginner",
+        "value": "Champion QA Engineer",
         "id": "role"
       },
       {
@@ -211,7 +211,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "QA Enginner",
+        "value": "QA Engineer",
         "id": "role"
       },
       {
@@ -284,7 +284,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Platforms / tools",
-        "value": "Unreal | PC(Steam) | Microsoft PIX (Performance testing)",
+        "value": "Unreal | PC (Steam) | Microsoft PIX (Performance testing)",
         "id": "platforms-tools"
       }
     ],
@@ -349,7 +349,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "QA Enginner || Acting Project Coordinator",
+        "value": "QA Engineer || Acting Project Coordinator",
         "id": "role"
       },
       {
@@ -420,7 +420,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "QA Enginner",
+        "value": "QA Engineer",
         "id": "role"
       },
       {
@@ -499,7 +499,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "QA Enginner",
+        "value": "QA Engineer",
         "id": "role"
       },
       {
@@ -569,15 +569,15 @@ export const evidence: EvidenceContent[] = [
     "id": "android-reports",
     "kind": "reports",
     "destination": "/skills?evidence=android-reports",
-    "label": "Regulus the Advent · Samsung Galaxy S10 Very High performance evidence",
+    "label": "Regulus the Advent · Performance Report Example",
     "anchor": "android-reports",
     "path": "images/regulus-s10-very-high.png",
     "alt": "ARM Streamline / Performance Advisor capture for Regulus the Advent on Samsung Galaxy S10 at Very High quality, showing performance summaries and part of the frame-rate chart",
     "openLabel": "Open full-size Samsung Galaxy S10 Very High screenshot for Regulus the Advent",
-    "title": "Regulus the Advent · Samsung Galaxy S10 · Very High · ARM Streamline / Performance Advisor",
+    "title": "Regulus the Advent · Performance Report Example",
     "report": {
       "path": "Performance-Testing-Mobile/Full Report/S10_Very_High_Fixed.html",
-      "title": "Regulus the Advent · Samsung Galaxy S10 · Very High · Performance Advisor full report",
+      "title": "Regulus the Advent · Performance Report Example",
       "openLabel": "View full report"
     }
   },
@@ -585,12 +585,12 @@ export const evidence: EvidenceContent[] = [
     "id": "pix-capture",
     "kind": "capture",
     "destination": "/skills?evidence=pix-capture",
-    "label": "Vecchio Furioso · Microsoft PIX GPU capture",
+    "label": "Vecchio Furioso · PIX GPU usage analysis",
     "anchor": "pix-capture",
     "path": "images/vecchio-furioso-pix.png",
     "alt": "Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline",
     "openLabel": "Open full-size Microsoft PIX capture for Vecchio Furioso",
-    "title": "Vecchio Furioso · Microsoft PIX capture"
+    "title": "Vecchio Furioso · PIX GPU usage analysis"
   }
 ];
 
