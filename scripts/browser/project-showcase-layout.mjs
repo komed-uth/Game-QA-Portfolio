@@ -15,6 +15,10 @@ async function precedes(before, after, message) {
 
 export async function checkProjectLayout(page) {
   await page.evaluate(() => document.fonts.ready);
+  assert.deepEqual(await page.locator('main .project-grid .project-title').allTextContents(), [
+    'Regulus the Advent', 'Father, Son & Holy Guns', 'Vecchio Furioso',
+    'Invictus: Lost Soul', 'The Collectors', 'MeowMoney',
+  ], 'Complete configured Portfolio preserves the published showcase inventory and order');
   const narrow = page.viewportSize().width <= 900;
   for (const { name, selector, eyebrow } of projects) {
     const project = page.locator(selector);
