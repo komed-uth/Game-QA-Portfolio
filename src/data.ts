@@ -365,35 +365,35 @@ export const projects: ProjectContent[] = [
     ],
     "media": [
       {
-        "path": "images/invictus-lost-soul/orbit.svg",
+        "path": "images/invictus-lost-soul/orbit.webp",
         "label": "Mock image 01 · Orbit",
         "alt": "Invictus: Lost Soul — Mock image 01, an abstract lavender orbit panel; placeholder project content, not gameplay",
         "id": "mock-1",
         "type": "image"
       },
       {
-        "path": "images/invictus-lost-soul/prism.svg",
+        "path": "images/invictus-lost-soul/prism.jpg",
         "label": "Mock image 02 · Prism",
         "alt": "Invictus: Lost Soul — Mock image 02, an abstract lavender prism panel; placeholder project content, not gameplay",
         "id": "mock-2",
         "type": "image"
       },
       {
-        "path": "images/invictus-lost-soul/waves.svg",
+        "path": "images/invictus-lost-soul/waves.jpg",
         "label": "Mock image 03 · Waves",
         "alt": "Invictus: Lost Soul — Mock image 03, an abstract lavender wave panel; placeholder project content, not gameplay",
         "id": "mock-3",
         "type": "image"
       },
       {
-        "path": "images/invictus-lost-soul/tiles.svg",
+        "path": "images/invictus-lost-soul/tiles.jpg",
         "label": "Mock image 04 · Tiles",
         "alt": "Invictus: Lost Soul — Mock image 04, an abstract lavender tile panel; placeholder project content, not gameplay",
         "id": "mock-4",
         "type": "image"
       },
       {
-        "path": "images/invictus-lost-soul/arc.svg",
+        "path": "images/invictus-lost-soul/arc.jpg",
         "label": "Mock image 05 · Arc",
         "alt": "Invictus: Lost Soul — Mock image 05, an abstract lavender arc panel; placeholder project content, not gameplay",
         "id": "mock-5",
