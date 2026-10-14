@@ -25,7 +25,7 @@
 
 The initial workstation sandbox could not launch WinGet tool aliases or write Git metadata. The documented normal-access preflight passed with GitHub account `komed-uth`. Isolated branch `codex/issue-127` started at freshly fetched main `3077758dd19bb22f68b63af3fdc3d540c3fa9262`; unrelated root changes were preserved.
 
-Main had owner content edits after earlier browser assertions were written: external-link suffix “↗”, numbered project eyebrows, revised Codex copy, populated placeholder project details, the Collectors App Store link and removal of two About me sections. Expectations were updated to those existing values without rewriting owner content. Content-workflow fixtures retain explicit hidden/additional-section coverage.
+Main had owner content edits after earlier browser assertions were written: external-link suffix “↗”, numbered project eyebrows, revised Codex copy, populated placeholder project details, the Collectors App Store link, shared project accents and removal of two About me sections. Expectations were updated to those existing values without rewriting owner content. Content-workflow fixtures retain explicit hidden/additional-section coverage.
 
 An initial Skills attempt was obsolete because check inputs changed during the run; it is not acceptance evidence. Focused Skills rerun `run-2UseMu` passed with input stability. Early inspection attempts exposed stale main content assertions; their failures are not recorded as passes. Final committed-source evidence is recorded below after complete validation.
 
@@ -36,3 +36,5 @@ The code-review skill ran separate Standards and Spec reviews with GPT-6.1 Sol a
 ## Limits and risk
 
 This is a reversible presentation, routing and content-validation change. The main risks are evidence arrival/focus, image inspection and content-editor target visibility. Browser viewport checks do not certify physical devices. Existing report screenshot-path lists are empty; synthetic overlay coverage verifies integration and does not certify unavailable real report captures. No source evidence, original report or gameplay asset is removed.
+
+The first complete run (`run-o2JZpZ`, commit `eb0148c`) stopped on the obsolete “three distinct accents” assertion after all three projects completed their content/layout, input and slideshow scenarios. Current main assigns the same `#55DEDB` accent to these projects. The assertion now checks those explicit configured colors; this failed run is not acceptance evidence.
