@@ -121,22 +121,22 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "A mobile performance testing demonstration of a cutscene across five graphics quality settings.",
+        "value": "Anime random pull/Gacha character collectible RPG mobile game release in mobile platforms including Android and iOS platform",
         "id": "overview"
       },
       {
         "label": "My role",
-        "value": "QA Enginner",
+        "value": "Champion QA Enginner",
         "id": "role"
       },
       {
         "label": "Responsibilities",
-        "value": "Capture the cutscene at five graphics quality settings on a real Samsung Galaxy S10 using ARM Streamline.",
+        "value": "Take part as QA champion to respone taking feedback contribute overall quality of the game and do performance testing on real device using performance tool to identify performance bottleneck before sending to relevant team. Take a lead of plan, tasks allocation, core coordinate QA between teams.",
         "id": "responsibilities"
       },
       {
         "label": "Platforms / tools",
-        "value": "Android · Samsung Galaxy S10 · Mali-G76 MP12 · ARM Streamline / Performance Advisor",
+        "value": "Unity | iOS, Android | ARM Streamline (Performance Testing)",
         "id": "platforms-tools"
       }
     ],
@@ -206,7 +206,7 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "A fast-paced roguelite action game set in a strange world overrun by alien threats. The project centers on high-energy combat and cooperative missions.",
+        "value": "A fast-paced rogue-lite action game set in a strange world overrun by alien threats. The project centers on fact-pace cooperative combat.",
         "id": "overview"
       },
       {
@@ -216,12 +216,12 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Responsibilities",
-        "value": "[Project responsibilities to confirm]",
+        "value": "Support QA champion colleague, take part of giving feedback during weekly play test session and investigate reported defect/bug",
         "id": "responsibilities"
       },
       {
         "label": "Platforms / tools",
-        "value": "Windows PC · [Engine / QA tools to confirm]",
+        "value": "Unity | PC (Steam)",
         "id": "platforms-tools"
       }
     ],
@@ -269,7 +269,7 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "A PC performance testing sample for Vecchio Furioso, centered on GPU rendering events and frame timing during gameplay.",
+        "value": "Mission based FPS game set in Thailand North-easten region from solo developed former colleauge",
         "id": "overview"
       },
       {
@@ -279,12 +279,12 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Responsibilities",
-        "value": "Capture a gameplay GPU frame in Microsoft PIX and review rendering events against their timing data.",
+        "value": "Giving feedback and smoke test for limited period in game design and QA perspective, Help identify performance issue bottleneck",
         "id": "responsibilities"
       },
       {
         "label": "Platforms / tools",
-        "value": "Windows 10 Home · Build 19045 · Intel Core i7-7700K @ 4.20 GHz · NVIDIA GeForce GTX 1060 6 GB · 16 GB RAM · Microsoft PIX",
+        "value": "Unreal | PC(Steam) | Microsoft PIX (Performance testing)",
         "id": "platforms-tools"
       }
     ],
@@ -344,7 +344,7 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "Placeholder project content. This showcase reserves space for a confirmed project description and media. The mock images are designed panels, not gameplay screenshots.",
+        "value": "Medival themed Card PVP based game",
         "id": "overview"
       },
       {
@@ -354,18 +354,13 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Responsibilities",
-        "value": "[to confirm]",
+        "value": "Contribute with QA team to do multiple test workflow such as regression test, functionality test, visual test, and network stress test. Handling customer report from publisher",
         "id": "responsibilities"
       },
       {
         "label": "Platforms",
-        "value": "[to confirm]",
+        "value": "Unity | iOS, Android",
         "id": "platforms-tools"
-      },
-      {
-        "label": "Tools",
-        "value": "[to confirm]",
-        "id": "tools"
       }
     ],
     "media": [
@@ -420,7 +415,7 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "Placeholder project content. This showcase reserves space for a confirmed project description and media. The mock images are designed panels, not gameplay screenshots.",
+        "value": "casual multiple player based mobile game  ",
         "id": "overview"
       },
       {
@@ -430,18 +425,13 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Responsibilities",
-        "value": "[to confirm]",
+        "value": "Contribute with the team to handle multiplayer test",
         "id": "responsibilities"
       },
       {
         "label": "Platforms",
-        "value": "[to confirm]",
+        "value": "Unity | iOS, Android",
         "id": "platforms-tools"
-      },
-      {
-        "label": "Tools",
-        "value": "[to confirm]",
-        "id": "tools"
       }
     ],
     "media": [
@@ -504,7 +494,7 @@ export const projects: ProjectContent[] = [
     "details": [
       {
         "label": "Project overview",
-        "value": "Placeholder project content. This showcase reserves space for a confirmed project description and media. The mock images are designed panels, not gameplay screenshots.",
+        "value": "Play to earn based game in Truemoney App include various of mini-game",
         "id": "overview"
       },
       {
@@ -514,18 +504,13 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "Responsibilities",
-        "value": "[to confirm]",
+        "value": "Help team colleague to do mini-game and main page functionality including game and business logic",
         "id": "responsibilities"
       },
       {
         "label": "Platforms",
-        "value": "[to confirm]",
+        "value": "Unity, Vue.js | iOS, Android",
         "id": "platforms-tools"
-      },
-      {
-        "label": "Tools",
-        "value": "[to confirm]",
-        "id": "tools"
       }
     ],
     "media": [
