@@ -1,67 +1,59 @@
 import assert from 'node:assert/strict';
-import { reportFiles as files, reportLabels as labels, prepareReportInspection } from './report-source.mjs';
+import { reportFile, prepareReportInspection } from './report-source.mjs';
 import { reportViewports } from './report-viewports.mjs';
 import { reportProgress } from './run-browser-check.mjs';
 
 // Exhaustive inspection complements the quick layout check on the rendered portfolio.
 export default async function check(page) {
     const dialog = page.getByRole('dialog');
-    const preview = page.locator('#android-reports .evidence-open');
     const action = page.locator('#android-reports .evidence-open');
     const closeButton = dialog.getByRole('button', { name: 'Close evidence' });
     const original = dialog.getByRole('link', { name: 'Open original in new tab' });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
 
-    async function open(label, trigger = preview) {
-        reportProgress('Open report', { viewport: page.viewportSize(), report: label, opener: trigger === action ? 'controls' : 'preview' });
+    async function open(keyboard = false) {
+        reportProgress('Open report', { viewport: page.viewportSize(), report: 'Very High', opener: keyboard ? 'keyboard' : 'pointer' });
         await prepareReportInspection(page);
-        if (trigger === action) {
+        if (keyboard) {
             await action.focus();
             await page.keyboard.press("Tab");
             await page.keyboard.press("Shift+Tab");
             assert(await action.evaluate(element => element === document.activeElement), 'Tab reaches controls opener');
             assert(await action.evaluate(element => getComputedStyle(element).outlineStyle !== 'none'), 'Keyboard opener has visible focus');
             await page.keyboard.press('Enter');
-        } else await trigger.click();
+        } else await action.click();
         await dialog.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
         assert((await dialog.getAttribute('aria-labelledby'))?.length, 'Inspection has an accessible title');
-        assert((await dialog.locator('h2').textContent()).includes(label));
+        assert((await dialog.locator('h2').textContent()).includes('Very High'));
         assert.equal(await original.getAttribute('target'), '_blank');
         assert((await original.getAttribute('rel')).includes('noopener'));
-        assert((await original.getAttribute('href')).endsWith(files[label]));
-        if (label === 'Overall') {
-            await dialog.locator('img').evaluate(image => image.decode());
-            return null;
-        }
+        assert((await original.getAttribute('href')).endsWith(reportFile));
         const frame = await (await dialog.locator('iframe').elementHandle()).contentFrame();
         await frame.waitForLoadState();
-        assert(new URL(frame.url()).pathname.endsWith(files[label]));
+        assert(new URL(frame.url()).pathname.endsWith(reportFile));
         return frame;
     }
 
-    async function close(method = 'button', trigger = preview) {
+    async function close(method = 'button') {
         if (method === 'escape') await page.keyboard.press('Escape');
         else if (method === 'backdrop') await page.mouse.click(2, 2);
         else await closeButton.click();
         await dialog.waitFor({ state: 'detached' });
-        assert(await trigger.evaluate(element => element === document.activeElement), 'Focus returns to report opener');
+        assert(await action.evaluate(element => element === document.activeElement), 'Focus returns to report opener');
     }
 
     await page.setViewportSize({ width: 1366, height: 768 });
 
-    // Both openers target every selected report; the controls action is keyboard-operated.
-    for (const label of labels) {
-        await open(label, action);
-        await close('escape', action);
-    }
+    await open(true);
+    await close('escape');
 
     // Documentation links open real browser tabs; stub only their remote destination.
     await page.context().route('https://developer.arm.com/**', route => route.fulfill({
         contentType: 'text/html', body: '<h1>Report documentation destination</h1>',
     }));
-    for (const label of labels) {
-        const frame = await open(label);
+    {
+        const frame = await open();
         assert(await frame.locator('svg').count() > 0, 'Charts are rendered');
         const toggle = frame.locator('.toggleImage').first();
         const target = (await toggle.getAttribute('onclick')).match(/'([^']+)'/)[1];
@@ -106,52 +98,46 @@ export default async function check(page) {
     }
     console.log('PASS: retained Very High HTML report, toggles, chart tooltips, real documentation tabs, iframe link-focused Escape and focus boundaries');
 
-    const memoryFrame = await open('Very High');
+    const memoryFrame = await open();
     await memoryFrame.evaluate(() => scrollTo(0, 600));
     await page.waitForFunction(() => document.querySelector('dialog iframe')?.contentWindow?.scrollY === 600);
     await close('escape');
-    const restored = await open('Very High');
+    const restored = await open();
     await page.waitForFunction(() => document.querySelector('dialog iframe')?.contentWindow?.scrollY === 600);
     assert.equal(await restored.evaluate(() => scrollY), 600, 'Visit-local report position is restored');
     await close();
 
     for (const [width, height] of reportViewports) {
         await page.setViewportSize({ width, height });
-        for (const label of labels) {
-            const frame = await open(label);
-            const panel = await dialog.boundingBox();
-            assert(panel.x >= 8 && panel.y >= 8 && panel.x + panel.width <= width - 8 && panel.y + panel.height <= height - 8);
-            const viewport = await dialog.locator('.evidence-modal-content').boundingBox();
-            assert(viewport.width > 0 && viewport.height >= 100, 'Report retains internal inspection space');
-            for (const control of [closeButton, original]) {
-                const box = await control.boundingBox();
-                assert(box.height >= 44 && box.y >= panel.y && box.y + box.height <= panel.y + panel.height);
-            }
-            if (frame) {
-                assert.equal(await frame.locator('body').evaluate(element => getComputedStyle(element).fontSize), '16px');
-            } else {
-                assert(await dialog.locator('img').evaluate(image => image.width >= 900), 'Overall remains readable');
-            }
-            await close(label === 'Overall' ? 'backdrop' : 'button');
+        const frame = await open();
+        const panel = await dialog.boundingBox();
+        assert(panel.x >= 8 && panel.y >= 8 && panel.x + panel.width <= width - 8 && panel.y + panel.height <= height - 8);
+        const viewport = await dialog.locator('.evidence-modal-content').boundingBox();
+        assert(viewport.width > 0 && viewport.height >= 100, 'Report retains internal inspection space');
+        for (const control of [closeButton, original]) {
+            const box = await control.boundingBox();
+            assert(box.height >= 44 && box.y >= panel.y && box.y + box.height <= panel.y + panel.height);
         }
+        assert.equal(await frame.locator('body').evaluate(element => getComputedStyle(element).fontSize), '16px');
+        await close(width === 390 ? 'backdrop' : 'button');
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     }
     console.log('PASS: single report inspection layout across ten viewports plus 900px');
 
     await page.reload();
-    for (const label of labels) {
-        const frame = await open(label);
-        const reset = frame ? await frame.evaluate(() => ({ left: scrollX, top: scrollY })) :
-            await dialog.locator('.evidence-modal-content').evaluate(element => ({ left: element.scrollLeft, top: element.scrollTop }));
-        assert.deepEqual(reset, { left: 0, top: 0 }, 'Reload resets each report inspection');
-        const popupPromise = page.waitForEvent('popup');
-        await original.click();
-        const popup = await popupPromise;
-        await popup.waitForLoadState();
-        assert(new URL(popup.url()).pathname.endsWith(files[label]));
-        await popup.close();
-        await close();
-    }
+    const frame = await open();
+    assert.deepEqual(await frame.evaluate(() => ({ left: scrollX, top: scrollY })), { left: 0, top: 0 }, 'Reload resets report inspection');
+    const popupPromise = page.waitForEvent('popup');
+    await original.click();
+    const popup = await popupPromise;
+    await popup.waitForLoadState();
+    assert(new URL(popup.url()).pathname.endsWith(reportFile));
+    await popup.close();
+    await close();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(true);
+    assert.equal(await dialog.evaluate(element => getComputedStyle(element).animationName), 'none');
+    await close('escape');
     assert.deepEqual(errors, [], 'Report inspection produces no browser exceptions');
     console.log('PASS: Very High position memory, reload reset and original HTML tab');
 }
