@@ -5,7 +5,7 @@ Open **`src/data.ts`** for every routine content edit. It is the single editable
 | Owner | Editable content |
 | --- | --- |
 | `portfolioPage` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
-| `skillsPage` | Page title/description, capabilities/tools, text/card sections, evidence references, action suffix |
+| `skillsPage` | Page title/description, capabilities/tools, text/card/evidence sections, ordered evidence references, action suffix |
 | `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
 | `siteContent` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
 | `projects` | All six project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
@@ -54,13 +54,13 @@ Cards on any page select evidence by identity, with its owning project:
 { projectId: "vecchio-furioso", evidenceId: "pix-capture" }
 ```
 
-The optional `label` changes only that reference's action text; omit it to use the shared evidence label. Never copy a destination into a card. Change the evidence record's `destination`, `path`, or report file once to update Portfolio inspection and every page reference. Internal evidence destinations preserve their anchor, e.g. `/?context=review&evidence=android-reports`. Additional query parameters are allowed; duplicate selectors, fragments, different targets, and malformed destinations fail validation.
+The optional `label` changes only that reference's action text; omit it to use the shared evidence label. Never copy a destination into a card. Change the evidence record's `destination`, `path`, or report file once to update its inspection and every page reference. Internal evidence destinations preserve their anchor, e.g. `/?context=review&evidence=android-reports`. Additional query parameters are allowed; duplicate selectors, fragments, different targets, and malformed destinations fail validation.
 
-A **live** reference is one rendered in a visible card section or navigation link. Hiding Regulus or Vecchio while a live reference points to its evidence fails with the reference's file/record/field and the Portfolio/evidence target. Remove the incoming links or hide their referring sections before hiding the target. Unreferenced sections can be hidden. Hidden referring sections still need well-formed records and known IDs.
+A **live** reference is one rendered in a visible card section, navigation link, or Portfolio evidence link. Hiding the Regulus Portfolio reports or the Skills capture section while a live reference points to that evidence fails with the reference and target context. Hiding Vecchio on Portfolio does not hide its Skills capture. Remove the incoming links or hide their referring sections before hiding the target. Unreferenced sections can be hidden. Hidden referring sections still need well-formed records and known IDs.
 
 ## Supported sections, order and visibility
 
-All pages use one ordered section list. Move the complete entry to reorder it and set `visible: false` to hide it without leaving a layout gap. Keep its `id` stable. Text and card groups can be added on all three pages; Portfolio additionally supports project showcases, and About me supports one contact section.
+All pages use one ordered section list. Move the complete entry to reorder it and set `visible: false` to hide it without leaving a layout gap. Keep its `id` stable. Text and card groups can be added on all three pages; Portfolio additionally supports project showcases, Skills supports capture evidence sections, and About me supports one contact section.
 
 ```ts
 {
@@ -100,12 +100,13 @@ Do not render the same project twice: its public heading/evidence anchors would 
 
 | Section type | Presets | Compatibility |
 | --- | --- | --- |
-| Project showcase | `standard`, `media-left`, `media-right` | Side variants require gallery media or a PC capture |
+| Project showcase | `standard`, `media-left`, `media-right` | Side variants require gallery media |
 | Text | `standard`, `media-left`, `media-right` | Side variants require supplied local media and an alternative |
 | Cards | `standard` | Existing grid adapts automatically |
+| Skills evidence | `standard` | Ordered shared capture/project references |
 | About me contact | `standard` | One contact section per page |
 
-`standard` preserves the approved appearance. Project `media-right` uses the established desktop media column; `media-left` places media on the left. Separate PIX evidence stays below gameplay in that media column. Report preview remains before controls in reading order and on narrow screens. Every preset stacks automatically at **900px and below**, preserving title, media, details. No second mobile section list is required. DOM and keyboard order follow the same list; preset CSS does not remount galleries or report viewers.
+`standard` preserves the approved appearance. Project `media-right` uses the established desktop media column; `media-left` places media on the left. PIX performance evidence renders separately on Skills; the Portfolio project links to it. Report preview remains before controls in reading order and on narrow screens. Every preset stacks automatically at **900px and below**, preserving title, media, details. No second mobile section list is required. DOM and keyboard order follow the same list; preset CSS does not remount galleries or report viewers.
 
 A completely new section style needs a reusable component and contract extension. Editing support does not authorize new claims, removed interests/workflow/coverage, held features, or replacement evidence. Keep placeholder disclosures and unconfirmed status; mock panels do not establish contributor experience.
 
@@ -123,3 +124,11 @@ A completely new section style needs a reusable component and contract extension
 - **Malformed/unresolved link:** correct its scheme, route or evidence selector. URL format alone does not attest external availability.
 
 Run `npm run check:content` for isolated diagnostic fixtures and `npm run check:content-workflow` for the complete definition-edit → validation/dev/build → rendered-page boundary. The workflow asserts independently chosen copy, destinations, supported additions/order/visibility, presets, responsive/keyboard order, and surviving selection/inspection. Fixtures are disposable or restored byte-for-byte; the canonical production build is restored before exit. `node scripts/check-layout-content-workflow.mjs` focuses on the final preset safeguards. Run the required complete validation in `docs/development/validation.md` before publishing a PR.
+
+## Performance testing on Skills (ticket #127 intermediate state)
+
+`skillsPage.sections` supports `type: "evidence"`, `preset: "standard"`, a stable `id`, `title`, boolean `visible`, and an ordered `evidence` list of `{ evidenceId, projectId }` references. The initial Performance testing section follows the complete Tools list and references `pix-capture` / `vecchio-furioso`. Move the section in the array to change placement; reorder references to change row order. Only shared capture records are supported in these rows in this slice. The renderer supplies desktop details beside the image and mobile details above it, with the existing image viewer.
+
+Keep the image, accessible labels, anchor and destination in the shared evidence record; do not copy records into Skills. Project associations establish provenance even when a Portfolio project is hidden. Vecchio's capture reference no longer renders an image on Portfolio: it renders a link to the shared `/skills?evidence=pix-capture` destination. The saved `/?evidence=pix-capture` route forwards with replacement history. Regulus's `android-reports` still renders on Portfolio with all six existing report choices; its destination remains `/?evidence=android-reports`. The later Regulus move is outside #127.
+
+Validation resolves targets from the page sections that actually render them. Visible cards, navigation and Portfolio project links must not target hidden evidence. To hide the PIX section, remove incoming live card/navigation references and hide its Portfolio project section as well. Hiding the Portfolio project alone leaves the Skills evidence available. Duplicate visible anchors (including a capture referenced by two visible sections), dangling references, incorrect project provenance, unsupported presets/kinds and wrong-page canonical destinations fail validation. Editing visibility does not delete source assets.

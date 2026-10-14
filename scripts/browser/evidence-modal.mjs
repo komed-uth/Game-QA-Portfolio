@@ -59,18 +59,15 @@ export default async function check(page) {
             'Capture fills its opener without clipping');
         const ratio = await capture.locator('img').evaluate(img => img.naturalWidth / img.naturalHeight);
         assert(Math.abs(imageBox.width / imageBox.height - ratio) < .01, 'Complete capture keeps its original aspect ratio');
-        const detailsBox = await p.locator('.pc-project .project-info').boundingBox();
+        const detailsBox = await p.locator('.performance-evidence-details').boundingBox();
         const headingBox = await p.getByRole('heading', { name: 'Vecchio Furioso', exact: true }).boundingBox();
         if (p.viewportSize().width <= 900) {
-            assert(figureBox.y >= detailsBox.y + detailsBox.height && detailsBox.y >= headingBox.y + headingBox.height,
-                'Narrow-screen capture follows project details and Steam');
+            assert(figureBox.y >= detailsBox.y + detailsBox.height && headingBox.y >= detailsBox.y,
+                'Narrow-screen capture follows attribution');
         } else {
-            const galleryBox = await p.locator('.pc-project .game-gallery').boundingBox();
-            assert(figureBox.x >= detailsBox.x + detailsBox.width && figureBox.y >= galleryBox.y + galleryBox.height,
-                'Desktop capture stays below gameplay beside project details');
+            assert(figureBox.x >= detailsBox.x + detailsBox.width,
+                'Desktop capture sits beside attribution');
         }
-        assert(await p.locator('.pc-project').getByRole('link', { name: 'Vecchio Furioso on Steam (opens in a new tab)' }).isVisible());
-        assert.equal(await p.locator('.pc-project .gallery-thumbnail').count(), 5);
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Capture creates no page overflow');
     }
     async function checkCaptureContent() {
@@ -119,8 +116,9 @@ export default async function check(page) {
         await g.locator('.gallery-viewer iframe').waitFor({ state: 'attached' });
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
     }
-    await checkCaptureLayout();
     await checkProjectLayout(p);
+    await p.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ }).click();
+    await checkCaptureLayout();
     await captureOpener.click();
     await checkCaptureContent();
     assert.equal(await d.getByRole('button', { name: 'Next screenshot' }).count(), 0);
@@ -142,6 +140,7 @@ export default async function check(page) {
     assert(await captureOpener.evaluate(element => element === document.activeElement));
     assert.notEqual(await p.evaluate(() => document.documentElement.style.overflow), 'hidden');
     console.log('PASS: all seven evidence images, actions, originals, navigation/video skip, focus, dismissal and background lock');
+    await p.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
     let summaryPosition;
     const labels = ['Very High', 'High', 'Medium', 'Low', 'Very Low', 'Overall'];
     for (let i = 0; i < labels.length; i++) {
@@ -215,6 +214,7 @@ export default async function check(page) {
                 'Screenshot browsing wraps without changing the other project');
             await close();
         }
+        await p.getByRole('navigation').getByRole('link', { name: 'Skills', exact: true }).click();
         await checkCaptureLayout();
         await captureOpener.focus();
         // Tab away and back makes keyboard focus visible after pointer inspection.
@@ -229,6 +229,7 @@ export default async function check(page) {
         assert.equal(await d.getByRole('button', { name: /screenshot/ }).count(), 0);
         await close('backdrop');
         assert(await captureOpener.evaluate(element => element === document.activeElement), 'Capture restores focus after resizing');
+        await p.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
         await p.locator('.report-preview').click();
         const box = await d.boundingBox();
         assert(box.x >= 8 && box.y >= 8 && box.x + box.width <= width - 8 && box.y + box.height <= height - 8);
@@ -240,6 +241,7 @@ export default async function check(page) {
     await checkShowcaseResizeAndKeyboard(p);
     await checkVecchioGameplay(p);
     await p.emulateMedia({ reducedMotion: 'reduce' });
+    await p.getByRole('navigation').getByRole('link', { name: 'Skills', exact: true }).click();
     await p.locator('.capture-media .evidence-image-button').click();
     assert.equal(await d.evaluate(e => getComputedStyle(e).animationName), 'none');
     await close();

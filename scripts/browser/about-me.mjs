@@ -5,8 +5,6 @@ import { captureRegion } from './capture-region.mjs';
 const copy = [
   ['Professional introduction', 'I’m Komed Uthisanot, a Game QA Engineer with experience testing games across iOS, Android, Windows PC, and WebGL.'],
   ['Background', 'My game QA experience began in 2019 at Jumbojumps (True Axion Interactive), where my responsibilities as a Junior QA Engineer included functional, compatibility, performance, and regression testing. On Project Regulus, I coordinated QA planning, requirements analysis, and task allocation for 3–4 QA colleagues. I also collaborated with developers, technical artists, and designers on defect investigation, performance bottlenecks, and gameplay balance.'],
-  ['Why game QA', 'I’m interested in how game design and player psychology shape the experience of playing.'],
-  ['Career direction', 'I want to develop further as a Game QA Engineer, combining structured testing with performance investigation.'],
 ];
 const headings = [...copy.map(([title]) => title), 'Contact'];
 const profile = 'https://www.linkedin.com/in/komed-uthisanont-592388187/';
@@ -17,7 +15,7 @@ async function about(page) {
   const main = page.getByRole('main');
   assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(), headings);
   assert.deepEqual(await main.locator('.approach-section h2').evaluateAll(nodes => nodes.map(node => node.id)), [
-    'introduction-heading', 'background-heading', 'motivation-heading', 'direction-heading', 'contact-heading',
+    'introduction-heading', 'background-heading', 'contact-heading',
   ]);
   for (const [name, description] of copy) {
     assert.equal(await main.getByRole('region', { name, exact: true }).locator('p').innerText(), description);
@@ -25,12 +23,12 @@ async function about(page) {
   assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|Personal gaming detail|\bFPS\b|\bpresent\b|\bcurrently employed\b/i);
   assert.equal(await main.locator('img, iframe, form, input, a[download]').count(), 0);
   assert.equal(await main.getByRole('link').count(), 1);
-  const contact = main.getByRole('link', { name: 'Contact me on LinkedIn (opens in a new tab)' });
+  const contact = main.getByRole('link', { name: 'Contact me on LinkedIn ↗' });
   assert.equal(await contact.getAttribute('href'), profile);
   assert.equal(await contact.getAttribute('target'), '_blank');
   assert.match(await contact.getAttribute('rel'), /noopener/);
   assert.match(await contact.getAttribute('rel'), /noreferrer/);
-  assert.equal(await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn (opens in a new tab)' }).getAttribute('href'), profile);
+  assert.equal(await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗' }).getAttribute('href'), profile);
   assert.equal(await page.locator('footer').getAttribute('aria-label'), 'Portfolio footer');
   assert.equal(await page.locator('footer').innerText(), "Komed's Portfolio");
   const nav = page.getByRole('navigation', { name: 'Main navigation' });

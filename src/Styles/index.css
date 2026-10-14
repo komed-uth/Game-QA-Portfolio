@@ -1154,3 +1154,16 @@ footer {
 @media (max-width: 900px) {
   .placeholder-project:not(:has(> .game-gallery)) { grid-template-areas: "heading" "details"; }
 }
+
+.performance-evidence {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.25fr);
+  gap: 24px 48px;
+  margin-top: 24px;
+  scroll-margin-top: 24px;
+}
+.performance-evidence-details { min-width: 0; overflow-wrap: anywhere; }
+.performance-evidence .capture-media img { object-fit: contain; }
+@media (max-width: 900px) {
+  .performance-evidence { grid-template-columns: minmax(0, 1fr); }
+}

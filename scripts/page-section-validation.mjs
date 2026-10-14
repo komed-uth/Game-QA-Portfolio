@@ -1,11 +1,11 @@
 import { visibleProjectEvidence, findEvidenceTarget } from "./project-evidence.mjs";
 import { isObject, requiredString, records, validateMediaPath, registerIdentity } from "./content-validation-fields.mjs";
 
-export async function validateContentSections({ page, context, projects, evidence, portfolioPage, sourceFiles = {}, anchors = new Set(["main-content"]) }, { publicDirectory }) {
+export async function validateContentSections({ page, context, projects, evidence, portfolioPage, skillsPage, sourceFiles = {}, anchors = new Set(["main-content"]) }, { publicDirectory }) {
   const errors = [];
   const projectRecords = Array.isArray(projects) ? projects : [];
   const evidenceRecords = Array.isArray(evidence) ? evidence : [];
-  const visibleEvidence = visibleProjectEvidence(projectRecords, portfolioPage?.sections);
+  const visibleEvidence = visibleProjectEvidence(projectRecords, portfolioPage?.sections, skillsPage?.sections);
   const sections = records(page.sections, `${context}.sections`, errors, { nonempty: false });
   for (const section of sections) {
     const location = `${context}.sections[${JSON.stringify(section.id)}]`;
@@ -25,31 +25,40 @@ export async function validateContentSections({ page, context, projects, evidenc
       }
       continue;
     }
-    if (section.type !== "cards") {
-      errors.push(`${location}.type: unsupported section type; supported types: cards, text.`);
+    if (section.type !== "cards" && section.type !== "evidence") {
+      errors.push(`${location}.type: unsupported section type; supported types: cards, text, Skills evidence.`);
       continue;
     }
-    if (section.preset !== "standard") errors.push(`${location}.preset: unsupported card preset; supported presets: standard.`);
+    if (section.type === "evidence" && page !== skillsPage) errors.push(`${location}.type: evidence sections are supported only on Skills.`);
+    if (section.preset !== "standard") errors.push(`${location}.preset: unsupported card/evidence preset; supported presets: standard.`);
     if (section.description !== undefined) requiredString(section.description, `${location}.description`, errors);
-    for (const card of records(section.cards, `${location}.cards`, errors)) {
-      const cardLocation = `${location}.cards[${JSON.stringify(card.id)}]`;
-      for (const field of ["title", "description"]) requiredString(card[field], `${cardLocation}.${field}`, errors);
-      if (!Array.isArray(card.evidence)) {
-        errors.push(`${cardLocation}.evidence: required evidence reference list is missing.`);
+    const groups = section.type === "evidence" ? [{ references: section.evidence, location }] :
+      records(section.cards, `${location}.cards`, errors).map(card => {
+        const cardLocation = `${location}.cards[${JSON.stringify(card.id)}]`;
+        for (const field of ["title", "description"]) requiredString(card[field], `${cardLocation}.${field}`, errors);
+        return { references: card.evidence, location: cardLocation };
+      });
+    for (const group of groups) {
+      if (!Array.isArray(group.references)) {
+        errors.push(`${group.location}.evidence: required evidence reference list is missing.`);
         continue;
       }
       const identities = new Set();
-      for (const [index, reference] of card.evidence.entries()) {
-        const referenceLocation = `${cardLocation}.evidence[${index}]`;
+      for (const [index, reference] of group.references.entries()) {
+        const referenceLocation = `${group.location}.evidence[${index}]`;
         if (!isObject(reference)) { errors.push(`${referenceLocation}: required reference record is missing.`); continue; }
         requiredString(reference.evidenceId, `${referenceLocation}.evidenceId`, errors);
         if (identities.has(reference.evidenceId)) errors.push(`${referenceLocation}.evidenceId: duplicate evidence reference.`);
         identities.add(reference.evidenceId);
         const record = evidenceRecords.find(record => record?.id === reference.evidenceId);
         if (!record) errors.push(`${referenceLocation}.evidenceId: unknown evidence reference ${JSON.stringify(reference.evidenceId)}.`);
+        else if (section.type === "evidence" && record.kind !== "capture") errors.push(`${referenceLocation}.evidenceId: Skills evidence rows currently support captures only.`);
         else if (section.visible === true && !visibleEvidence.has(record.id)) {
-          const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id);
+          const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id, skillsPage?.sections);
           errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/data.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/data.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);
+        }
+        if (section.type === "evidence" && section.visible === true && record) {
+          registerIdentity(record.anchor, anchors, `${referenceLocation}.evidenceId`, "rendered anchor", errors);
         }
         requiredString(reference.projectId, `${referenceLocation}.projectId`, errors);
         if (reference.projectId !== undefined) {

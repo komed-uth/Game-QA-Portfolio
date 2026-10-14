@@ -46,7 +46,7 @@ async function checkIndependentGalleries(page) {
   await page.reload();
   const galleries = projectNames.map(name => page.getByRole('region', { name: name + ' mock images', exact: true }));
   const accents = await page.locator('.placeholder-project').evaluateAll(es => es.map(e => getComputedStyle(e).getPropertyValue('--project-accent').trim()));
-  assert.equal(new Set(accents).size, 3, 'Each placeholder project has a distinct accent');
+  assert.deepEqual(accents.map(value => value.toLowerCase()), ['#55dedb', '#55dedb', '#55dedb'], 'Project accents match the current owner content');
   assert.equal(await page.locator('.placeholder-project .gallery-thumbnail').count(), 15);
   for (const gallery of galleries) {
     await waitForClockPhoto(gallery);
@@ -95,7 +95,7 @@ async function checkIndependentGalleries(page) {
     await page.clock.fastForward(2900);
     assert.equal(await selected(galleries[actor]), 0, 'Own slideshow wraps without being reset by another slideshow');
   }
-  console.log('PASS: all fifteen panels and three accents; manual selection, modal navigation/inspection and slideshows retain independent state in every gallery');
+  console.log('PASS: all fifteen panels and configured accents; manual selection, modal navigation/inspection and slideshows retain independent state in every gallery');
 }
 
 async function selected(gallery) {
@@ -148,12 +148,17 @@ async function checkProject(page, projectName) {
   const preceding = projectNames.indexOf(projectName) === 0 ? 'Vecchio Furioso' : projectNames[projectNames.indexOf(projectName) - 1];
   assert.equal(await section.evaluate(e => e.previousElementSibling.querySelector('h2').textContent.trim()), preceding);
   assert(await page.locator('footer').last().isVisible(), 'Subsequent footer remains present');
-  assert.match(await section.innerText(), /Placeholder project content/);
-  for (const field of ['My role', 'Responsibilities', 'Platforms', 'Tools']) {
-    const detail = section.getByRole('heading', { name: field, exact: true });
-    assert.equal(await detail.evaluate(e => e.nextElementSibling.textContent), '[to confirm]');
-  }
-  assert.equal(await section.locator('iframe, a').count(), 0, 'No invented video or store destinations');
+  const publishedDetails = {
+    'Invictus: Lost Soul': ['Medival themed Card PVP based game', 'QA Enginner || Acting Project Coordinator', 'Contribute with QA team to do multiple test workflow such as regression test, functionality test, visual test, and network stress test. Handling customer report from publisher', 'Unity | iOS, Android'],
+    'The Collectors': ['casual multiple player based mobile game', 'QA Enginner', 'Contribute with the team to handle multiplayer test', 'Unity | iOS, Android'],
+    'MeowMoney': ['Play to earn based game in Truemoney App include various of mini-game', 'QA Enginner', 'Help team colleague to do mini-game and main page functionality including game and business logic', 'Unity, Vue.js | iOS, Android'],
+  };
+  assert.deepEqual(await section.locator('.project-detail-label').allTextContents(), ['Project overview', 'My role', 'Responsibilities', 'Platforms']);
+  assert.deepEqual((await section.locator('.project-details p').allTextContents()).map(value => value.trim()), publishedDetails[projectName]);
+  assert.equal(await section.locator('iframe').count(), 0, 'Image-only project has no video');
+  const stores = section.locator('.store-links a');
+  assert.equal(await stores.count(), projectName === 'The Collectors' ? 1 : 0);
+  if (projectName === 'The Collectors') assert.equal(await stores.getAttribute('href'), 'https://apps.apple.com/th/app/the-collectors/id1599452727?l=th&platform=ipad');
   assert.equal(await previews.count(), 5);
   assert.equal(await selected(gallery), 0, 'Image-only gallery starts on the first image');
   const sources = await previews.locator('img').evaluateAll(es => es.map(e => e.getAttribute('src')));
