@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { waitForPhoto } from './gallery-photo-ready.mjs';
 
 const projects = [
-  { name: 'Regulus the Advent', selector: '.regulus-showcase', eyebrow: 'Project showcase' },
-  { name: 'Father, Son & Holy Guns', selector: '.video-project', eyebrow: 'Project showcase' },
-  { name: 'Vecchio Furioso', selector: '.pc-project', eyebrow: 'Performance project / 02' },
+  { name: 'Regulus the Advent', selector: '.regulus-showcase', eyebrow: 'Project showcase / 01' },
+  { name: 'Father, Son & Holy Guns', selector: '.video-project', eyebrow: 'Project showcase / 02' },
+  { name: 'Vecchio Furioso', selector: '.pc-project', eyebrow: 'Project showcase / 03' },
 ];
 
 async function precedes(before, after, message) {

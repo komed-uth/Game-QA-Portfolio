@@ -99,7 +99,7 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
 
       assert.deepEqual(
         await main.getByRole("heading", { level: 2 }).allTextContents(),
-        ["Background", "Professional introduction", "Why game QA", "Testing approach", "Contact"],
+        ["Background", "Professional introduction", "Testing approach", "Contact"],
       );
       assert.equal(
         await main.getByText("A content edit made in the About me definition.", { exact: true }).count(),
@@ -121,7 +121,7 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
       assert.equal(await media.getAttribute("src"), "./favicon.svg");
       assert.equal(await media.getAttribute("alt"), "Portfolio mark");
       assert.equal(await media.evaluate((image) => image.complete && image.naturalWidth > 0), true);
-      assert.equal(await main.locator(".approach-section:not(:has(img))").count(), 4);
+      assert.equal(await main.locator(".approach-section:not(:has(img))").count(), 3);
       const linkOrder = await page.locator("header nav a, header .linkedin-link, main a").evaluateAll((links) =>
         links.map((link) => link.getAttribute("aria-label") || link.innerText.replace(/\s+/g, " ").trim()),
       );
@@ -152,7 +152,8 @@ try {
 
   const introduction = editedAboutMe.sections.find((section) => section.id === "introduction");
   const background = editedAboutMe.sections.find((section) => section.id === "background");
-  const careerDirection = editedAboutMe.sections.find((section) => section.id === "direction");
+  const careerDirection = { id: "direction", type: "text", visible: false, preset: "standard", title: "Career direction", description: "Hidden fixture copy" };
+  editedAboutMe.sections.push(careerDirection);
   const contactSection = editedAboutMe.sections.find((section) => section.id === "contact");
   assert(introduction?.type === "text" && background?.type === "text" && careerDirection && contactSection);
   introduction.description = "A content edit made in the About me definition.";

@@ -12,7 +12,7 @@ import { assetUrl } from "./data";
 import { skillsPage } from "./data";
 
 export default function App() {
-  const { pathname, search } = useLocation();
+  const { pathname, search, key } = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
     const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? `${skillsPage.title} · ` : "";
@@ -32,7 +32,7 @@ export default function App() {
       return;
     }
     window.scrollTo(0, 0);
-  }, [pathname, search, navigate, aboutMePage.title, skillsPage.title, siteContent.identity.name, siteContent.identity.description, siteContent.identity.icon]);
+  }, [pathname, search, key, navigate, aboutMePage.title, skillsPage.title, siteContent.identity.name, siteContent.identity.description, siteContent.identity.icon]);
 
   return (
     <div className="site-shell">

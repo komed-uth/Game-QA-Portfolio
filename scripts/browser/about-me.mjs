@@ -5,8 +5,6 @@ import { captureRegion } from './capture-region.mjs';
 const copy = [
   ['Professional introduction', 'I’m Komed Uthisanot, a Game QA Engineer with experience testing games across iOS, Android, Windows PC, and WebGL.'],
   ['Background', 'My game QA experience began in 2019 at Jumbojumps (True Axion Interactive), where my responsibilities as a Junior QA Engineer included functional, compatibility, performance, and regression testing. On Project Regulus, I coordinated QA planning, requirements analysis, and task allocation for 3–4 QA colleagues. I also collaborated with developers, technical artists, and designers on defect investigation, performance bottlenecks, and gameplay balance.'],
-  ['Why game QA', 'I’m interested in how game design and player psychology shape the experience of playing.'],
-  ['Career direction', 'I want to develop further as a Game QA Engineer, combining structured testing with performance investigation.'],
 ];
 const headings = [...copy.map(([title]) => title), 'Contact'];
 const profile = 'https://www.linkedin.com/in/komed-uthisanont-592388187/';
@@ -17,7 +15,7 @@ async function about(page) {
   const main = page.getByRole('main');
   assert.deepEqual(await main.getByRole('heading', { level: 2 }).allTextContents(), headings);
   assert.deepEqual(await main.locator('.approach-section h2').evaluateAll(nodes => nodes.map(node => node.id)), [
-    'introduction-heading', 'background-heading', 'motivation-heading', 'direction-heading', 'contact-heading',
+    'introduction-heading', 'background-heading', 'contact-heading',
   ]);
   for (const [name, description] of copy) {
     assert.equal(await main.getByRole('region', { name, exact: true }).locator('p').innerText(), description);

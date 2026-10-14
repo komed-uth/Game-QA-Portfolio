@@ -164,7 +164,7 @@ async function checkRemainingEdits(page, previewUrl) {
     assert.equal(await placeholder.locator(".gallery-photo img").getAttribute("src"), "https://media.example.test/panel.svg");
     assert.equal(await placeholder.locator(".gallery-photo img").getAttribute("alt"), "Edited placeholder alternative");
     assert.equal(await placeholder.getByText("Placeholder project content. Edited designed panels remain unverified.", { exact: true }).count(), 1);
-    assert.equal(await placeholder.getByText("[to confirm]", { exact: true }).count(), 4);
+    assert.deepEqual(await placeholder.locator(".project-detail-label").allTextContents(), ["Project overview", "My role", "Responsibilities", "Platforms"]);
     await placeholder.locator(".gallery-thumbnail").nth(1).click();
     await waitForPhoto(placeholder.locator(".game-gallery"));
     assert.equal(await father.locator('.gallery-thumbnail[aria-pressed="true"]').getAttribute("aria-label"), await father.locator(".gallery-thumbnail").nth(1).getAttribute("aria-label"), "Gallery selection stays independent after reordering");

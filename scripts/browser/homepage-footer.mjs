@@ -79,6 +79,7 @@ async function checkHomepage(page) {
     'https://apps.apple.com/th/app/regulus-the-advent/id6739992769',
     'https://play.google.com/store/apps/details?id=com.jj.regulus.android&hl=en',
     'https://store.steampowered.com/app/4524580/Vecchio_Furioso/',
+    'https://apps.apple.com/th/app/the-collectors/id1599452727?l=th&platform=ipad',
   ], 'Project store destinations remain intact');
   const last = await main.locator('.project-grid').last().boundingBox();
   const footer = await page.getByRole('contentinfo').boundingBox();

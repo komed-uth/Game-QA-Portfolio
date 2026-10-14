@@ -50,7 +50,7 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     requiredString(section.projectId, `${context}.projectId`, errors);
     const project = projectRecords.find(record => record.id === section.projectId);
     if (!project) { errors.push(`${context}.projectId: unknown project reference ${JSON.stringify(section.projectId)}.`); continue; }
-    if (section.preset !== "standard" && !project.media?.length && project.presentation !== "pc") errors.push(`${context}.preset: this preset requires gallery media or a capture.`);
+    if (section.preset !== "standard" && !project.media?.length) errors.push(`${context}.preset: this preset requires gallery media.`);
     if (section.visible === true) {
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
       if (project.captureEvidenceId) liveEvidence.add(project.captureEvidenceId);

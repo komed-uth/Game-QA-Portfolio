@@ -134,6 +134,8 @@ export default async function check(page) {
     await page.goForward();
     await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
   }
+  await page.getByRole('region', { name: 'Tools', exact: true }).getByRole('link', { name: /Microsoft PIX GPU capture/ }).click();
+  await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
   await skills.click();
   for (const [width, height] of [[1920,1080], [1366,768], [390,845], [845,390], [360,840],
     [840,360], [1200,800], [800,1200], [899,700], [901,700], [320,700]]) {
