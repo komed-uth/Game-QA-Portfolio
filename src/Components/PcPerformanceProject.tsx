@@ -1,59 +1,26 @@
 import { useState } from "react";
 import EvidenceModal from "./EvidenceModal";
-import MediaGallery from "./MediaGallery";
-import { assetUrl, pcProject } from "../data";
+import { assetUrl } from "../data";
+import type { ProjectContent, CaptureEvidence } from "../content-schema";
+import { ProjectDetails, ProjectGallery, ProjectStores } from "./ProjectContent";
 
-export default function PcPerformanceProject() {
+export default function PcPerformanceProject({ project, capture }: { project: ProjectContent; capture: CaptureEvidence }) {
   const [open, setOpen] = useState(false);
-  return (
-    <article
-      className="project-grid pc-project"
-      aria-labelledby="pc-project-title"
-    >
-      <header className="project-heading">
-        <p className="eyebrow">Performance project / 02</p>
-        <h2 id="pc-project-title" className="project-title">
-          {pcProject.name}
-        </h2>
-      </header>
-      <MediaGallery projectName={pcProject.name} galleryName={pcProject.name + " media"}
-        media={pcProject.gameplay.map(photo => ({ ...photo, type: "image", source: assetUrl(photo.path) }))} />
-      <div className="project-info">
-        <div className="project-details" aria-label="Project details">
-          {pcProject.details.map(({ label, value }) => (
-            <div key={label}>
-              <h3 className="project-detail-label">{label}</h3>
-              <p>{value}</p>
-            </div>
-          ))}
-        </div>
-        <div className="store-links" aria-label="Get Vecchio Furioso">
-          <a
-            className="store-icon"
-            href="https://store.steampowered.com/app/4524580/Vecchio_Furioso/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Vecchio Furioso on Steam (opens in a new tab)"
-            title="Steam"
-          >
-            <img src={assetUrl("images/store-badges/steam.svg")} alt="Steam" />
-          </a>
-        </div>
-      </div>
-      <figure id="pix-capture" tabIndex={-1} className="capture-media">
-        <button type="button" className="evidence-image-button" onClick={() => setOpen(true)}
-          aria-label="Open full-size Microsoft PIX capture for Vecchio Furioso"
-        >
-          <img
-            src={assetUrl(pcProject.image)}
-            alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
-            loading="lazy"
-          />
-        </button>
-      </figure>
-      {open && <EvidenceModal title="Vecchio Furioso · Microsoft PIX capture"
-        source={assetUrl(pcProject.image)} alt="Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline"
-        onClose={() => setOpen(false)} />}
-    </article>
-  );
+  return <article className="project-grid pc-project" aria-labelledby={project.headingId}>
+    <header className="project-heading">
+      <p className="eyebrow">{project.eyebrow}</p>
+      <h2 id={project.headingId} className="project-title">{project.name}</h2>
+    </header>
+    <ProjectGallery project={project} />
+    <div className="project-info">
+      <ProjectDetails project={project} />
+      <ProjectStores project={project} />
+    </div>
+    <figure id={capture.anchor} tabIndex={-1} className="capture-media">
+      <button type="button" className="evidence-image-button" onClick={() => setOpen(true)} aria-label={capture.openLabel}>
+        <img src={assetUrl(capture.path)} alt={capture.alt} loading="lazy" />
+      </button>
+    </figure>
+    {open && <EvidenceModal title={capture.title} source={assetUrl(capture.path)} alt={capture.alt} onClose={() => setOpen(false)} />}
+  </article>;
 }

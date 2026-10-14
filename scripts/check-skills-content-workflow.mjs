@@ -48,6 +48,7 @@ async function invalidEdits(definitions) {
       [v => { v.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*pix-capture.*destination: malformed or unresolved/],
       [v => { v.evidence[0].destination = "/?evidence=android-reports&evidence=pix-capture"; }, /evidence\.ts.*destination: malformed or unresolved/],
       [v => { v.portfolioPage.sections[0].visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
+      [v => { v.portfolioPage.sections.find(section => section.projectId === "vecchio-furioso").visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
     ];
     for (const [edit, diagnostic] of variants) {
       const invalid = structuredClone(definitions);
@@ -57,9 +58,15 @@ async function invalidEdits(definitions) {
       assert.equal(result.status, 1, result.output);
       assert.match(result.output, diagnostic);
     }
+    const captureAssociation = structuredClone(definitions);
+    captureAssociation.skillsPage.sections[0].cards[1].evidence[1].projectId = "vecchio-furioso";
+    await writeDefinitions(disposable, captureAssociation);
+    const associated = command("validate:content", ["--definitions", disposable]);
+    assert.equal(associated.status, 0, associated.output);
     // Removing the incoming live links makes hiding the report showcase valid.
     const hidden = structuredClone(definitions);
     hidden.portfolioPage.sections[0].visible = false;
+    hidden.portfolioPage.sections.find(section => section.projectId === "vecchio-furioso").visible = false;
     hidden.skillsPage.sections.forEach(section => { section.visible = false; });
     await writeDefinitions(disposable, hidden);
     const result = command("validate:content", ["--definitions", disposable]);

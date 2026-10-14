@@ -1,3 +1,4 @@
+import { visibleProjectEvidence } from "./project-evidence.mjs";
 import { isObject, requiredString, records } from "./content-validation-fields.mjs";
 
 export function validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles = {} }) {
@@ -9,11 +10,7 @@ export function validateSkillsContent({ skillsPage, projects, evidence, portfoli
   if (skillsPage.description !== undefined) requiredString(skillsPage.description, `${context}.description`, errors);
   const projectRecords = Array.isArray(projects) ? projects : [];
   const evidenceRecords = Array.isArray(evidence) ? evidence : [];
-  const visibleEvidence = new Set(["pix-capture"]); // Existing unmigrated capture stays rendered.
-  for (const section of Array.isArray(portfolioPage?.sections) ? portfolioPage.sections : []) {
-    const project = projectRecords.find(record => record?.id === section?.projectId);
-    if (section?.visible === true && project) visibleEvidence.add(project.reportEvidenceId);
-  }
+  const visibleEvidence = visibleProjectEvidence(projectRecords, portfolioPage?.sections);
   const sections = records(skillsPage.sections, `${context}.sections`, errors, { nonempty: false });
   for (const section of sections) {
     const location = `${context}.sections[${JSON.stringify(section.id)}]`;
@@ -49,7 +46,7 @@ export function validateSkillsContent({ skillsPage, projects, evidence, portfoli
         if (reference.projectId !== undefined) {
           const project = projectRecords.find(record => record?.id === reference.projectId);
           if (!project) errors.push(`${referenceLocation}.projectId: unknown project reference ${JSON.stringify(reference.projectId)}.`);
-          else if (project.reportEvidenceId !== reference.evidenceId) errors.push(`${referenceLocation}.evidenceId: evidence does not belong to the selected project.`);
+          else if (![project.reportEvidenceId, project.captureEvidenceId].includes(reference.evidenceId)) errors.push(`${referenceLocation}.evidenceId: evidence does not belong to the selected project.`);
         }
         if (reference.label !== undefined) requiredString(reference.label, `${referenceLocation}.label`, errors);
       }

@@ -1,13 +1,13 @@
 # Ticket #104: editable Skills and shared evidence links
 
 > **Authorization status as of 2026-10-14**
-> - **Source:** owner's chat instruction to implement #104, test, push the working branch, and create a PR to main.
+> - **Source:** owner's implementation/push/PR instruction, followed by the 2026-10-14 chat instruction: “you may merge and close the ticket.”
 > - **Implementation and tests:** completed, including the complete required validation.
 > - **Branch push and PR:** authorized.
-> - **Merge and issue closure:** held pending a separate owner instruction.
-> - **Deployment:** held; this task creates a PR only.
+> - **Merge and issue closure:** authorized; merge after fresh exact-head readiness.
+> - **Deployment:** the authorized merge to main triggers the existing Pages workflow automatically; no separate manual deployment.
 > - **Separate content or release requirements:** preserve approved content and the scope of [#100](https://github.com/komed-uth/Game-QA-Portfolio/issues/100) and [#104](https://github.com/komed-uth/Game-QA-Portfolio/issues/104).
-> - **Supersedes:** the 2026-10-12 implementation hold only for implementation, testing, branch push, and PR creation.
+> - **Supersedes:** earlier holds for implementation, testing, branch push/PR, and now merge/issue closure, with the existing Pages workflow as an explained consequence.
 
 The isolated `codex/issue-104` checkout starts at fetched main `b77d4f8a676664fc3cf6d7280485db1352757960`, which includes completed prerequisite #102. The original checkout's unrelated changes remain preserved. Workstation preflight passed through approved execution as GitHub account `komed-uth`; this session uses `GIT_CONFIG_GLOBAL=NUL` because the workstation's global config is malformed. No persistent workstation configuration changed.
 
@@ -57,3 +57,13 @@ Vite development watching now uses `awaitWriteFinish` with a 100ms stability thr
 `node scripts/check-content-recovery.mjs` is a regression at the real editing/browser boundary. It immediately restores valid content when the server reports invalid project, evidence, Portfolio, and Skills definitions, then requires the error message, a corrective browser update, and overlay dismissal. All files are restored after success or failure. The check fails without the watcher fix (missing corrective development-server message) and passes with it. It also runs within `npm run check:content-workflow`.
 
 The earlier browser summary/fingerprint above identify the initial implementation snapshot. The recovery configuration and added check change validation inputs, so that fingerprint is historical evidence rather than an attestation of the fix. Fresh full validation and the current exact-head result are recorded by the [PR #120 validation run](https://github.com/komed-uth/Game-QA-Portfolio/pull/120/checks), whose artifact identifies its tested head and fingerprint.
+
+## Integration before authorized merge (2026-10-14)
+
+The readiness recheck found main had advanced to `782365b12d5c18868f87af1332d5dfc387c1661f` through merged ticket #103 / PR #121. The prior exact-head CI pass therefore did not authorize a stale merge. Main was merged into the existing PR branch without rewriting either published history.
+
+Conflict resolution preserves #103's complete six-project catalogue, ordered Portfolio, shared PIX capture fields, optional/external media support, and its editing workflow scenarios; it retains #104's typed Skills definition, stable references, destination validation, and rapid-save watcher regression. The obsolete project/Skills compatibility copies in `src/data.ts` are both removed.
+
+Skills evidence visibility now derives both report and capture IDs from the actual visible Portfolio sections. Both validators share `visibleProjectEvidence`, removing the old static PIX exception and the earlier visibility-policy duplication. Optional project associations accept the project's report or capture record. Workflow coverage includes hiding referenced PIX evidence, selecting PIX through the Vecchio shared project, and hiding evidence after its live Skills references are hidden.
+
+The integrated source passes build/type/content validation. The combined editing workflow and fresh complete CI must pass on the integration commit before the guarded merge; the exact-head CI artifact and tracker completion comment record the final verification.

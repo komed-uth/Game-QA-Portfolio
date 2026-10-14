@@ -1,11 +1,10 @@
+import { visibleProjectEvidence } from "./project-evidence.mjs";
 import { isObject, requiredString, registerIdentity, validateMediaPath, records } from "./content-validation-fields.mjs";
 
-// Unmigrated showcases still render these public destinations.
-const legacyAnchors = ["father-son-showcase-title", "pc-project-title", "pix-capture", "invictus-lost-soul-title", "meowmoney-title", "the-collectors-title"];
 const publicEvidenceIds = ["android-reports", "pix-capture"];
 
 function webDestination(value) {
-  if (typeof value !== "string" || /\s|\\/.test(value)) return false;
+  if (typeof value !== "string" || !/^https?:\/\/[^/]/i.test(value) || /\s|\\/.test(value)) return false;
   try {
     const url = new URL(value);
     return ["http:", "https:"].includes(url.protocol) && !!url.hostname;
@@ -29,9 +28,9 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
   const projectRecords = records(projects, `${projectFile}: projects`, errors);
   const evidenceRecords = records(evidence, `${evidenceFile}: evidence`, errors);
   const sections = records(portfolioPage?.sections, `${pageFile}: portfolioPage.sections`, errors, { nonempty: false });
-  const anchors = new Set(["main-content", ...legacyAnchors]);
+  const anchors = new Set(["main-content"]);
   const liveEvidence = new Set();
-  const visibleEvidence = new Set(["pix-capture"]);
+  const visibleEvidence = visibleProjectEvidence(projectRecords, sections);
 
   const addAnchor = (value, context) => {
     requiredString(value, context, errors);
@@ -49,21 +48,30 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     if (!project) { errors.push(`${context}.projectId: unknown project reference ${JSON.stringify(section.projectId)}.`); continue; }
     if (section.visible === true) {
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
-      liveEvidence.add(project.reportEvidenceId);
-      visibleEvidence.add(project.reportEvidenceId);
-      const report = evidenceRecords.find(record => record.id === project.reportEvidenceId);
-      if (report?.kind === "reports") {
-        addAnchor(report.anchor, `${evidenceFile}: evidence[${JSON.stringify(report.id)}].anchor`);
-        addAnchor(report.headingId, `${evidenceFile}: evidence[${JSON.stringify(report.id)}].headingId`);
+      for (const id of [project.reportEvidenceId, project.captureEvidenceId].filter(Boolean)) {
+        liveEvidence.add(id);
+        const record = evidenceRecords.find(record => record.id === id);
+        if (record) {
+          addAnchor(record.anchor, `${evidenceFile}: evidence[${JSON.stringify(record.id)}].anchor`);
+          if (record.kind === "reports") addAnchor(record.headingId, `${evidenceFile}: evidence[${JSON.stringify(record.id)}].headingId`);
+        }
       }
     }
   }
 
   for (const project of projectRecords) {
     const context = `${projectFile}: projects[${JSON.stringify(project.id)}]`;
-    for (const field of ["name", "headingId", "eyebrow", "galleryName", "detailsLabel", "storesLabel", "reportEvidenceId"]) requiredString(project[field], `${context}.${field}`, errors);
-    const report = evidenceRecords.find(record => record.id === project.reportEvidenceId);
-    if (report?.kind !== "reports") errors.push(`${context}.reportEvidenceId: unknown evidence reference or expected reports record.`);
+    for (const field of ["name", "headingId", "eyebrow", "galleryName", "detailsLabel", "storesLabel"]) requiredString(project[field], `${context}.${field}`, errors);
+    if (!["regulus", "gameplay", "pc", "placeholder"].includes(project.presentation)) errors.push(`${context}.presentation: unsupported showcase presentation.`);
+    for (const [field, kind, required] of [["reportEvidenceId", "reports", project.presentation === "regulus"], ["captureEvidenceId", "capture", project.presentation === "pc"]]) {
+      if (required || project[field] !== undefined) {
+        requiredString(project[field], `${context}.${field}`, errors);
+        const record = evidenceRecords.find(record => record.id === project[field]);
+        if (record?.kind !== kind) errors.push(`${context}.${field}: unknown evidence reference or expected ${kind} record.`);
+      }
+      if (project[field] !== undefined && !required) errors.push(`${context}.${field}: evidence is unsupported by this presentation.`);
+    }
+    if (project.presentation === "placeholder" && (typeof project.accent !== "string" || !/^#[a-f0-9]{6}$/i.test(project.accent))) errors.push(`${context}.accent: expected a six-digit hex color.`);
     for (const detail of records(project.details, `${context}.details`, errors)) {
       for (const field of ["label", "value"]) requiredString(detail[field], `${context}.details[${JSON.stringify(detail.id)}].${field}`, errors);
     }
@@ -74,10 +82,15 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
       await validateMediaPath(store.icon, `${location}.icon`, publicDirectory, errors);
     }
     let videos = 0;
-    for (const media of records(project.media, `${context}.media`, errors)) {
+    for (const media of records(project.media, `${context}.media`, errors, { nonempty: false })) {
       const location = `${context}.media[${JSON.stringify(media.id)}]`;
       for (const field of ["label", "alt"]) requiredString(media[field], `${location}.${field}`, errors);
-      if (media.type === "image") await validateMediaPath(media.path, `${location}.path`, publicDirectory, errors);
+      if (media.type === "image") {
+        if (media.url !== undefined) {
+          if (!webDestination(media.url)) errors.push(`${location}.url: malformed destination; use an absolute HTTP(S) URL.`);
+          if (media.path !== undefined) errors.push(`${location}.path: choose either a local path or external url.`);
+        } else await validateMediaPath(media.path, `${location}.path`, publicDirectory, errors);
+      }
       else if (media.type === "video") {
         videos += 1;
         if (typeof media.videoId !== "string" || !/^[\w-]{11}$/.test(media.videoId)) errors.push(`${location}.videoId: expected an 11-character YouTube video identifier.`);
@@ -91,11 +104,14 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     for (const field of ["label", "anchor", "destination"]) requiredString(record[field], `${context}.${field}`, errors);
     if (record.kind !== "reports" && record.kind !== "capture") errors.push(`${context}.kind: unsupported evidence kind.`);
     if ((record.id === "android-reports" && record.kind !== "reports") || (record.id === "pix-capture" && record.kind !== "capture")) errors.push(`${context}.kind: preserve the established Android reports / PIX capture presentation.`);
-    if (record.kind === "capture" && record.anchor !== "pix-capture") errors.push(`${context}.anchor: unresolved unmigrated evidence target; preserved capture target is pix-capture.`);
     if (publicEvidenceIds.includes(record.id) && record.anchor !== record.id) errors.push(`${context}.anchor: preserve the established public destination ${record.id}.`);
     const expected = `/?evidence=${record.anchor}`;
     if (!evidenceDestination(record.destination, record.anchor) || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected} (additional query parameters are allowed).`);
     if (liveEvidence.has(record.id) && (!visibleEvidence.has(record.id) || !anchors.has(record.anchor))) errors.push(`${context}.destination: live reference targets hidden or unresolved evidence.`);
+    if (record.kind === "capture") {
+      for (const field of ["alt", "openLabel", "title"]) requiredString(record[field], `${context}.${field}`, errors);
+      await validateMediaPath(record.path, `${context}.path`, publicDirectory, errors);
+    }
     if (record.kind !== "reports") continue;
     for (const field of ["headingId", "heading", "selectorLabel", "openLabel", "openAction", "selectedLabel", "summaryTitle", "reportTitle", "summaryAlt", "defaultReportId"]) requiredString(record[field], `${context}.${field}`, errors);
     const reports = records(record.reports, `${context}.reports`, errors);
