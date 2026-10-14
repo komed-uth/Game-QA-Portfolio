@@ -34,7 +34,7 @@ export const siteContent = {
   interface: {
     skipLinkLabel: "Skip to content",
     identityHomeLabel: "home",
-    opensInNewTab: "(opens in a new tab)",
+    opensInNewTab: "",                           //"(opens in a new tab)",
     externalLinkArrow: "↗",
     closeEvidence: "Close evidence",
     closeSymbol: "×",
@@ -45,8 +45,8 @@ export const siteContent = {
     openOriginalFile: "Open original file ↗",
     openScreenshot: "Open full-size {label} screenshot",
     videoTitle: "{project} video",
-    loadingPhoto: "Loading photo…",
-    loadingVideo: "Loading video…",
+    loadingPhoto: "",                           //"Loading photo…",
+    loadingVideo: "",                            //"Loading video…",
     failedPhoto: "Could not load this photo.",
     failedVideo: "Could not load this video.",
     retry: "Retry",
@@ -791,24 +791,6 @@ export const aboutMePage: AboutMePageContent = {
       title: "Background",
       description:
         "My game QA experience began in 2019 at Jumbojumps (True Axion Interactive), where my responsibilities as a Junior QA Engineer included functional, compatibility, performance, and regression testing. On Project Regulus, I coordinated QA planning, requirements analysis, and task allocation for 3–4 QA colleagues. I also collaborated with developers, technical artists, and designers on defect investigation, performance bottlenecks, and gameplay balance.",
-    },
-    {
-      id: "motivation",
-      type: "text",
-      visible: true,
-      preset: "standard",
-      title: "Why game QA",
-      description:
-        "I’m interested in how game design and player psychology shape the experience of playing.",
-    },
-    {
-      id: "direction",
-      type: "text",
-      visible: true,
-      preset: "standard",
-      title: "Career direction",
-      description:
-        "I want to develop further as a Game QA Engineer, combining structured testing with performance investigation.",
     },
     {
       id: "contact",
