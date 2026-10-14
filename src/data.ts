@@ -515,35 +515,35 @@ export const projects: ProjectContent[] = [
     ],
     "media": [
       {
-        "path": "images/meowmoney/orbit.svg",
+        "path": "images/meowmoney/orbit.webp",
         "label": "Mock image 01 · Orbit",
         "alt": "MeowMoney — Mock image 01, an abstract amber orbit panel; placeholder project content, not gameplay",
         "id": "mock-1",
         "type": "image"
       },
       {
-        "path": "images/meowmoney/prism.svg",
+        "path": "images/meowmoney/prism.webp",
         "label": "Mock image 02 · Prism",
         "alt": "MeowMoney — Mock image 02, an abstract amber prism panel; placeholder project content, not gameplay",
         "id": "mock-2",
         "type": "image"
       },
       {
-        "path": "images/meowmoney/waves.svg",
+        "path": "images/meowmoney/waves.webp",
         "label": "Mock image 03 · Waves",
         "alt": "MeowMoney — Mock image 03, an abstract amber wave panel; placeholder project content, not gameplay",
         "id": "mock-3",
         "type": "image"
       },
       {
-        "path": "images/meowmoney/tiles.svg",
+        "path": "images/meowmoney/tiles.webp",
         "label": "Mock image 04 · Tiles",
         "alt": "MeowMoney — Mock image 04, an abstract amber tile panel; placeholder project content, not gameplay",
         "id": "mock-4",
         "type": "image"
       },
       {
-        "path": "images/meowmoney/arc.svg",
+        "path": "images/meowmoney/arc.webp",
         "label": "Mock image 05 · Arc",
         "alt": "MeowMoney — Mock image 05, an abstract amber arc panel; placeholder project content, not gameplay",
         "id": "mock-5",
