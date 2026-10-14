@@ -142,7 +142,7 @@ export const projects: ProjectContent[] = [
     ],
     "id": "regulus",
     "headingId": "regulus-showcase-title",
-    "eyebrow": "Project showcase",
+    "eyebrow": "Project showcase / 01",
     "galleryName": "Regulus the Advent media",
     "detailsLabel": "Project details",
     "storesLabel": "Get Regulus the Advent",
@@ -200,7 +200,7 @@ export const projects: ProjectContent[] = [
     "presentation": "gameplay",
     "name": "Father, Son & Holy Guns",
     "headingId": "father-son-showcase-title",
-    "eyebrow": "Project showcase",
+    "eyebrow": "Project showcase / 02",
     "galleryName": "Father, Son & Holy Guns media",
     "detailsLabel": "Project details",
     "details": [
@@ -263,7 +263,7 @@ export const projects: ProjectContent[] = [
     "presentation": "pc",
     "name": "Vecchio Furioso",
     "headingId": "pc-project-title",
-    "eyebrow": "Performance project / 02",
+    "eyebrow": "Project showcase / 03",
     "galleryName": "Vecchio Furioso media",
     "detailsLabel": "Project details",
     "details": [
@@ -340,7 +340,6 @@ export const projects: ProjectContent[] = [
   {
     "id": "invictus-lost-soul",
     "name": "Invictus: Lost Soul",
-    "accent": "#c2a7ff",
     "details": [
       {
         "label": "Project overview",
@@ -407,7 +406,7 @@ export const projects: ProjectContent[] = [
     ],
     "presentation": "placeholder",
     "headingId": "invictus-lost-soul-title",
-    "eyebrow": "Placeholder project content",
+    "eyebrow": "Project showcase / 04",
     "galleryName": "Invictus: Lost Soul mock images",
     "detailsLabel": "Invictus: Lost Soul project details",
     "storesLabel": "Get Invictus: Lost Soul",
@@ -416,7 +415,6 @@ export const projects: ProjectContent[] = [
   {
     "id": "the-collectors",
     "name": "The Collectors",
-    "accent": "#73ddd0",
     "details": [
       {
         "label": "Project overview",
@@ -483,7 +481,7 @@ export const projects: ProjectContent[] = [
     ],
     "presentation": "placeholder",
     "headingId": "the-collectors-title",
-    "eyebrow": "Placeholder project content",
+    "eyebrow": "Project showcase / 05",
     "galleryName": "The Collectors mock images",
     "detailsLabel": "The Collectors project details",
     "storesLabel": "Get The Collectors",
@@ -500,7 +498,6 @@ export const projects: ProjectContent[] = [
   {
     "id": "meowmoney",
     "name": "MeowMoney",
-    "accent": "#ffbf75",
     "details": [
       {
         "label": "Project overview",
@@ -567,7 +564,7 @@ export const projects: ProjectContent[] = [
     ],
     "presentation": "placeholder",
     "headingId": "meowmoney-title",
-    "eyebrow": "Placeholder project content",
+    "eyebrow": "Project showcase / 06",
     "galleryName": "MeowMoney mock images",
     "detailsLabel": "MeowMoney project details",
     "storesLabel": "Get MeowMoney",
