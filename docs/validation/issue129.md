@@ -51,4 +51,11 @@ The initial implementation task ended after PR creation without workflow monitor
 
 ## Integration for authorized merge
 
-Main advanced to `5f653becaaa75a26cd31669124e597943354e92e` via #132 / ticket #128 before merge readiness was checked. Integration commit `56aeb0a` retains main's published performance-evidence changes and #129's contact changes. The only textual conflict was at the end of the stylesheet; both independent rule sets were preserved. Incoming content and test changes merged automatically. The diff against the new target remains scoped to #129. Combined-source validation is recorded below when complete.
+Main advanced to `5f653becaaa75a26cd31669124e597943354e92e` via #132 / ticket #128 before merge readiness was checked. Integration commit `56aeb0a` retains main's published performance-evidence changes and #129's contact changes. The only textual conflict was at the end of the stylesheet; both independent rule sets were preserved. Incoming content and test changes merged automatically. The diff against the new target remains scoped to #129.
+
+- Tested integrated commit: `ab14f62e81de2b3eb1ceb0eaa1be3cf5244405ae`, clean tracked source at run start.
+- [Complete local-preview summary](issue129/integration/summary.json): terminal **passed**, all 13 check groups passed with final input stability. [Browser output](issue129/integration/browser-output.txt).
+- Integrated fingerprint: `753b5784870545888d8d9c6d4954b9fad9d5e633c442d454e4e60ebb6a4a4538`.
+- [Build](issue129/integration/build-output.txt), [content workflow](issue129/integration/content-workflow.txt), and [overlay/preview/runner checks](issue129/integration/auxiliary-output.txt) passed. Content workflow restored canonical content/build; preview passed 109 tests and runner passed 151 tests.
+- Fresh main ancestry confirmed before publication. The following evidence-only commit is excluded from validated inputs; the integrated fingerprint is rechecked before push.
+- Merge must use the published exact head only after the repository readiness checker reports READY. The merge/closure outcome is recorded on the issue after execution.
