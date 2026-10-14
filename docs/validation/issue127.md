@@ -38,3 +38,18 @@ The code-review skill ran separate Standards and Spec reviews with GPT-6.1 Sol a
 This is a reversible presentation, routing and content-validation change. The main risks are evidence arrival/focus, image inspection and content-editor target visibility. Browser viewport checks do not certify physical devices. Existing report screenshot-path lists are empty; synthetic overlay coverage verifies integration and does not certify unavailable real report captures. No source evidence, original report or gameplay asset is removed.
 
 The first complete run (`run-o2JZpZ`, commit `eb0148c`) stopped on the obsolete “three distinct accents” assertion after all three projects completed their content/layout, input and slideshow scenarios. Current main assigns the same `#55DEDB` accent to these projects. The assertion now checks those explicit configured colors; this failed run is not acceptance evidence.
+
+## Final acceptance evidence
+
+- Tested source commit: `211856ef42479a7144cf19f436f06a686ffbe450`; clean tracked source at run start.
+- Complete local-preview run: `run-He7WLv`, terminal status **passed**, all 13 checks **passed**, including the final input-stability gate.
+- Validation input fingerprint: `a91d1e5355306153cc5c8ce472cfeea0fadc56d7f3f0a4d47d890471b7ba4a53`.
+- [Machine-readable run summary](issue127/summary.json) and [complete browser output](issue127/browser-output.txt).
+- `npm run build` passed (content validation, TypeScript and production build); `npm run check:overlays` passed (5 parser tests plus report-data readiness); `npm run check:preview` passed (108 tests); `npm run check:runner` passed (151 tests).
+- `npm run check:content-workflow` passed across About me, rapid correction, all project/evidence edits, Skills editing (including an additional shared capture/project and ordered rows), and page layout presets; canonical source and build restored byte-for-byte.
+- Build/overlay/preview/runner checks completed at `eb0148c`; the only subsequent validation-input change before the final complete run was the explicit placeholder-accent expectation. Production source/build and the auxiliary check inputs were unchanged.
+- [Desktop capture](images/issue127/skills-1366.png) and [360px phone capture](images/issue127/skills-360.png), captured from the final production source and inspected visually. Complete image framing and details-beside/above layout are visible. The cyan row outline shows focused evidence arrival.
+- Follow-up independent Standards and Spec reviews covered `eb0148c` and the final `211856e` assertion correction; **0 actionable findings on each axis**, with no worst issue identified. Reviews were read-only.
+- The acceptance-evidence commit adds documentation and images only. Validation-input fingerprints are rechecked after that commit before publishing; no full-suite rerun is required for excluded documentation inputs.
+
+Implementation/testing is complete. Branch push/PR is authorized; merge, issue closure and deployment remain unauthorized. Publication and CI/readiness status are available on the linked PR.
