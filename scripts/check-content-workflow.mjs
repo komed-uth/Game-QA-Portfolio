@@ -12,6 +12,8 @@ import {
 
 const sitePath = path.join(repositoryRoot, "src", "content", "site.ts");
 const aboutMePath = path.join(repositoryRoot, "src", "content", "pages", "aboutMe.ts");
+const skillsPath = path.join(repositoryRoot, "src/content/pages/skills.ts");
+const originalSkillsSource = await readFile(skillsPath, "utf8");
 const projectFiles = {
   projects: path.join(repositoryRoot, "src/content/projects.ts"),
   evidence: path.join(repositoryRoot, "src/content/evidence.ts"),
@@ -346,6 +348,22 @@ try {
         await page.locator("vite-error-overlay").waitFor({ state: "detached" });
       }
       await page.getByRole("heading", { name: "Regulus live content edit", exact: true }).waitFor();
+      await page.goto(new URL("#/skills", developmentUrl).href);
+      const editedSkills = structuredClone(definitions.skillsPage);
+      editedSkills.sections[0].cards[0].description = "A live Skills capability edit.";
+      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", editedSkills));
+      await page.getByText("A live Skills capability edit.", { exact: true }).waitFor();
+      const invalidSkills = structuredClone(editedSkills);
+      invalidSkills.sections[0].cards[1].evidence[0].evidenceId = "missing";
+      const skillsStartAt = developmentServer.output.length;
+      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", invalidSkills));
+      await waitForDevelopmentOutput(developmentServer, "evidenceId: unknown evidence reference", skillsStartAt);
+      await page.locator("vite-error-overlay").waitFor();
+      assert.equal(await page.getByText("A live Skills capability edit.", { exact: true }).count(), 1);
+      editedSkills.sections[0].cards[0].description = "A corrected live Skills edit.";
+      await writeFile(skillsPath, contentModuleSource("SkillsPageContent", "skillsPage", editedSkills));
+      await page.locator("vite-error-overlay").waitFor({ state: "detached" });
+      await page.getByText("A corrected live Skills edit.", { exact: true }).waitFor();
     });
   } finally {
     try {
@@ -361,6 +379,7 @@ try {
 } finally {
   await Promise.all([
     writeFile(sitePath, originalSiteSource, "utf8"),
+    writeFile(skillsPath, originalSkillsSource, "utf8"),
     writeFile(aboutMePath, originalAboutMeSource, "utf8"),
     ...Object.entries(projectFiles).map(([name, file]) => writeFile(file, originalProjectSources[name], "utf8")),
   ]);
@@ -375,3 +394,4 @@ try {
 if (failure) throw failure;
 console.log("PASS: About me copy, shared contact, section addition/order/visibility, media, validation, live development updates, build, and browser workflow.");
 await import("./check-project-content-workflow.mjs");
+await import("./check-skills-content-workflow.mjs");

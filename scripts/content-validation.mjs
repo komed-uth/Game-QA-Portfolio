@@ -1,4 +1,5 @@
 import { isObject, requiredString, registerIdentity, validateMediaPath } from "./content-validation-fields.mjs";
+import { validateSkillsContent } from "./skills-content-validation.mjs";
 import { validateProjectContent } from "./project-content-validation.mjs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -47,22 +48,26 @@ export async function loadContentDefinitions({ directory = defaultDefinitionsDir
   const aboutMePath = path.join(directory, "pages", "aboutMe.ts");
   const projectsPath = path.join(directory, "projects.ts");
   const evidencePath = path.join(directory, "evidence.ts");
+  const skillsPath = path.join(directory, "pages", "skills.ts");
   const portfolioPath = path.join(directory, "pages", "portfolio.ts");
-  const [siteModule, aboutMeModule, projectsModule, evidenceModule, portfolioModule] = await Promise.all([
+  const [siteModule, aboutMeModule, projectsModule, evidenceModule, portfolioModule, skillsModule] = await Promise.all([
     loadTypedModule(sitePath),
     loadTypedModule(aboutMePath),
     loadTypedModule(projectsPath),
     loadTypedModule(evidencePath),
     loadTypedModule(portfolioPath),
+    loadTypedModule(skillsPath),
   ]);
 
   return {
+    skillsPage: skillsModule.skillsPage,
     projects: projectsModule.projects,
     evidence: evidenceModule.evidence,
     portfolioPage: portfolioModule.portfolioPage,
     siteContent: siteModule.siteContent,
     aboutMePage: aboutMeModule.aboutMePage,
     sourceFiles: {
+      skills: displayPath(skillsPath),
       projects: displayPath(projectsPath),
       evidence: displayPath(evidencePath),
       portfolio: displayPath(portfolioPath),
@@ -125,10 +130,11 @@ function sectionRecordName(section, index) {
 
 
 export async function validateContent(
-  { siteContent, aboutMePage, projects, evidence, portfolioPage, sourceFiles = {} },
+  { siteContent, aboutMePage, skillsPage, projects, evidence, portfolioPage, sourceFiles = {} },
   { publicDirectory = defaultPublicDirectory } = {},
 ) {
   const errors = await validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory });
+  errors.push(...validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles }));
   const siteFile = sourceFiles.site ?? "src/content/site.ts";
   const aboutFile = sourceFiles.aboutMe ?? "src/content/pages/aboutMe.ts";
 

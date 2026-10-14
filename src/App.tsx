@@ -7,11 +7,12 @@ import Skills from "./Pages/Skills";
 import AboutMe from "./Pages/AboutMe";
 import { siteContent } from "./content/site";
 import { aboutMePage } from "./content/pages/aboutMe";
+import { skillsPage } from "./content/pages/skills";
 
 export default function App() {
   const { pathname, search } = useLocation();
   useEffect(() => {
-    const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? "Skills · " : "";
+    const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? `${skillsPage.title} · ` : "";
     document.title = `${pageTitle}${siteContent.identity.name}`;
     const evidence = new URLSearchParams(search).get("evidence");
     if (pathname === "/" && (evidence === "android-reports" || evidence === "pix-capture")) {

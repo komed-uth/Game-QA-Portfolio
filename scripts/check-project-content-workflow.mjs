@@ -49,7 +49,7 @@ async function checkInvalidDefinitions(definitions) {
       ["duplicate anchor", value => { value.projects[0].headingId = "pc-project-title"; }, /projects\.ts.*headingId: duplicate rendered anchor/],
       ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*anchor: unresolved unmigrated/],
       ["malformed internal link", value => { value.evidence[0].destination = "/?evidence=missing"; }, /evidence\.ts.*destination: malformed or unresolved/],
-      ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /evidence\.ts.*destination: live reference targets hidden/],
+      ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
       ["unsupported preset", value => { value.portfolioPage.sections[0].preset = "unknown"; }, /portfolio\.ts.*preset: unsupported project/],
     ];
     for (const [name, edit, diagnostic] of variants) {

@@ -55,3 +55,24 @@ export async function validateMediaPath(pathValue, context, publicDirectory, err
     errors.push(`${context}: local media file does not exist: public/${normalizedReference}.`);
   }
 }
+
+export function records(value, context, errors, { nonempty = true } = {}) {
+  if (!Array.isArray(value) || (nonempty && value.length === 0)) {
+    errors.push(`${context}: required ordered record list is missing${nonempty ? " or empty" : ""}.`);
+    return [];
+  }
+  const ids = new Set();
+  return value.filter((record, index) => {
+    if (!isObject(record)) {
+      errors.push(`${context}[${index}]: required record is missing.`);
+      return false;
+    }
+    const location = `${context}[${JSON.stringify(record.id ?? index)}].id`;
+    requiredString(record.id, location, errors);
+    if (typeof record.id === "string" && !/^[a-z][a-z0-9-]*$/.test(record.id)) {
+      errors.push(`${location}: use a lowercase stable identity with letters, numbers, and hyphens.`);
+    }
+    registerIdentity(record.id, ids, location, "record identity", errors);
+    return true;
+  });
+}

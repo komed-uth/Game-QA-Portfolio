@@ -2,6 +2,7 @@ import path from "node:path";
 import { loadContentDefinitions, repositoryRoot, validateContent } from "./content-validation.mjs";
 
 const contentFiles = new Set([
+  path.join(repositoryRoot, "src", "content", "pages", "skills.ts"),
   path.join(repositoryRoot, "src", "content", "projects.ts"),
   path.join(repositoryRoot, "src", "content", "evidence.ts"),
   path.join(repositoryRoot, "src", "content", "pages", "portfolio.ts"),
