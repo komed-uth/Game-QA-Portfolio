@@ -1,30 +1,27 @@
-export type TextSectionPreset = "standard";
+export type TextSectionPreset = "standard" | "media-left" | "media-right";
 
-export interface SkillsEvidenceReference {
+export interface EvidenceReference {
   evidenceId: string;
-  // Optional while the remaining project showcases await migration.
-  projectId?: string;
+  projectId: string;
   label?: string;
 }
 
-export interface SkillsCard {
+export interface ContentCard {
   id: string;
   title: string;
   description: string;
-  evidence: SkillsEvidenceReference[];
+  evidence: EvidenceReference[];
 }
 
-interface SkillsSectionBase {
+interface SectionBase {
   id: string;
   visible: boolean;
   preset: "standard";
   title: string;
 }
 
-export type SkillsSection = SkillsSectionBase & (
-  | { type: "cards"; description?: string; cards: SkillsCard[] }
-  | { type: "text"; description: string }
-);
+export type CardsSection = SectionBase & { type: "cards"; description?: string; cards: ContentCard[] };
+export type SkillsSection = CardsSection | TextSection;
 
 export interface SkillsPageContent {
   title: string;
@@ -33,7 +30,7 @@ export interface SkillsPageContent {
   sections: SkillsSection[];
 }
 
-export interface AboutMeTextSection {
+export interface TextSection {
   id: string;
   type: "text";
   visible: boolean;
@@ -50,11 +47,12 @@ export interface AboutMeContactSection {
   id: string;
   type: "contact";
   visible: boolean;
+  preset: "standard";
   title: string;
   linkLabel: string;
 }
 
-export type AboutMeSection = AboutMeTextSection | AboutMeContactSection;
+export type AboutMeSection = TextSection | CardsSection | AboutMeContactSection;
 
 export interface AboutMePageContent {
   title: string;
@@ -65,6 +63,8 @@ export interface AboutMePageContent {
 export interface SiteContent {
   identity: {
     name: string;
+    icon: string;
+    description: string;
   };
   navigation: {
     regionLabel: string;
@@ -80,12 +80,31 @@ export interface SiteContent {
     name: string;
     platform: string;
     tooltip: string;
+    icon: string;
   };
   interface: {
     skipLinkLabel: string;
     identityHomeLabel: string;
     opensInNewTab: string;
     externalLinkArrow: string;
+    closeEvidence: string;
+    closeSymbol: string;
+    scrollableSummary: string;
+    previousScreenshot: string;
+    nextScreenshot: string;
+    openOriginal: string;
+    openOriginalFile: string;
+    openScreenshot: string;
+    videoTitle: string;
+    loadingPhoto: string;
+    loadingVideo: string;
+    failedPhoto: string;
+    failedVideo: string;
+    retry: string;
+    resumeSlideshow: string;
+    pauseSlideshow: string;
+    previews: string;
+    showPreview: string;
   };
   footer: {
     regionLabel: string;

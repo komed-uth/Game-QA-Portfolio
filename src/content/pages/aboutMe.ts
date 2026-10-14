@@ -1,4 +1,4 @@
-import type { AboutMePageContent } from "../types";
+import type { AboutMePageContent } from "../../page-schema";
 
 export const aboutMePage: AboutMePageContent = {
   title: "About me",
@@ -44,6 +44,7 @@ export const aboutMePage: AboutMePageContent = {
       id: "contact",
       type: "contact",
       visible: true,
+      preset: "standard",
       title: "Contact",
       linkLabel: "Contact me on LinkedIn",
     },

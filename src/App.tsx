@@ -7,6 +7,8 @@ import Skills from "./Pages/Skills";
 import AboutMe from "./Pages/AboutMe";
 import { siteContent } from "./content/site";
 import { aboutMePage } from "./content/pages/aboutMe";
+import { evidence as evidenceRecords } from "./content/evidence";
+import { assetUrl } from "./data";
 import { skillsPage } from "./content/pages/skills";
 
 export default function App() {
@@ -14,15 +16,17 @@ export default function App() {
   useEffect(() => {
     const pageTitle = pathname === "/about-me" ? `${aboutMePage.title} · ` : pathname === "/skills" ? `${skillsPage.title} · ` : "";
     document.title = `${pageTitle}${siteContent.identity.name}`;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", siteContent.identity.description);
+    document.querySelector('link[rel="icon"]')?.setAttribute("href", assetUrl(siteContent.identity.icon));
     const evidence = new URLSearchParams(search).get("evidence");
-    if (pathname === "/" && (evidence === "android-reports" || evidence === "pix-capture")) {
-      const destination = document.getElementById(evidence);
+    if (pathname === "/" && evidenceRecords.some(record => record.anchor === evidence)) {
+      const destination = document.getElementById(evidence!);
       destination?.focus({ preventScroll: true });
       destination?.scrollIntoView();
       return;
     }
     window.scrollTo(0, 0);
-  }, [pathname, search]);
+  }, [pathname, search, aboutMePage.title, skillsPage.title, siteContent.identity.name, siteContent.identity.description, siteContent.identity.icon]);
 
   return (
     <div className="site-shell">

@@ -1,3 +1,4 @@
+import { validateContentSections } from "./page-section-validation.mjs";
 import { visibleProjectEvidence } from "./project-evidence.mjs";
 import { isObject, requiredString, registerIdentity, validateMediaPath, records } from "./content-validation-fields.mjs";
 
@@ -20,7 +21,7 @@ function evidenceDestination(value, anchor) {
 }
 
 
-export async function validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }) {
+export async function validateProjectContent({ projects, evidence, portfolioPage, sourceFiles = {} }, { publicDirectory }) {
   const errors = [];
   const projectFile = sourceFiles.projects ?? "src/content/projects.ts";
   const evidenceFile = sourceFiles.evidence ?? "src/content/evidence.ts";
@@ -40,12 +41,16 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
 
   for (const section of sections) {
     const context = `${pageFile}: portfolioPage.sections[${JSON.stringify(section.id)}]`;
-    if (section.type !== "project") errors.push(`${context}.type: unsupported section type.`);
-    if (section.preset !== "standard") errors.push(`${context}.preset: unsupported project preset; supported presets: standard.`);
+    if (section.type !== "project") {
+      errors.push(...await validateContentSections({ page: { sections: [section] }, context: `${pageFile}: portfolioPage`, projects, evidence, portfolioPage, sourceFiles, anchors }, { publicDirectory }));
+      continue;
+    }
+    if (!["standard", "media-left", "media-right"].includes(section.preset)) errors.push(`${context}.preset: unsupported project preset; supported presets: standard, media-left, media-right.`);
     if (typeof section.visible !== "boolean") errors.push(`${context}.visible: required boolean visibility is missing.`);
     requiredString(section.projectId, `${context}.projectId`, errors);
     const project = projectRecords.find(record => record.id === section.projectId);
     if (!project) { errors.push(`${context}.projectId: unknown project reference ${JSON.stringify(section.projectId)}.`); continue; }
+    if (section.preset !== "standard" && !project.media?.length && project.presentation !== "pc") errors.push(`${context}.preset: this preset requires gallery media or a capture.`);
     if (section.visible === true) {
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
       for (const id of [project.reportEvidenceId, project.captureEvidenceId].filter(Boolean)) {

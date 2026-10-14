@@ -1,4 +1,4 @@
-import type { SkillsPageContent } from "../types";
+import type { SkillsPageContent } from "../../page-schema";
 
 export const skillsPage: SkillsPageContent = {
   "title": "Skills",
@@ -27,7 +27,8 @@ export const skillsPage: SkillsPageContent = {
               "projectId": "regulus"
             },
             {
-              "evidenceId": "pix-capture"
+              "evidenceId": "pix-capture",
+              "projectId": "vecchio-furioso"
             }
           ]
         },
@@ -99,7 +100,8 @@ export const skillsPage: SkillsPageContent = {
           "description": "PC GPU capture and rendering analysis.",
           "evidence": [
             {
-              "evidenceId": "pix-capture"
+              "evidenceId": "pix-capture",
+              "projectId": "vecchio-furioso"
             }
           ]
         },

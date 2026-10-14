@@ -11,7 +11,7 @@ const directory = path.join(repositoryRoot, "src/content");
 const files = { skillsPage: "pages/skills.ts", evidence: "evidence.ts", portfolioPage: "pages/portfolio.ts" };
 const originals = Object.fromEntries(await Promise.all(Object.entries(files).map(async ([name, file]) =>
   [name, await readFile(path.join(directory, file), "utf8")])));
-const types = { skillsPage: ["SkillsPageContent", "../types"], evidence: ["EvidenceContent[]", "../content-schema"], portfolioPage: ["PortfolioPageContent", "../../content-schema"] };
+const types = { skillsPage: ["SkillsPageContent", "../../page-schema"], evidence: ["EvidenceContent[]", "../content-schema"], portfolioPage: ["PortfolioPageContent", "../../content-schema"] };
 async function writeDefinitions(target, definitions) {
   for (const [name, file] of Object.entries(files)) {
     const [type, source] = types[name];

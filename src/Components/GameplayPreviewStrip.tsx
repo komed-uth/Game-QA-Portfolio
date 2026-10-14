@@ -1,3 +1,4 @@
+import { siteContent } from "../content/site";
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import type { MediaGalleryItem } from "./MediaGallery";
 
@@ -79,13 +80,13 @@ export default function GameplayPreviewStrip({ galleryName, media, selected, onS
     event.stopPropagation();
   }
 
-  return <div className="gallery-preview-strip" role="group" aria-label={galleryName + " gameplay previews"}>
+  return <div className="gallery-preview-strip" role="group" aria-label={galleryName + " " + siteContent.interface.previews}>
     <div className="gallery-thumbnails" ref={strip}
       onPointerDown={startDrag} onPointerMove={moveDrag}
       onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}
       onClickCapture={blockDraggedClick}>
-      {media.map((thumbnail, index) => <button key={thumbnail.source + index} type="button"
-        className="gallery-thumbnail" aria-label={"Show " + thumbnail.label.toLowerCase()}
+      {media.map((thumbnail, index) => <button key={thumbnail.id} type="button"
+        className="gallery-thumbnail" aria-label={siteContent.interface.showPreview.replace("{label}", thumbnail.label.toLowerCase())}
         aria-pressed={selected === index} onClick={() => { onSelect(index); reveal(index); }}
         onFocus={() => reveal(index)} onKeyDown={event => focusPreview(event, index)} draggable={false}>
         <img src={thumbnail.source} alt="" draggable={false} />

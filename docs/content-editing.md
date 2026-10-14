@@ -1,53 +1,105 @@
 # Editing portfolio content
 
-The current editable content lives in these typed files:
+Begin in `src/content/`. These TypeScript files provide VS Code field suggestions. Definitions describe content and supported presentation; renderers, schemas (`src/page-schema.ts`, `src/content-schema.ts`), validation, and asset resolution remain outside this editing area.
 
-- `src/content/pages/skills.ts` owns the Skills title/optional description, card and text sections, headings, capability/tool copy, section IDs/order/visibility, and action text.
-- `src/content/pages/aboutMe.ts` owns the About me page title, eyebrow, section IDs, order, visibility, text, and contact presentation.
-- `src/content/site.ts` owns the portfolio name, navigation labels and destinations, shared contact destination, footer landmark label, and common interface text, including the identity link's accessible “home” label.
-- `src/content/pages/portfolio.ts` contains the complete ordered list of six project showcases, selected by stable `projectId`. Move section entries to reorder the Portfolio; keep their section IDs and project IDs unchanged. Section visibility and the supported `standard` preset retain each project’s established presentation.
-- `src/content/projects.ts` owns every project’s name, facts, labels, disclosures, store destinations/icons, and ordered gameplay media with alternatives. Keep project, detail, and media IDs stable when changing copy or order. Images use either a local `path` under `public/` or an absolute HTTP(S) `url`; videos use an 11-character YouTube `videoId`. Each gallery supports at most one video. Set `media: []` to intentionally omit optional gameplay without an empty frame. A supplied missing local file still fails validation.
-- `src/content/evidence.ts` owns Android report choices, paths, default, report-control labels and alternatives, and shared Android/PIX destinations and link labels. The PIX record also owns its independent capture path, alternative, opening label, and modal title. Skills selects these records by stable `evidenceId`, with an optional shared `projectId` that must own the selected report or capture evidence. Schemas and validation live outside the editing files.
+| Owner | Editable content |
+| --- | --- |
+| `pages/portfolio.ts` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
+| `pages/skills.ts` | Page title/description, capabilities/tools, text/card sections, evidence references, action suffix |
+| `pages/aboutMe.ts` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
+| `site.ts` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
+| `projects.ts` | Project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
+| `evidence.ts` | Shared report/PIX destinations and labels, report headings/actions/alternatives/default/choices/files, PIX file/alternative/opening label/modal title |
 
-For example, edit a project detail's `value`, change a store's `destination` to an absolute HTTP(S) URL, or move a media entry within `media`. Update its `path` and `alt` together. Local report paths also resolve under the site's hosting base. Change the `very-high` report's label from `Very High` to `Ultra` without changing its ID; `defaultReportId: "very-high"` keeps it selected. Report inspection memory is keyed by report ID rather than label or filename.
+There is no second copy of project facts or evidence destinations in a page component. Original reports, captures, and videos remain evidence files rather than editable page prose. Public routes (`/`, `/skills`, `/about-me`), the legacy `/about` redirect, and public evidence anchors are stable application contracts. Styles, breakpoints, YouTube provider endpoints and decorative video indicators are implementation; page editors do not configure arbitrary CSS or a new section engine.
 
-Keep the public `android-reports` and `pix-capture` anchors/destinations stable for existing bookmarks. Unknown project/evidence references, duplicate IDs/anchors, missing local files, malformed links, unsupported media, and invalid report defaults fail normal validation with file/record/field context. Hiding Regulus or Vecchio fails validation while visible Skills sections link to their evidence. Remove the incoming references or hide the referring sections first. Projects without incoming evidence references can be hidden.
+## Copy, links and media
 
-About me sections render in array order. Set `visible` to `false` to hide a section. Text sections currently support the `standard` preset; unsupported presets and duplicate section IDs fail validation. Add another text section by copying this shape:
+Edit `description` or a project detail's `value` to change wording. Edit `siteContent.contact.destination` once to update the header and About me contact. Contact destinations accept absolute HTTP(S) or mailto URLs. Store and external image destinations accept absolute HTTP(S) URLs. Navigation must resolve to a supported page; an evidence query must target a visible Portfolio evidence block on `/`. Fragments are unsupported in navigation definitions.
+
+Keep stable IDs when renaming headings, cards, projects, quality labels or media labels. For example, rename report `id: "very-high"` from `Very High` to `Ultra`, leaving `defaultReportId: "very-high"`. Inspection memory uses report identity. Gallery selection uses media identity, so moving or renaming a surviving media entry retains its selection during development edits.
+
+Local assets use forward-slash paths relative to `public/`, such as `images/example.png`. Update an image's `path` and descriptive `alt` together; the file must actually exist. The shared base-aware resolver handles repository/subfolder hosting. Project images choose either `path` or an absolute `url`, never both; videos use an 11-character YouTube `videoId`, with at most one video per gallery. Move media entries to change their order. `media: []` intentionally omits a project gallery, and omitting a text section's `media` removes its image without an empty frame. A supplied missing file is an error, including on hidden records.
+
+Shared interface templates in `site.ts` keep their named tokens: `openScreenshot` and `showPreview` require `{label}`, and `videoTitle` requires `{project}`. Change surrounding wording while retaining the token. The shared metadata title, description and icon also supply `index.html`, so routine shell edits do not require changing HTML or a component.
+
+URL-format validation checks syntax and internal targets. It does **not** prove that an external URL is reachable or that its content is appropriate.
+
+## Shared evidence reuse
+
+Cards on any page select evidence by identity, with its owning project:
+
+```ts
+{ projectId: "regulus", evidenceId: "android-reports", label: "Inspect Android reports" }
+{ projectId: "vecchio-furioso", evidenceId: "pix-capture" }
+```
+
+The optional `label` changes only that reference's action text; omit it to use the shared evidence label. Never copy a destination into a card. Change the evidence record's `destination`, `path`, or report file once to update Portfolio inspection and every page reference. Internal evidence destinations preserve their anchor, e.g. `/?context=review&evidence=android-reports`. Additional query parameters are allowed; duplicate selectors, fragments, different targets, and malformed destinations fail validation.
+
+A **live** reference is one rendered in a visible card section or navigation link. Hiding Regulus or Vecchio while a live reference points to its evidence fails with the reference's file/record/field and the Portfolio/evidence target. Remove the incoming links or hide their referring sections before hiding the target. Unreferenced sections can be hidden. Hidden referring sections still need well-formed records and known IDs.
+
+## Supported sections, order and visibility
+
+All pages use one ordered section list. Move the complete entry to reorder it and set `visible: false` to hide it without leaving a layout gap. Keep its `id` stable. Text and card groups can be added on all three pages; Portfolio additionally supports project showcases, and About me supports one contact section.
 
 ```ts
 {
-  id: "testing-approach",
-  type: "text",
-  visible: true,
-  preset: "standard",
-  title: "Testing approach",
-  description: "Describe the approach here.",
+  id: "additional-note", type: "text", visible: true, preset: "standard",
+  title: "Additional note", description: "Your reviewed wording here."
 }
 ```
 
-Text-section media is optional. When supplied, set a path relative to `public/` and descriptive alternative text. For example, `path: "images/example.png"` resolves through the site's base-aware asset helper and is checked for a local file before development or production builds. Parent-directory segments are rejected so an existing file cannot resolve outside the deployed site base. Omitting `media` renders no image element or empty frame.
-
-Change `siteContent.contact.destination` once to update both the header contact link and the About me contact link. The About me page owns its contact heading and link label. Contact destinations must be absolute HTTP(S) or mailto URLs. Navigation destinations must match a supported route: `/`, `/skills`, or `/about-me`. The validator reports unknown routes and malformed destinations.
-
-`npm run dev` validates content before starting Vite and validates each saved definition edit while Vite is running. Development waits for 100ms of file stability before processing a save, so rapid corrections are not lost to the filesystem watcher's same-file event throttle. Invalid edits are reported in the terminal and browser overlay, and are withheld from hot reload until corrected. `npm run build` validates before typechecking and building. Diagnostics include the definition file, record, and field. Run `npm run check:content` for validator coverage and `npm run check:content-workflow` to exercise copy, contact, ordering, visibility, media, invalid-definition, development-server updates, build, and browser behavior with disposable edits that are restored before the check exits.
-
-## Skills editing
-
-Edit a card's `title` or `description` in `pages/skills.ts`. Card identities stay stable when copy changes. Every section supports `preset: "standard"`; card grids adapt automatically. Array order controls both rendered headings and keyboard order. Hide a section with `visible: false`. Add a supported text section with:
+Optional text media:
 
 ```ts
-{ id: "additional-note", type: "text", visible: true, preset: "standard",
-  title: "Additional note", description: "Your text here." }
+media: { path: "images/example.png", alt: "Describe the meaningful image." }
 ```
 
-To add another card group, copy an existing `type: "cards"` section, give it a unique section ID, and replace its `title` and `cards`. Each card needs an ID unique within its group, title, description, and an `evidence` array (empty is allowed). Page and group descriptions are optional. The existing approved definition adds no new claims or sections.
+Supported card group:
 
-Evidence references use `{ evidenceId: "android-reports", projectId: "regulus" }` or `{ evidenceId: "pix-capture" }`. The optional project reference uses the shared catalogue: PIX can also use `projectId: "vecchio-furioso"`. Change a shared record's `label` once for all Skills uses, or set a reference's optional `label` for page-specific action wording. `evidenceActionSuffix` owns the trailing action text. Never copy a destination into a Skills card.
+```ts
+{
+  id: "additional-evidence", type: "cards", visible: true, preset: "standard",
+  title: "Additional evidence",
+  cards: [{
+    id: "android-example", title: "Android profiling", description: "Reviewed context.",
+    evidence: [{ projectId: "regulus", evidenceId: "android-reports" }]
+  }]
+}
+```
 
-Edit destinations in `evidence.ts`. Internal links must retain their existing evidence selector, e.g. `/?context=review&evidence=android-reports`; additional query parameters are permitted, but a different target, duplicate selector, fragment, or malformed route fails validation. Existing plain destinations/bookmarks remain valid. Edit a report's local `path` to update the report opened from both Portfolio and Skills. Original supplied reports remain unchanged. PIX's shared `path` updates its capture for both Portfolio and Skills inspection.
+Each card has an `evidence` array; `[]` is valid. Card/group descriptions and reference labels follow their typed fields. Add a supported Portfolio project section by selecting a shared project:
 
-`npm run check:content-workflow` also exercises Skills live development edits/recovery, copy/actions, shared link and report-file edits, added card/text sections, reordering/hiding, desktop/mobile keyboard order, and field-specific invalid-reference diagnostics. Temporary definitions and the canonical build are restored before it exits. Run `node scripts/check-skills-content-workflow.mjs` for the focused production workflow. The existing `node scripts/check-browser.mjs --skills-only` remains the baseline for approved copy/navigation/Android and PIX interactions.
-To edit Father, Son & Holy Guns, find `id: "father-son"` in the shared project file and update a detail value or a media `path` and `alt` together. To edit a placeholder, find its stable ID (for example `invictus-lost-soul`) and update its copy/panels while retaining explicit placeholder disclosures and unconfirmed status. Editable panels do not establish contributor experience or verified results. Vecchio’s `captureEvidenceId: "pix-capture"` selects the separately inspectable evidence record; its gameplay gallery remains separate. Keep each `presentation`, public `headingId`, and evidence anchor stable during routine edits.
+```ts
+{ id: "regulus", type: "project", visible: true, preset: "media-left", projectId: "regulus" }
+```
 
-For a Portfolio reorder, move the complete `father-son` section before `regulus` in `src/content/pages/portfolio.ts`; their gallery identities and evidence destinations stay unchanged. Array order also determines showcase reading and keyboard order. A duplicate rendered project or unknown selected project fails with the relevant file/field context. `npm run check:content-workflow` exercises representative real and placeholder edits, Portfolio reordering, local/external media, omitted galleries, PIX and store edits, subfolder hosting, and responsive/keyboard traversal, then restores canonical content.
+Do not render the same project twice: its public heading/evidence anchors would conflict. A different project record needs its own identity and heading anchor. Section IDs are unique per page; card IDs per group; project/evidence IDs in their collections; media/store/detail/report IDs within their owning record. Rendered anchors are unique per page, including the shell and fixed page heading.
+
+## Allowed presets
+
+| Section type | Presets | Compatibility |
+| --- | --- | --- |
+| Project showcase | `standard`, `media-left`, `media-right` | Side variants require gallery media or a PC capture |
+| Text | `standard`, `media-left`, `media-right` | Side variants require supplied local media and an alternative |
+| Cards | `standard` | Existing grid adapts automatically |
+| About me contact | `standard` | One contact section per page |
+
+`standard` preserves the approved appearance. Project `media-right` uses the established desktop media column; `media-left` places media on the left. Separate PIX evidence stays below gameplay in that media column. Report preview remains before controls in reading order and on narrow screens. Every preset stacks automatically at **900px and below**, preserving title, media, details. No second mobile section list is required. DOM and keyboard order follow the same list; preset CSS does not remount galleries or report viewers.
+
+A completely new section style needs a reusable component and contract extension. Editing support does not authorize new claims, removed interests/workflow/coverage, held features, or replacement evidence. Keep placeholder disclosures and unconfirmed status; mock panels do not establish contributor experience.
+
+## Correcting errors and checking edits
+
+`npm run dev` and `npm start` validate before startup. Saved definitions are validated before hot reload; invalid changes produce terminal diagnostics and the browser overlay, then a corrective save resumes rendering. `npm run build` validates before strict typechecking and the production build. An error points to its editing file, record/section and field.
+
+- **Missing field:** fill the named title, description, identity, action, alternative, or required reference.
+- **Unknown reference:** use an existing project/evidence ID and match evidence to its owning project.
+- **Hidden target:** correct the incoming live reference or target section's visibility; do not silently redirect it.
+- **Duplicate ID/anchor:** choose a unique stable identity; avoid repeated projects and the reserved About me heading.
+- **Unsupported type/preset:** use the table above; side presets need compatible media.
+- **Invalid default:** choose an existing report ID, independent of its editable label.
+- **Missing local asset:** correct the file/path under `public/`; do not substitute an external destination into a local field.
+- **Malformed/unresolved link:** correct its scheme, route or evidence selector. URL format alone does not attest external availability.
+
+Run `npm run check:content` for isolated diagnostic fixtures and `npm run check:content-workflow` for the complete definition-edit → validation/dev/build → rendered-page boundary. The workflow asserts independently chosen copy, destinations, supported additions/order/visibility, presets, responsive/keyboard order, and surviving selection/inspection. Fixtures are disposable or restored byte-for-byte; the canonical production build is restored before exit. `node scripts/check-layout-content-workflow.mjs` focuses on the final preset safeguards. Run the required complete validation in `docs/development/validation.md` before publishing a PR.

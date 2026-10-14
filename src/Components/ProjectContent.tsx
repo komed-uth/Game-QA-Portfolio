@@ -7,7 +7,7 @@ export function ProjectGallery({ project }: { project: ProjectContent }) {
   if (!project.media.length) return null;
   return <MediaGallery projectName={project.name} galleryName={project.galleryName}
     videoId={project.media.find(item => item.type === "video")?.videoId}
-    media={project.media.map(item => ({ type: item.type, label: item.label, alt: item.alt,
+    media={project.media.map(item => ({ id: item.id, type: item.type, label: item.label, alt: item.alt,
       source: item.type === "video" ? "https://i.ytimg.com/vi/" + item.videoId + "/hqdefault.jpg" :
         item.url !== undefined ? item.url : assetUrl(item.path) }))} />;
 }

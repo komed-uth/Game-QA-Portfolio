@@ -1,3 +1,4 @@
+import { siteContent } from "../content/site";
 import { useEffect, useId, useRef, useState } from "react";
 
 export type InspectionPosition = { left: number; top: number };
@@ -122,11 +123,11 @@ export default function EvidenceModal({ title, source, kind = "image", alt = "",
       }}>
       <header className="evidence-modal-header">
         <h2 id={titleId}>{title}</h2>
-        <button type="button" onClick={close} aria-label="Close evidence">×</button>
+        <button type="button" onClick={close} aria-label={siteContent.interface.closeEvidence}>{siteContent.interface.closeSymbol}</button>
       </header>
       <div ref={viewport} className={"evidence-modal-content evidence-modal-" + kind}
         tabIndex={kind === "summary" ? 0 : undefined}
-        aria-label={kind === "summary" ? title + " scrollable summary" : undefined}
+        aria-label={kind === "summary" ? title + " " + siteContent.interface.scrollableSummary : undefined}
         onScroll={kind === "summary" ? (event) => onPositionChange?.({
           left: event.currentTarget.scrollLeft, top: event.currentTarget.scrollTop }) : undefined}>
         {kind === "html" ? <iframe key={source} src={source} title={title}
@@ -136,9 +137,9 @@ export default function EvidenceModal({ title, source, kind = "image", alt = "",
           }} />}
       </div>
       <footer className="evidence-modal-footer">
-        {onPrevious && <button type="button" onClick={onPrevious}>Previous screenshot</button>}
-        {onNext && <button type="button" onClick={onNext}>Next screenshot</button>}
-        <a href={source} target="_blank" rel="noopener noreferrer">Open original in new tab ↗</a>
+        {onPrevious && <button type="button" onClick={onPrevious}>{siteContent.interface.previousScreenshot}</button>}
+        {onNext && <button type="button" onClick={onNext}>{siteContent.interface.nextScreenshot}</button>}
+        <a href={source} target="_blank" rel="noopener noreferrer">{siteContent.interface.openOriginal}</a>
       </footer>
     </dialog>
   );

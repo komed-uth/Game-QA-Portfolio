@@ -60,12 +60,15 @@ export interface CaptureEvidence {
 }
 
 export type EvidenceContent = ReportEvidence | CaptureEvidence;
+import type { CardsSection, TextSection } from "./page-schema";
+
+export type ProjectPreset = "standard" | "media-left" | "media-right";
 export interface PortfolioPageContent {
-  sections: Array<{
+  sections: Array<CardsSection | TextSection | {
     id: string;
     type: "project";
     visible: boolean;
-    preset: "standard";
+    preset: ProjectPreset;
     projectId: string;
   }>;
 }

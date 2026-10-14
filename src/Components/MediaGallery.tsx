@@ -1,3 +1,4 @@
+import { siteContent } from "../content/site";
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 import EvidenceModal from "./EvidenceModal";
@@ -7,6 +8,7 @@ import useGallerySlideshow from "./useGallerySlideshow";
 import YouTubeVideo from "./YouTubeVideo";
 
 export type MediaGalleryItem = {
+  id: string;
   type: "video" | "image";
   source: string;
   label: string;
@@ -26,10 +28,12 @@ export default function MediaGallery({
   videoId,
   media,
 }: MediaGalleryProps) {
-  const [selected, setSelected] = useState(0);
+  const [selectedId, setSelectedId] = useState(media[0]?.id);
+  const selected = Math.max(0, media.findIndex(entry => entry.id === selectedId));
   const [open, setOpen] = useState(false);
   const item = media[selected];
   const selectedRef = useRef(0);
+  selectedRef.current = selected;
   const presentation = useGalleryMedia(item?.source ?? null, item?.type);
   const presented = presentation.layers.some(layer => layer.request === presentation.request && layer.source === item?.source && layer.type === item?.type && layer.presented);
   const photoReady = item?.type === "image" && presented && presentation.phase === "ready";
@@ -63,7 +67,7 @@ export default function MediaGallery({
     if (next === selectedRef.current) return;
     selectedRef.current = next;
     gesture.current = null;
-    setSelected(next);
+    setSelectedId(media[next].id);
   }
 
   function startSwipe(event: PointerEvent<HTMLDivElement>) {
@@ -154,7 +158,7 @@ export default function MediaGallery({
                   onAnimationEnd={event => {
                     if (event.isTrusted && event.target === event.currentTarget && event.animationName === "gallery-photo-in") presentation.finishFade(layer.request);
                   }}>
-                  <YouTubeVideo videoId={videoId ?? ""} title={projectName + " video"}
+                  <YouTubeVideo videoId={videoId ?? ""} title={siteContent.interface.videoTitle.replace("{project}", projectName)}
                     eligible={current && presentation.phase === "ready" && slideshow.eligible}
                     isCurrent={() => requested && selectedRef.current === selected}
                     onReadiness={event => presentation.videoEvent(layer.request, event)}
@@ -169,21 +173,21 @@ export default function MediaGallery({
                   }}
                   disabled={!current || !photoReady} draggable={false}
                   aria-hidden={!current || undefined} tabIndex={current ? undefined : -1}
-                  aria-label={current ? "Open full-size " + activeItem.label.toLowerCase() + " screenshot" : undefined}
+                  aria-label={current ? siteContent.interface.openScreenshot.replace("{label}", activeItem.label.toLowerCase()) : undefined}
                 >
                   <img src={layer.source} alt={current ? activeItem.alt : ""} draggable={false} />
                 </button>;
               })}
               {presentation.phase === "failed" ? <div className="gallery-photo-status" role="alert">
-                <p>Could not load this {activeItem.type === "video" ? "video" : "photo"}.</p>
-                <button type="button" className="gallery-arrow" onClick={presentation.retry}>Retry</button>
-                {activeItem.type === "image" && <a href={activeItem.source} target="_blank" rel="noopener noreferrer">Open original file ↗</a>}
+                <p>{activeItem.type === "video" ? siteContent.interface.failedVideo : siteContent.interface.failedPhoto}</p>
+                <button type="button" className="gallery-arrow" onClick={presentation.retry}>{siteContent.interface.retry}</button>
+                {activeItem.type === "image" && <a href={activeItem.source} target="_blank" rel="noopener noreferrer">{siteContent.interface.openOriginalFile}</a>}
               </div> : presentation.phase === "loading" && <div className="gallery-photo-status" role="status">
-                Loading {activeItem.type === "video" ? "video" : "photo"}…
+                {activeItem.type === "video" ? siteContent.interface.loadingVideo : siteContent.interface.loadingPhoto}
               </div>}
           {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control"
             onClick={slideshow.togglePause}>
-            {slideshow.paused ? "Resume slideshow" : "Pause slideshow"}
+            {slideshow.paused ? siteContent.interface.resumeSlideshow : siteContent.interface.pauseSlideshow}
           </button>}
         </div>
       </figure>
