@@ -1,40 +1,36 @@
-import { capabilities, tools } from "../data";
 import { Link } from "react-router-dom";
+import { skillsPage } from "../content/pages/skills";
+import { evidence } from "../content/evidence";
 
 export default function Skills() {
   return (
     <>
       <section className="about-intro">
-        <h1>Skills</h1>
+        <h1>{skillsPage.title}</h1>
+        {skillsPage.description && <p>{skillsPage.description}</p>}
       </section>
-      <section className="approach-section" aria-labelledby="capabilities-heading">
-        <h2 id="capabilities-heading">QA capabilities</h2>
-        <ul className="skills-list">
-          {capabilities.map((capability) => (
-            <li key={capability.title}>
-              <h3>{capability.title}</h3>
-              <p>{capability.description}</p>
-              {capability.evidence.map((evidence) => (
-                <Link className="skill-evidence" key={evidence.to} to={evidence.to}>{evidence.label} →</Link>
+      {skillsPage.sections.filter(section => section.visible).map(section => (
+        <section className="approach-section" aria-labelledby={`${section.id}-heading`} key={section.id}>
+          <h2 id={`${section.id}-heading`}>{section.title}</h2>
+          {section.description && <p>{section.description}</p>}
+          {section.type === "cards" && (
+            <ul className="skills-list">
+              {section.cards.map(card => (
+                <li key={card.id}>
+                  <h3>{card.title}</h3>
+                  <p>{card.description}</p>
+                  {card.evidence.map(reference => {
+                    const record = evidence.find(entry => entry.id === reference.evidenceId)!;
+                    return <Link className="skill-evidence" key={reference.evidenceId} to={record.destination}>
+                      {reference.label ?? record.label} {skillsPage.evidenceActionSuffix}
+                    </Link>;
+                  })}
+                </li>
               ))}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section className="approach-section" aria-labelledby="tools-heading">
-        <h2 id="tools-heading">Tools</h2>
-        <ul className="skills-list">
-          {tools.map((tool) => (
-            <li key={tool.name}>
-              <h3>{tool.name}</h3>
-              <p>{tool.description}</p>
-              {tool.evidence.map((evidence) => (
-                <Link className="skill-evidence" key={evidence.to} to={evidence.to}>{evidence.label} →</Link>
-              ))}
-            </li>
-          ))}
-        </ul>
-      </section>
+            </ul>
+          )}
+        </section>
+      ))}
     </>
   );
 }

@@ -1,7 +1,7 @@
-import { isObject, requiredString, registerIdentity, validateMediaPath } from "./content-validation-fields.mjs";
+import { visibleProjectEvidence } from "./project-evidence.mjs";
+import { isObject, requiredString, registerIdentity, validateMediaPath, records } from "./content-validation-fields.mjs";
 
-// Skills retains these public destinations until its migration.
-const legacySkillsEvidence = ["android-reports", "pix-capture"];
+const publicEvidenceIds = ["android-reports", "pix-capture"];
 
 function webDestination(value) {
   if (typeof value !== "string" || !/^https?:\/\/[^/]/i.test(value) || /\s|\\/.test(value)) return false;
@@ -11,26 +11,14 @@ function webDestination(value) {
   } catch { return false; }
 }
 
-function records(value, context, errors, { nonempty = true } = {}) {
-  if (!Array.isArray(value) || (nonempty && value.length === 0)) {
-    errors.push(`${context}: required ordered record list is missing${nonempty ? " or empty" : ""}.`);
-    return [];
-  }
-  const ids = new Set();
-  return value.filter((record, index) => {
-    if (!isObject(record)) {
-      errors.push(`${context}[${index}]: required record is missing.`);
-      return false;
-    }
-    const location = `${context}[${JSON.stringify(record.id ?? index)}].id`;
-    requiredString(record.id, location, errors);
-    if (typeof record.id === "string" && !/^[a-z][a-z0-9-]*$/.test(record.id)) {
-      errors.push(`${location}: use a lowercase stable identity with letters, numbers, and hyphens.`);
-    }
-    registerIdentity(record.id, ids, location, "record identity", errors);
-    return true;
-  });
+function evidenceDestination(value, anchor) {
+  if (typeof value !== "string" || !value.startsWith("/?") || /\s|\\/.test(value)) return false;
+  try {
+    const url = new URL(value, "https://portfolio.invalid");
+    return !url.hash && url.searchParams.getAll("evidence").length === 1 && url.searchParams.get("evidence") === anchor;
+  } catch { return false; }
 }
+
 
 export async function validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }) {
   const errors = [];
@@ -41,8 +29,8 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
   const evidenceRecords = records(evidence, `${evidenceFile}: evidence`, errors);
   const sections = records(portfolioPage?.sections, `${pageFile}: portfolioPage.sections`, errors, { nonempty: false });
   const anchors = new Set(["main-content"]);
-  const liveEvidence = new Set(legacySkillsEvidence);
-  const visibleEvidence = new Set();
+  const liveEvidence = new Set();
+  const visibleEvidence = visibleProjectEvidence(projectRecords, sections);
 
   const addAnchor = (value, context) => {
     requiredString(value, context, errors);
@@ -62,7 +50,6 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
       for (const id of [project.reportEvidenceId, project.captureEvidenceId].filter(Boolean)) {
         liveEvidence.add(id);
-        visibleEvidence.add(id);
         const record = evidenceRecords.find(record => record.id === id);
         if (record) {
           addAnchor(record.anchor, `${evidenceFile}: evidence[${JSON.stringify(record.id)}].anchor`);
@@ -117,10 +104,9 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     for (const field of ["label", "anchor", "destination"]) requiredString(record[field], `${context}.${field}`, errors);
     if (record.kind !== "reports" && record.kind !== "capture") errors.push(`${context}.kind: unsupported evidence kind.`);
     if ((record.id === "android-reports" && record.kind !== "reports") || (record.id === "pix-capture" && record.kind !== "capture")) errors.push(`${context}.kind: preserve the established Android reports / PIX capture presentation.`);
-
-    if (legacySkillsEvidence.includes(record.id) && record.anchor !== record.id) errors.push(`${context}.anchor: preserve the established public destination ${record.id}.`);
+    if (publicEvidenceIds.includes(record.id) && record.anchor !== record.id) errors.push(`${context}.anchor: preserve the established public destination ${record.id}.`);
     const expected = `/?evidence=${record.anchor}`;
-    if (record.destination !== expected || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected}.`);
+    if (!evidenceDestination(record.destination, record.anchor) || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected} (additional query parameters are allowed).`);
     if (liveEvidence.has(record.id) && (!visibleEvidence.has(record.id) || !anchors.has(record.anchor))) errors.push(`${context}.destination: live reference targets hidden or unresolved evidence.`);
     if (record.kind === "capture") {
       for (const field of ["alt", "openLabel", "title"]) requiredString(record[field], `${context}.${field}`, errors);
@@ -138,7 +124,7 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     }
   }
   for (const id of liveEvidence) {
-    if (!evidenceRecords.some(record => record.id === id)) errors.push(`${evidenceFile}: evidence[${JSON.stringify(id)}]: unknown evidence reference from Portfolio or preserved Skills.`);
+    if (!evidenceRecords.some(record => record.id === id)) errors.push(`${evidenceFile}: evidence[${JSON.stringify(id)}]: unknown evidence reference from Portfolio.`);
   }
   return errors;
 }
