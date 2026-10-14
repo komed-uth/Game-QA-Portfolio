@@ -36,7 +36,7 @@ Independent GPT-6.1 Sol review at high effort found no missing/partial/incorrect
 
 During workflow development, its Windows subprocess invocation initially split a disposable definition path containing spaces; the validator invocation now passes an argument array directly to Node. A focus assertion initially checked the PIX figure rather than its button and was corrected. These were test-harness corrections; the complete combined workflow subsequently passed.
 
-## Final validation
+## Initial complete local validation
 
 Final tested source commit: `b37ab893ed756b66d6ce15fb1e464a0074f00d0b`. The clean-source complete browser run passed all 13 checks with final input stability confirmed. Input fingerprint: `eb8a21ab8cab39f30689b5a7929601a298b0a2fda71230ff31554c4ab3a93096`. The later evidence/documentation commit changes no validated inputs; the fingerprint is independently rechecked before publication.
 
@@ -45,3 +45,15 @@ Passed commands: `npm run check:content-workflow`, `npm run build` (content vali
 Durable [browser summary](../evidence/issue-104/browser-summary.json) and [browser output](../evidence/issue-104/browser-output.txt) identify the tested commit, complete suite, outcomes, and fingerprint.
 
 Real high-resolution report capture overlays remain unavailable because all five supplied reports have empty capture path lists. Overlay readiness explicitly skips them, and synthetic overlay coverage does not certify real images. Browser viewports do not certify physical devices; existing external documentation checks use stubs.
+
+## CI recovery correction (2026-10-14)
+
+The initial GitHub run [38518481142](https://github.com/komed-uth/Game-QA-Portfolio/actions/runs/38518481142) failed in the content-editing workflow while waiting for the development error overlay to detach after a corrected project/evidence definition. This was a watcher timing defect; the earlier local complete-suite pass does not establish that this CI step passed.
+
+A focused live-server reproduction triggered the identical stuck overlay locally. Watcher/validation tracing showed one change event for the invalid save and no event for its immediate correction. The installed Chokidar implementation drops same-file change events inside a 50ms throttle. No corrective WebSocket update reached the browser; there was no later stale-error message.
+
+Vite development watching now uses `awaitWriteFinish` with a 100ms stability threshold and 10ms polling interval. Completed saves therefore arrive outside that throttle window. Production content, layouts, evidence destinations, gallery behavior, and assertion timeouts are unchanged.
+
+`node scripts/check-content-recovery.mjs` is a regression at the real editing/browser boundary. It immediately restores valid content when the server reports invalid project, evidence, Portfolio, and Skills definitions, then requires the error message, a corrective browser update, and overlay dismissal. All files are restored after success or failure. The check fails without the watcher fix (missing corrective development-server message) and passes with it. It also runs within `npm run check:content-workflow`.
+
+The earlier browser summary/fingerprint above identify the initial implementation snapshot. The recovery configuration and added check change validation inputs, so that fingerprint is historical evidence rather than an attestation of the fix. Fresh full validation and the current exact-head result are recorded by the [PR #120 validation run](https://github.com/komed-uth/Game-QA-Portfolio/pull/120/checks), whose artifact identifies its tested head and fingerprint.

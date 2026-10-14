@@ -393,5 +393,6 @@ try {
 
 if (failure) throw failure;
 console.log("PASS: About me copy, shared contact, section addition/order/visibility, media, validation, live development updates, build, and browser workflow.");
+await import("./check-content-recovery.mjs");
 await import("./check-project-content-workflow.mjs");
 await import("./check-skills-content-workflow.mjs");
