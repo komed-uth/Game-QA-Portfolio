@@ -126,7 +126,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "Mobile performance testing",
+        "value": "QA Enginner",
         "id": "role"
       },
       {
@@ -211,7 +211,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "[Role / position to confirm]",
+        "value": "QA Enginner",
         "id": "role"
       },
       {
@@ -274,7 +274,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "PC performance testing",
+        "value": "Freelance QA",
         "id": "role"
       },
       {
@@ -349,7 +349,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "[to confirm]",
+        "value": "QA Enginner || Acting Project Coordinator",
         "id": "role"
       },
       {
@@ -425,7 +425,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "[to confirm]",
+        "value": "QA Enginner",
         "id": "role"
       },
       {
@@ -509,7 +509,7 @@ export const projects: ProjectContent[] = [
       },
       {
         "label": "My role",
-        "value": "[to confirm]",
+        "value": "QA Enginner",
         "id": "role"
       },
       {
