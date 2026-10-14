@@ -751,7 +751,7 @@ export const skillsPage: SkillsPageContent = {
         {
           "id": "codex",
           "title": "Codex",
-          "description": "Creating custom skills to support internal work.",
+          "description": "Able to adatp AI workflow in initial workflow",
           "evidence": []
         }
       ]
@@ -791,6 +791,7 @@ export const aboutMePage: AboutMePageContent = {
       visible: true,
       preset: "standard",
       title: "Contact",
+      description: "komed.uth@gmail.com | 0999674270", 
       linkLabel: "Contact me on LinkedIn",
     },
   ],
