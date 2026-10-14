@@ -22,7 +22,9 @@ async function about(page) {
   }
   assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|Personal gaming detail|\bFPS\b|\bpresent\b|\bcurrently employed\b/i);
   assert.equal(await main.locator('img, iframe, form, input, a[download]').count(), 0);
-  assert.equal(await main.getByRole('link').count(), 1);
+  assert.deepEqual(await main.getByRole('region', { name: 'Contact', exact: true }).getByRole('link').allTextContents(), [
+    'komed.uth@gmail.com', '+66 99 967 4270', 'Contact me on LinkedIn ↗ ↗',
+  ]);
   const contact = main.getByRole('link', { name: 'Contact me on LinkedIn ↗' });
   assert.equal(await contact.getAttribute('href'), profile);
   assert.equal(await contact.getAttribute('target'), '_blank');
@@ -72,8 +74,40 @@ export default async function check(page) {
   await focusVisible(skip);
   await page.keyboard.press('Enter');
   assert(await page.getByRole('main').evaluate(element => document.activeElement === element));
+  const region = page.getByRole('region', { name: 'Contact', exact: true });
+  assert.deepEqual(await region.locator('dt').allTextContents(), ['Email', 'Phone', 'LinkedIn']);
+  // Observe native application requests without launching a composer or placing a call.
+  await page.evaluate(() => {
+    window.contactActivations = [];
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a');
+      if (link && /^(mailto:|tel:)/.test(link.href)) {
+        event.preventDefault();
+        window.contactActivations.push(link.href);
+      }
+    });
+  });
+  await page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗' }).focus();
+  for (const [name, destination] of [['komed.uth@gmail.com', 'mailto:komed.uth@gmail.com'], ['+66 99 967 4270', 'tel:+66999674270']]) {
+    await page.keyboard.press('Tab');
+    const link = region.getByRole('link', { name, exact: true });
+    await focusVisible(link);
+    assert.equal(await link.getAttribute('href'), destination);
+    assert.equal(await link.getAttribute('target'), null);
+    assert.equal(await link.evaluate(element => {
+      const selection = window.getSelection();
+      selection.selectAllChildren(element);
+      return selection.toString();
+    }), name);
+    assert.notEqual(await link.evaluate(element => getComputedStyle(element).userSelect), 'none');
+    await page.keyboard.press('Enter');
+    await link.click();
+  }
+  assert.deepEqual(await page.evaluate(() => window.contactActivations), [
+    'mailto:komed.uth@gmail.com', 'mailto:komed.uth@gmail.com', 'tel:+66999674270', 'tel:+66999674270',
+  ]);
+  await page.keyboard.press('Tab');
   const contact = page.getByRole('link', { name: /Contact me on LinkedIn/ });
-  await contact.focus();
   await focusVisible(contact);
   // Verify activation and destination without depending on LinkedIn availability.
   await page.context().route('https://www.linkedin.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<h1>LinkedIn contact boundary</h1>' }));
@@ -83,6 +117,15 @@ export default async function check(page) {
   await popup.waitForLoadState();
   assert.equal(popup.url(), profile);
   await popup.close();
+  const header = page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗' });
+  await header.focus();
+  await focusVisible(header);
+  const headerPopupPromise = page.waitForEvent('popup');
+  await page.keyboard.press('Enter');
+  const headerPopup = await headerPopupPromise;
+  await headerPopup.waitForLoadState();
+  assert.equal(headerPopup.url(), profile);
+  await headerPopup.close();
   const legacy = new URL(home);
   legacy.hash = '/about';
   await page.goto(legacy.href);
