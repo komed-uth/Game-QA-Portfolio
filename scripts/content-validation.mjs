@@ -255,7 +255,7 @@ export async function validateContent(
         }
         const destination = method?.destination;
         const valid = kind === "email"
-          ? /^mailto:[A-Za-z0-9.!#$%&'*+/=^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(destination ?? "")
+          ? /^mailto:[A-Za-z0-9.!$&'*+/=^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(destination ?? "")
           : /^tel:\+[1-9]\d{1,14}$/.test(destination ?? "");
         if (!valid) errors.push(`${context}.${kind}.destination: malformed destination; use ${kind === "email" ? "mailto: with one email recipient and no subject/body" : "tel: with an international + and digits"}.`);
       }

@@ -12,7 +12,7 @@ const publicDirectory = path.join(repositoryRoot, "public");
 test("About me native contact destinations require a single email recipient or an international phone", async () => {
   const definitions = await loadContentDefinitions();
   for (const [kind, destinations] of [
-    ["email", ["https://example.com", "mailto:invalid", "mailto:qa@example.com?subject=hello", "mailto:qa@example.com#fragment", "mailto:qa@example.com,other@example.com", "mailto:qa@-example.com"]],
+    ["email", ["https://example.com", "mailto:invalid", "mailto:qa@example.com?subject=hello", "mailto:qa@example.com#fragment", "mailto:qa#tag@example.com", "mailto:qa%ZZ@example.com", "mailto:qa@example.com,other@example.com", "mailto:qa@-example.com"]],
     ["phone", ["https://example.com", "tel:0999674270", "tel:+66 99 967 4270", "tel:+66999674270?x=1", "tel:+012345", "tel:+1234567890123456"]],
   ]) {
     for (const destination of destinations) {
