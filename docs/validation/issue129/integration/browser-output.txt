@@ -1,0 +1,109 @@
+
+> game-qa-portfolio@1.0.0 precheck:browser
+> npm run check:project-dependencies
+
+
+> game-qa-portfolio@1.0.0 check:project-dependencies
+> node scripts/check-project-dependencies.mjs
+
+PASS: build and preview dependencies resolve inside D:\Personal Project\Improve google sheet worklog\Game QA Portfolio\.scratch\issue129\node_modules
+
+> game-qa-portfolio@1.0.0 check:browser
+> node scripts/check-browser.mjs
+
+RUN EVIDENCE: D:\Personal Project\Improve google sheet worklog\Game QA Portfolio\.scratch\issue129\.scratch\browser-runs\run-Gl0qDE
+SKIP: real capture overlay checks — S10_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Low_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Medium_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_Low_Fixed.html: screenshotPathList is empty.
+COVERAGE: the synthetic overlay fixture checks modal integration; it does not certify real capture images.
+CHECKS: complete portfolio suite
+PREVIEW: http://127.0.0.1:53698/
+START: skills
+PASS: approved Skills copy/order, planned coverage absent and normal Regulus transition, legacy redirect, reload/history, four evidence links and inspection, keyboard/skip/scroll, eleven layouts and narrow/wide captures
+PASS: skills (37.49s)
+START: about-me
+PASS: about-me (6.44s)
+START: placeholder-showcases
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: Placeholder content, five designed assets, every thumbnail/modal, independence and 11 viewports in both motion modes
+PASS: Placeholder keyboard focus/navigation, preview browsing, mouse/native touch swipes, vertical scrolling and tap inspection
+PASS: image-only 6.5s progression/wrap, inspection/manual reset, offscreen/hidden state, timer independence, live reduced motion, slow load, failure, Retry and route reset
+PASS: all fifteen panels and configured accents; manual selection, modal navigation/inspection and slideshows retain independent state in every gallery
+PASS: placeholder-showcases (270.80s)
+START: video
+PASS: both mixed-media overlap directions, playback/decode readiness, native-control fallback, exact deadlines, failure/Retry, stale interruption, muted revisit, cleanup and independent galleries in desktop/mobile motion modes
+PASS: controlled YouTube boundary, both full cycles, deferred completion/replay, blocked/error states, cleanup, reduced motion, unavailable API and player independence
+PASS: video (56.97s)
+START: slideshow
+PASS: all six overlay controls, independent pause/resume, persistent manual pause, keyboard focus, reduced-motion Resume and touch gesture isolation
+PASS: real mouse photo selection resumes without forced blur; keyboard inspection stays suspended
+PASS: both showcases advance after real touch selection without forced blur
+PASS: both slideshow sequences, full dwell/reset/reselection, video retention, timer independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset
+PASS: slideshow (67.73s)
+START: photos
+PASS: shared 300ms overlap/completion, framing, accessible backdrops, stable loading/failure, retry/original, stale responses, rapid selection, inspection and reduced motion
+PASS: photos (23.59s)
+START: gameplay-previews
+PASS: compact gameplay strips without arrows, phone peek, finite drag/wheel/scrollbar browsing, player continuity, keyboard, swipe direction, independence and ten viewports in normal/reduced motion
+PASS: gameplay-previews (75.94s)
+START: gameplay-fixtures
+PASS: compact empty/single/long portfolio lists, finite wheel/scrollbar/touch browsing, hidden selection, resize, vertical page scrolling and normal/reduced scroll interruption
+PASS: gameplay-fixtures (28.22s)
+START: evidence-modal
+PASS: all seven evidence images, actions, originals, navigation/video skip, focus, dismissal and background lock
+PASS: showcase reading/keyboard order, visible focus, modal restoration and selection continuity across 900px in both directions
+PASS: Vecchio five full-resolution sources, selection, original access, modal wrap/focus/dismissal, independent PIX, native touch browsing/swipes/page scrolling and progression
+PASS: reload reset, eleven responsive viewports including exactly 900px, project/media ordering, outside margins, no page overflow and reduced motion
+PASS: homepage teaser removal, compact shared footer, About/fallback routes, pointer/keyboard navigation and store destinations at ten viewports
+PASS: evidence-modal (114.84s)
+START: evidence-interactions
+PASS: vertical touch scrolling preserves keyboard image opening
+PASS: swipe suppresses opening, phone image fit, report toggle, iframe focus boundaries and actual original-file tab
+PASS: evidence-interactions (8.51s)
+START: report-layout
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":1920,"height":1080},"report":"Very High"} (2.49s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":1366,"height":768},"report":"Very High"} (3.50s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":390,"height":845},"report":"Very High"} (4.30s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":845,"height":390},"report":"Very High"} (5.12s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":360,"height":840},"report":"Very High"} (6.00s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":840,"height":360},"report":"Very High"} (6.72s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":1200,"height":800},"report":"Very High"} (7.45s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":800,"height":1200},"report":"Very High"} (8.16s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":899,"height":700},"report":"Very High"} (8.76s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":901,"height":700},"report":"Very High"} (9.58s)
+PROGRESS: report-layout {"phase":"Evidence layout","viewport":{"width":900,"height":700},"report":"Very High"} (10.36s)
+PASS: two ordered Skills evidence rows, exact screenshot, single report action, Portfolio links, image inspection and eleven responsive layouts
+PASS: report-layout (11.68s)
+START: overlay-fixture
+PASS: synthetic report chart-to-image overlay, loaded image, inner close/backdrop, portfolio modal retention and iframe Escape (fixture coverage only)
+PASS: overlay-fixture (6.56s)
+START: report-interactions
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"keyboard"} (0.94s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"pointer"} (4.19s)
+PASS: retained Very High HTML report, toggles, chart tooltips, real documentation tabs, iframe link-focused Escape and focus boundaries
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"pointer"} (8.23s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"pointer"} (10.13s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1920,"height":1080},"report":"Very High","opener":"pointer"} (12.07s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1366,"height":768},"report":"Very High","opener":"pointer"} (14.50s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":390,"height":845},"report":"Very High","opener":"pointer"} (16.62s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":845,"height":390},"report":"Very High","opener":"pointer"} (18.67s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":360,"height":840},"report":"Very High","opener":"pointer"} (20.77s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":840,"height":360},"report":"Very High","opener":"pointer"} (23.20s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":1200,"height":800},"report":"Very High","opener":"pointer"} (25.37s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":800,"height":1200},"report":"Very High","opener":"pointer"} (27.48s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":899,"height":700},"report":"Very High","opener":"pointer"} (29.52s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":901,"height":700},"report":"Very High","opener":"pointer"} (31.81s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very High","opener":"pointer"} (34.07s)
+PASS: single report inspection layout across ten viewports plus 900px
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very High","opener":"pointer"} (36.23s)
+PROGRESS: report-interactions {"phase":"Open report","viewport":{"width":900,"height":700},"report":"Very High","opener":"keyboard"} (39.83s)
+PASS: Very High position memory, reload reset and original HTML tab
+PASS: report-interactions (41.85s)
+PASS: rendered portfolio browser checks

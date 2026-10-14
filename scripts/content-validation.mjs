@@ -247,6 +247,18 @@ export async function validateContent(
       contactSections += 1;
       requiredString(section.title, `${context}.title`, errors);
       requiredString(section.linkLabel, `${context}.linkLabel`, errors);
+      requiredString(section.linkedinLabel, `${context}.linkedinLabel`, errors);
+      for (const kind of ["email", "phone"]) {
+        const method = section[kind];
+        for (const field of ["label", "value", "destination"]) {
+          requiredString(method?.[field], `${context}.${kind}.${field}`, errors);
+        }
+        const destination = method?.destination;
+        const valid = kind === "email"
+          ? /^mailto:[A-Za-z0-9.!$&'*+/=^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(destination ?? "")
+          : /^tel:\+[1-9]\d{1,14}$/.test(destination ?? "");
+        if (!valid) errors.push(`${context}.${kind}.destination: malformed destination; use ${kind === "email" ? "mailto: with one email recipient and no subject/body" : "tel: with an international + and digits"}.`);
+      }
     } else {
       errors.push(`${context}.type: unsupported section type ${JSON.stringify(section.type)}.`);
     }

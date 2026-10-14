@@ -1036,4 +1036,13 @@ footer {
   .performance-evidence { grid-template-columns: minmax(0, 1fr); }
 }
 
+.contact-methods { margin: 0; }
+.contact-row { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: 0 16px; }
+.contact-row dt { align-self: center; }
+.contact-row dd { margin: 0; }
+.contact-row .text-link { overflow-wrap: anywhere; user-select: text; }
+@media (max-width: 480px) {
+  .contact-row { grid-template-columns: minmax(0, 1fr); }
+  .contact-row + .contact-row { margin-top: 12px; }
+}
 .project-grid > .skill-evidence { grid-column: 1 / -1; }

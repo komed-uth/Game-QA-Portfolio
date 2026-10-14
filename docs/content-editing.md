@@ -6,7 +6,7 @@ Open **`src/data.ts`** for every routine content edit. It is the single editable
 | --- | --- |
 | `portfolioPage` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
 | `skillsPage` | Page title/description, capabilities/tools, text/card/evidence sections, ordered evidence references, action suffix |
-| `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
+| `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading, method labels/values/destinations and LinkedIn action |
 | `siteContent` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
 | `projects` | All six project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
 | `evidence` | Shared evidence destinations and labels, screenshot/PIX paths/alternatives/opening labels/modal titles, single full report path/title/action |
@@ -44,6 +44,12 @@ Local assets use forward-slash paths relative to `public/`, such as `images/exam
 Shared interface templates in `siteContent` keep their named tokens: `openScreenshot` and `showPreview` require `{label}`, and `videoTitle` requires `{project}`. Change surrounding wording while retaining the token. The shared metadata title, description and icon also supply `index.html`, so routine shell edits do not require changing HTML or a component.
 
 URL-format validation checks syntax and internal targets. It does **not** prove that an external URL is reachable or that its content is appropriate.
+
+### About me contact methods
+
+In the contact section, edit the `email` and `phone` objects: `label` names the row, `value` is visible/selectable text, and `destination` supplies the action. Update values and destinations together. Email uses one recipient, such as `mailto:komed.uth@gmail.com`, without subject/body parameters. Phone uses international `+` and digits, such as `tel:+66999674270`; the Thai domestic leading zero becomes +66, displayed as `+66 99 967 4270`. Validation rejects incorrect URI formats with the method and field context.
+
+Edit `linkedinLabel` for the LinkedIn row label and `linkLabel` for its action. Its shared destination remains `siteContent.contact.destination`, used by the header too. Rows display Email, Phone, LinkedIn in that order. Email and phone request the visitor's configured native applications; LinkedIn retains its new-tab indication and behavior.
 
 ## Shared evidence reuse
 

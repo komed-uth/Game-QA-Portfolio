@@ -115,6 +115,10 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
       const shellContact = page.getByRole("link", { name: "Komed Uthisanont on LinkedIn ↗" });
       assert.equal(await aboutContact.getAttribute("href"), siteContent.contact.destination);
       assert.equal(await shellContact.getAttribute("href"), siteContent.contact.destination);
+      const contact = main.getByRole("region", { name: "Contact", exact: true });
+      assert.deepEqual(await contact.locator("dt").allTextContents(), ["Write to me", "Call me", "Professional profile"]);
+      assert.equal(await contact.getByRole("link", { name: "qa@example.com", exact: true }).getAttribute("href"), "mailto:qa@example.com");
+      assert.equal(await contact.getByRole("link", { name: "+66 81 234 5678", exact: true }).getAttribute("href"), "tel:+66812345678");
 
       const media = main.locator("img.biography-media");
       assert.equal(await media.count(), 1);
@@ -130,6 +134,8 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
         "Skills",
         "About me",
         "Komed Uthisanont on LinkedIn ↗",
+        "qa@example.com",
+        "+66 81 234 5678",
         "Contact me on LinkedIn ↗",
       ]);
     });
@@ -156,6 +162,9 @@ try {
   editedAboutMe.sections.push(careerDirection);
   const contactSection = editedAboutMe.sections.find((section) => section.id === "contact");
   assert(introduction?.type === "text" && background?.type === "text" && careerDirection && contactSection);
+  contactSection.email = { label: "Write to me", value: "qa@example.com", destination: "mailto:qa@example.com" };
+  contactSection.phone = { label: "Call me", value: "+66 81 234 5678", destination: "tel:+66812345678" };
+  contactSection.linkedinLabel = "Professional profile";
   introduction.description = "A content edit made in the About me definition.";
   introduction.media = { path: "favicon.svg", alt: "Portfolio mark" };
   careerDirection.visible = false;
@@ -212,6 +221,11 @@ try {
       await page.getByText("A content edit made in the About me definition.", { exact: true }).waitFor();
 
       const invalidVariants = [];
+      for (const [kind, destination] of [["email", "mailto:qa@example.com?subject=hello"], ["phone", "tel:0812345678"]]) {
+        const invalidContact = structuredClone(editedAboutMe);
+        invalidContact.sections.find(section => section.type === "contact")[kind].destination = destination;
+        invalidVariants.push({ source: "aboutMe", value: invalidContact, diagnostic: `${kind}.destination: malformed destination` });
+      }
       const missingDescription = structuredClone(editedAboutMe);
       missingDescription.sections.find((section) => section.id === "introduction").description = "";
       invalidVariants.push({

@@ -1,0 +1,1391 @@
+
+> game-qa-portfolio@1.0.0 check:overlays
+> node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs
+
+TAP version 13
+# Subtest: empty screenshot lists report unavailable real overlay data
+ok 1 - empty screenshot lists report unavailable real overlay data
+  ---
+  duration_ms: 2.9765
+  ...
+# Subtest: readiness counts usable paths in visible graphs and ignores empty placeholders
+ok 2 - readiness counts usable paths in visible graphs and ignores empty placeholders
+  ---
+  duration_ms: 0.5632
+  ...
+# Subtest: absent or malformed report data fails instead of silently reporting readiness
+ok 3 - absent or malformed report data fails instead of silently reporting readiness
+  ---
+  duration_ms: 2.4629
+  ...
+# Subtest: replacement shares script matching and preserves surrounding report content
+ok 4 - replacement shares script matching and preserves surrounding report content
+  ---
+  duration_ms: 0.3247
+  ...
+# Subtest: replacement rejects missing and malformed original report data
+ok 5 - replacement rejects missing and malformed original report data
+  ---
+  duration_ms: 0.34
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 97.9683
+SKIP: real capture overlay checks — S10_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Low_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Medium_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_Low_Fixed.html: screenshotPathList is empty.
+COVERAGE: the synthetic overlay fixture checks modal integration; it does not certify real capture images.
+
+> game-qa-portfolio@1.0.0 precheck:preview
+> npm run check:project-dependencies
+
+
+> game-qa-portfolio@1.0.0 check:project-dependencies
+> node scripts/check-project-dependencies.mjs
+
+PASS: build and preview dependencies resolve inside D:\Personal Project\Improve google sheet worklog\Game QA Portfolio\.scratch\issue129\node_modules
+
+> game-qa-portfolio@1.0.0 check:preview
+> node --test scripts/browser/preview-server.test.mjs scripts/browser/report-overlay-data.test.mjs scripts/browser/check-selection.test.mjs scripts/content-validation.test.mjs scripts/layout-content.test.mjs
+
+TAP version 13
+# Subtest: --about-me-only selects the intended checks
+ok 1 - --about-me-only selects the intended checks
+  ---
+  duration_ms: 3.2756
+  ...
+# Subtest: default selects the intended checks
+ok 2 - default selects the intended checks
+  ---
+  duration_ms: 0.2267
+  ...
+# Subtest: --skills-only selects the intended checks
+ok 3 - --skills-only selects the intended checks
+  ---
+  duration_ms: 0.24
+  ...
+# Subtest: --reports-only selects the intended checks
+ok 4 - --reports-only selects the intended checks
+  ---
+  duration_ms: 0.1472
+  ...
+# Subtest: --report-layout-only selects the intended checks
+ok 5 - --report-layout-only selects the intended checks
+  ---
+  duration_ms: 0.1029
+  ...
+# Subtest: --gameplay-only selects the intended checks
+ok 6 - --gameplay-only selects the intended checks
+  ---
+  duration_ms: 0.0961
+  ...
+# Subtest: --placeholders-only selects the intended checks
+ok 7 - --placeholders-only selects the intended checks
+  ---
+  duration_ms: 0.0881
+  ...
+# Subtest: --photos-only selects the intended checks
+ok 8 - --photos-only selects the intended checks
+  ---
+  duration_ms: 0.0845
+  ...
+# Subtest: --evidence-only selects the intended checks
+ok 9 - --evidence-only selects the intended checks
+  ---
+  duration_ms: 0.3206
+  ...
+# Subtest: --slideshow-only selects the intended checks
+ok 10 - --slideshow-only selects the intended checks
+  ---
+  duration_ms: 0.3726
+  ...
+# Subtest: --unknown fails before readiness or browser startup
+ok 11 - --unknown fails before readiness or browser startup
+  ---
+  duration_ms: 87.028
+  ...
+# Subtest: --about-me-only --about-me-only fails before readiness or browser startup
+ok 12 - --about-me-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 73.5522
+  ...
+# Subtest: --about-me-only --skills-only fails before readiness or browser startup
+ok 13 - --about-me-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 77.0012
+  ...
+# Subtest: --about-me-only --reports-only fails before readiness or browser startup
+ok 14 - --about-me-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 96.6527
+  ...
+# Subtest: --about-me-only --report-layout-only fails before readiness or browser startup
+ok 15 - --about-me-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 77.2191
+  ...
+# Subtest: --about-me-only --gameplay-only fails before readiness or browser startup
+ok 16 - --about-me-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 71.4476
+  ...
+# Subtest: --about-me-only --placeholders-only fails before readiness or browser startup
+ok 17 - --about-me-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 83.4172
+  ...
+# Subtest: --about-me-only --photos-only fails before readiness or browser startup
+ok 18 - --about-me-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 104.1696
+  ...
+# Subtest: --about-me-only --evidence-only fails before readiness or browser startup
+ok 19 - --about-me-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 175.8443
+  ...
+# Subtest: --about-me-only --slideshow-only fails before readiness or browser startup
+ok 20 - --about-me-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 114.3398
+  ...
+# Subtest: --skills-only --about-me-only fails before readiness or browser startup
+ok 21 - --skills-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 120.9723
+  ...
+# Subtest: --skills-only --skills-only fails before readiness or browser startup
+ok 22 - --skills-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 133.2588
+  ...
+# Subtest: --skills-only --reports-only fails before readiness or browser startup
+ok 23 - --skills-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 132.3937
+  ...
+# Subtest: --skills-only --report-layout-only fails before readiness or browser startup
+ok 24 - --skills-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 72.7225
+  ...
+# Subtest: --skills-only --gameplay-only fails before readiness or browser startup
+ok 25 - --skills-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 75.0682
+  ...
+# Subtest: --skills-only --placeholders-only fails before readiness or browser startup
+ok 26 - --skills-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 103.3502
+  ...
+# Subtest: --skills-only --photos-only fails before readiness or browser startup
+ok 27 - --skills-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 93.5693
+  ...
+# Subtest: --skills-only --evidence-only fails before readiness or browser startup
+ok 28 - --skills-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 75.4022
+  ...
+# Subtest: --skills-only --slideshow-only fails before readiness or browser startup
+ok 29 - --skills-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 97.4599
+  ...
+# Subtest: --reports-only --about-me-only fails before readiness or browser startup
+ok 30 - --reports-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 108.7636
+  ...
+# Subtest: --reports-only --skills-only fails before readiness or browser startup
+ok 31 - --reports-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 78.5522
+  ...
+# Subtest: --reports-only --reports-only fails before readiness or browser startup
+ok 32 - --reports-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 85.0445
+  ...
+# Subtest: --reports-only --report-layout-only fails before readiness or browser startup
+ok 33 - --reports-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 127.317
+  ...
+# Subtest: --reports-only --gameplay-only fails before readiness or browser startup
+ok 34 - --reports-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 92.8829
+  ...
+# Subtest: --reports-only --placeholders-only fails before readiness or browser startup
+ok 35 - --reports-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 104.6746
+  ...
+# Subtest: --reports-only --photos-only fails before readiness or browser startup
+ok 36 - --reports-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 124.7812
+  ...
+# Subtest: --reports-only --evidence-only fails before readiness or browser startup
+ok 37 - --reports-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 94.6113
+  ...
+# Subtest: --reports-only --slideshow-only fails before readiness or browser startup
+ok 38 - --reports-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 69.0355
+  ...
+# Subtest: --report-layout-only --about-me-only fails before readiness or browser startup
+ok 39 - --report-layout-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 72.8804
+  ...
+# Subtest: --report-layout-only --skills-only fails before readiness or browser startup
+ok 40 - --report-layout-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 73.9683
+  ...
+# Subtest: --report-layout-only --reports-only fails before readiness or browser startup
+ok 41 - --report-layout-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 87.1753
+  ...
+# Subtest: --report-layout-only --report-layout-only fails before readiness or browser startup
+ok 42 - --report-layout-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 84.2544
+  ...
+# Subtest: --report-layout-only --gameplay-only fails before readiness or browser startup
+ok 43 - --report-layout-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 74.511
+  ...
+# Subtest: --report-layout-only --placeholders-only fails before readiness or browser startup
+ok 44 - --report-layout-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 86.7545
+  ...
+# Subtest: --report-layout-only --photos-only fails before readiness or browser startup
+ok 45 - --report-layout-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 71.002
+  ...
+# Subtest: --report-layout-only --evidence-only fails before readiness or browser startup
+ok 46 - --report-layout-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 81.3018
+  ...
+# Subtest: --report-layout-only --slideshow-only fails before readiness or browser startup
+ok 47 - --report-layout-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 92.7947
+  ...
+# Subtest: --gameplay-only --about-me-only fails before readiness or browser startup
+ok 48 - --gameplay-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 106.3551
+  ...
+# Subtest: --gameplay-only --skills-only fails before readiness or browser startup
+ok 49 - --gameplay-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 67.0361
+  ...
+# Subtest: --gameplay-only --reports-only fails before readiness or browser startup
+ok 50 - --gameplay-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 62.97
+  ...
+# Subtest: --gameplay-only --report-layout-only fails before readiness or browser startup
+ok 51 - --gameplay-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 69.3807
+  ...
+# Subtest: --gameplay-only --gameplay-only fails before readiness or browser startup
+ok 52 - --gameplay-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 74.6796
+  ...
+# Subtest: --gameplay-only --placeholders-only fails before readiness or browser startup
+ok 53 - --gameplay-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 98.8992
+  ...
+# Subtest: --gameplay-only --photos-only fails before readiness or browser startup
+ok 54 - --gameplay-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 65.2668
+  ...
+# Subtest: --gameplay-only --evidence-only fails before readiness or browser startup
+ok 55 - --gameplay-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 71.8337
+  ...
+# Subtest: --gameplay-only --slideshow-only fails before readiness or browser startup
+ok 56 - --gameplay-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 60.8502
+  ...
+# Subtest: --placeholders-only --about-me-only fails before readiness or browser startup
+ok 57 - --placeholders-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 60.6861
+  ...
+# Subtest: --placeholders-only --skills-only fails before readiness or browser startup
+ok 58 - --placeholders-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 86.5993
+  ...
+# Subtest: --placeholders-only --reports-only fails before readiness or browser startup
+ok 59 - --placeholders-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 102.2226
+  ...
+# Subtest: --placeholders-only --report-layout-only fails before readiness or browser startup
+ok 60 - --placeholders-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 75.8456
+  ...
+# Subtest: --placeholders-only --gameplay-only fails before readiness or browser startup
+ok 61 - --placeholders-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 122.6464
+  ...
+# Subtest: --placeholders-only --placeholders-only fails before readiness or browser startup
+ok 62 - --placeholders-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 145.3305
+  ...
+# Subtest: --placeholders-only --photos-only fails before readiness or browser startup
+ok 63 - --placeholders-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 108.0439
+  ...
+# Subtest: --placeholders-only --evidence-only fails before readiness or browser startup
+ok 64 - --placeholders-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 79.189
+  ...
+# Subtest: --placeholders-only --slideshow-only fails before readiness or browser startup
+ok 65 - --placeholders-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 58.4548
+  ...
+# Subtest: --photos-only --about-me-only fails before readiness or browser startup
+ok 66 - --photos-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 67.3323
+  ...
+# Subtest: --photos-only --skills-only fails before readiness or browser startup
+ok 67 - --photos-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 88.2848
+  ...
+# Subtest: --photos-only --reports-only fails before readiness or browser startup
+ok 68 - --photos-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 72.5299
+  ...
+# Subtest: --photos-only --report-layout-only fails before readiness or browser startup
+ok 69 - --photos-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 71.495
+  ...
+# Subtest: --photos-only --gameplay-only fails before readiness or browser startup
+ok 70 - --photos-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 97.8196
+  ...
+# Subtest: --photos-only --placeholders-only fails before readiness or browser startup
+ok 71 - --photos-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 63.3139
+  ...
+# Subtest: --photos-only --photos-only fails before readiness or browser startup
+ok 72 - --photos-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 79.5211
+  ...
+# Subtest: --photos-only --evidence-only fails before readiness or browser startup
+ok 73 - --photos-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 83.2022
+  ...
+# Subtest: --photos-only --slideshow-only fails before readiness or browser startup
+ok 74 - --photos-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 93.4606
+  ...
+# Subtest: --evidence-only --about-me-only fails before readiness or browser startup
+ok 75 - --evidence-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 82.7187
+  ...
+# Subtest: --evidence-only --skills-only fails before readiness or browser startup
+ok 76 - --evidence-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 64.6209
+  ...
+# Subtest: --evidence-only --reports-only fails before readiness or browser startup
+ok 77 - --evidence-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 59.432
+  ...
+# Subtest: --evidence-only --report-layout-only fails before readiness or browser startup
+ok 78 - --evidence-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 62.4861
+  ...
+# Subtest: --evidence-only --gameplay-only fails before readiness or browser startup
+ok 79 - --evidence-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 67.2017
+  ...
+# Subtest: --evidence-only --placeholders-only fails before readiness or browser startup
+ok 80 - --evidence-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 84.5511
+  ...
+# Subtest: --evidence-only --photos-only fails before readiness or browser startup
+ok 81 - --evidence-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 76.6767
+  ...
+# Subtest: --evidence-only --evidence-only fails before readiness or browser startup
+ok 82 - --evidence-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 73.9919
+  ...
+# Subtest: --evidence-only --slideshow-only fails before readiness or browser startup
+ok 83 - --evidence-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 69.0505
+  ...
+# Subtest: --slideshow-only --about-me-only fails before readiness or browser startup
+ok 84 - --slideshow-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 87.2851
+  ...
+# Subtest: --slideshow-only --skills-only fails before readiness or browser startup
+ok 85 - --slideshow-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 60.0786
+  ...
+# Subtest: --slideshow-only --reports-only fails before readiness or browser startup
+ok 86 - --slideshow-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 65.496
+  ...
+# Subtest: --slideshow-only --report-layout-only fails before readiness or browser startup
+ok 87 - --slideshow-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 57.439
+  ...
+# Subtest: --slideshow-only --gameplay-only fails before readiness or browser startup
+ok 88 - --slideshow-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 53.7455
+  ...
+# Subtest: --slideshow-only --placeholders-only fails before readiness or browser startup
+ok 89 - --slideshow-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 123.5724
+  ...
+# Subtest: --slideshow-only --photos-only fails before readiness or browser startup
+ok 90 - --slideshow-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 78.506
+  ...
+# Subtest: --slideshow-only --evidence-only fails before readiness or browser startup
+ok 91 - --slideshow-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 113.87
+  ...
+# Subtest: --slideshow-only --slideshow-only fails before readiness or browser startup
+ok 92 - --slideshow-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 66.5389
+  ...
+# Subtest: an occupied preview port rejects without probing the existing server
+ok 93 - an occupied preview port rejects without probing the existing server
+  ---
+  duration_ms: 1234.2155
+  ...
+# Subtest: concurrent owned previews allocate distinct available ports
+ok 94 - concurrent owned previews allocate distinct available ports
+  ---
+  duration_ms: 2300.6946
+  ...
+# Subtest: empty screenshot lists report unavailable real overlay data
+ok 95 - empty screenshot lists report unavailable real overlay data
+  ---
+  duration_ms: 2.5345
+  ...
+# Subtest: readiness counts usable paths in visible graphs and ignores empty placeholders
+ok 96 - readiness counts usable paths in visible graphs and ignores empty placeholders
+  ---
+  duration_ms: 0.5611
+  ...
+# Subtest: absent or malformed report data fails instead of silently reporting readiness
+ok 97 - absent or malformed report data fails instead of silently reporting readiness
+  ---
+  duration_ms: 2.3375
+  ...
+# Subtest: replacement shares script matching and preserves surrounding report content
+ok 98 - replacement shares script matching and preserves surrounding report content
+  ---
+  duration_ms: 0.4282
+  ...
+# Subtest: replacement rejects missing and malformed original report data
+ok 99 - replacement rejects missing and malformed original report data
+  ---
+  duration_ms: 0.4417
+  ...
+# Subtest: About me native contact destinations require a single email recipient or an international phone
+ok 100 - About me native contact destinations require a single email recipient or an international phone
+  ---
+  duration_ms: 491.8855
+  ...
+# Subtest: the checked-in definitions validate, including a supplied local asset
+ok 101 - the checked-in definitions validate, including a supplied local asset
+  ---
+  duration_ms: 62.3542
+  ...
+# Subtest: shared contact destinations accept absolute web and mailto URLs but reject local app routes
+ok 102 - shared contact destinations accept absolute web and mailto URLs but reject local app routes
+  ---
+  duration_ms: 53.8944
+  ...
+# Subtest: diagnostics identify missing fields, unsupported presets, duplicate identity, and bad destinations
+ok 103 - diagnostics identify missing fields, unsupported presets, duplicate identity, and bad destinations
+  ---
+  duration_ms: 34.5221
+  ...
+# Subtest: optional media is omitted cleanly while a missing supplied file fails with its field context
+ok 104 - optional media is omitted cleanly while a missing supplied file fails with its field context
+  ---
+  duration_ms: 64.6459
+  ...
+# Subtest: media paths cannot escape the deployed public base even when filesystem normalization finds a file
+ok 105 - media paths cannot escape the deployed public base even when filesystem normalization finds a file
+  ---
+  duration_ms: 44.9685
+  ...
+# Subtest: all page editing files accept supported additions and media presets through command validation
+ok 106 - all page editing files accept supported additions and media presets through command validation
+  ---
+  duration_ms: 1326.5
+  ...
+# Subtest: isolated invalid presets, rendered anchors and destinations identify their editing file and field
+ok 107 - isolated invalid presets, rendered anchors and destinations identify their editing file and field
+  ---
+  duration_ms: 9731.0337
+  ...
+# Subtest: hiding sections without incoming live references remains valid
+ok 108 - hiding sections without incoming live references remains valid
+  ---
+  duration_ms: 712.5329
+  ...
+# Subtest: Skills evidence placement/order and visibility track the actual rendered page
+ok 109 - Skills evidence placement/order and visibility track the actual rendered page
+  ---
+  duration_ms: 8748.1802
+  ...
+1..109
+# tests 109
+# suites 0
+# pass 109
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21239.6377
+
+> game-qa-portfolio@1.0.0 precheck:runner
+> npm run check:project-dependencies
+
+
+> game-qa-portfolio@1.0.0 check:project-dependencies
+> node scripts/check-project-dependencies.mjs
+
+PASS: build and preview dependencies resolve inside D:\Personal Project\Improve google sheet worklog\Game QA Portfolio\.scratch\issue129\node_modules
+
+> game-qa-portfolio@1.0.0 check:runner
+> node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/capture-region.test.mjs scripts/check-workstation.test.mjs scripts/check-project-dependencies.test.mjs scripts/check-merge-readiness.test.mjs scripts/check-diff-whitespace.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs
+
+TAP version 13
+# Subtest: captures the complete union below the viewport without moving or closing the page
+ok 1 - captures the complete union below the viewport without moving or closing the page
+  ---
+  duration_ms: 599.7456
+  ...
+# Subtest: regional captures retain responsive layout and identifiable content at every edge
+ok 2 - regional captures retain responsive layout and identifiable content at every edge
+  ---
+  duration_ms: 384.909
+  ...
+# Subtest: missing or empty regions fail clearly without writing an incomplete capture
+ok 3 - missing or empty regions fail clearly without writing an incomplete capture
+  ---
+  duration_ms: 141.0201
+  ...
+# Subtest: --about-me-only selects the intended checks
+ok 4 - --about-me-only selects the intended checks
+  ---
+  duration_ms: 3.3914
+  ...
+# Subtest: default selects the intended checks
+ok 5 - default selects the intended checks
+  ---
+  duration_ms: 0.1842
+  ...
+# Subtest: --skills-only selects the intended checks
+ok 6 - --skills-only selects the intended checks
+  ---
+  duration_ms: 0.2544
+  ...
+# Subtest: --reports-only selects the intended checks
+ok 7 - --reports-only selects the intended checks
+  ---
+  duration_ms: 0.1235
+  ...
+# Subtest: --report-layout-only selects the intended checks
+ok 8 - --report-layout-only selects the intended checks
+  ---
+  duration_ms: 0.1587
+  ...
+# Subtest: --gameplay-only selects the intended checks
+ok 9 - --gameplay-only selects the intended checks
+  ---
+  duration_ms: 0.124
+  ...
+# Subtest: --placeholders-only selects the intended checks
+ok 10 - --placeholders-only selects the intended checks
+  ---
+  duration_ms: 0.4396
+  ...
+# Subtest: --photos-only selects the intended checks
+ok 11 - --photos-only selects the intended checks
+  ---
+  duration_ms: 0.1161
+  ...
+# Subtest: --evidence-only selects the intended checks
+ok 12 - --evidence-only selects the intended checks
+  ---
+  duration_ms: 0.4659
+  ...
+# Subtest: --slideshow-only selects the intended checks
+ok 13 - --slideshow-only selects the intended checks
+  ---
+  duration_ms: 0.612
+  ...
+# Subtest: --unknown fails before readiness or browser startup
+ok 14 - --unknown fails before readiness or browser startup
+  ---
+  duration_ms: 246.1078
+  ...
+# Subtest: --about-me-only --about-me-only fails before readiness or browser startup
+ok 15 - --about-me-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 177.3794
+  ...
+# Subtest: --about-me-only --skills-only fails before readiness or browser startup
+ok 16 - --about-me-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 181.0249
+  ...
+# Subtest: --about-me-only --reports-only fails before readiness or browser startup
+ok 17 - --about-me-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 151.3254
+  ...
+# Subtest: --about-me-only --report-layout-only fails before readiness or browser startup
+ok 18 - --about-me-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 140.2897
+  ...
+# Subtest: --about-me-only --gameplay-only fails before readiness or browser startup
+ok 19 - --about-me-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 168.7291
+  ...
+# Subtest: --about-me-only --placeholders-only fails before readiness or browser startup
+ok 20 - --about-me-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 286.379
+  ...
+# Subtest: --about-me-only --photos-only fails before readiness or browser startup
+ok 21 - --about-me-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 214.6067
+  ...
+# Subtest: --about-me-only --evidence-only fails before readiness or browser startup
+ok 22 - --about-me-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 184.1664
+  ...
+# Subtest: --about-me-only --slideshow-only fails before readiness or browser startup
+ok 23 - --about-me-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 112.9075
+  ...
+# Subtest: --skills-only --about-me-only fails before readiness or browser startup
+ok 24 - --skills-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 214.0897
+  ...
+# Subtest: --skills-only --skills-only fails before readiness or browser startup
+ok 25 - --skills-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 240.6161
+  ...
+# Subtest: --skills-only --reports-only fails before readiness or browser startup
+ok 26 - --skills-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 161.6606
+  ...
+# Subtest: --skills-only --report-layout-only fails before readiness or browser startup
+ok 27 - --skills-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 206.5132
+  ...
+# Subtest: --skills-only --gameplay-only fails before readiness or browser startup
+ok 28 - --skills-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 197.658
+  ...
+# Subtest: --skills-only --placeholders-only fails before readiness or browser startup
+ok 29 - --skills-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 222.8939
+  ...
+# Subtest: --skills-only --photos-only fails before readiness or browser startup
+ok 30 - --skills-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 199.6541
+  ...
+# Subtest: --skills-only --evidence-only fails before readiness or browser startup
+ok 31 - --skills-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 189.3081
+  ...
+# Subtest: --skills-only --slideshow-only fails before readiness or browser startup
+ok 32 - --skills-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 146.6007
+  ...
+# Subtest: --reports-only --about-me-only fails before readiness or browser startup
+ok 33 - --reports-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 161.1847
+  ...
+# Subtest: --reports-only --skills-only fails before readiness or browser startup
+ok 34 - --reports-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 269.0597
+  ...
+# Subtest: --reports-only --reports-only fails before readiness or browser startup
+ok 35 - --reports-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 223.2629
+  ...
+# Subtest: --reports-only --report-layout-only fails before readiness or browser startup
+ok 36 - --reports-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 184.8008
+  ...
+# Subtest: --reports-only --gameplay-only fails before readiness or browser startup
+ok 37 - --reports-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 214.7329
+  ...
+# Subtest: --reports-only --placeholders-only fails before readiness or browser startup
+ok 38 - --reports-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 180.266
+  ...
+# Subtest: --reports-only --photos-only fails before readiness or browser startup
+ok 39 - --reports-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 203.5625
+  ...
+# Subtest: --reports-only --evidence-only fails before readiness or browser startup
+ok 40 - --reports-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 273.578
+  ...
+# Subtest: --reports-only --slideshow-only fails before readiness or browser startup
+ok 41 - --reports-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 202.7935
+  ...
+# Subtest: --report-layout-only --about-me-only fails before readiness or browser startup
+ok 42 - --report-layout-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 162.9098
+  ...
+# Subtest: --report-layout-only --skills-only fails before readiness or browser startup
+ok 43 - --report-layout-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 144.9856
+  ...
+# Subtest: --report-layout-only --reports-only fails before readiness or browser startup
+ok 44 - --report-layout-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 134.7689
+  ...
+# Subtest: --report-layout-only --report-layout-only fails before readiness or browser startup
+ok 45 - --report-layout-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 115.1437
+  ...
+# Subtest: --report-layout-only --gameplay-only fails before readiness or browser startup
+ok 46 - --report-layout-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 99.6746
+  ...
+# Subtest: --report-layout-only --placeholders-only fails before readiness or browser startup
+ok 47 - --report-layout-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 132.6538
+  ...
+# Subtest: --report-layout-only --photos-only fails before readiness or browser startup
+ok 48 - --report-layout-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 146.2714
+  ...
+# Subtest: --report-layout-only --evidence-only fails before readiness or browser startup
+ok 49 - --report-layout-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 147.7543
+  ...
+# Subtest: --report-layout-only --slideshow-only fails before readiness or browser startup
+ok 50 - --report-layout-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 128.2077
+  ...
+# Subtest: --gameplay-only --about-me-only fails before readiness or browser startup
+ok 51 - --gameplay-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 141.5728
+  ...
+# Subtest: --gameplay-only --skills-only fails before readiness or browser startup
+ok 52 - --gameplay-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 129.6175
+  ...
+# Subtest: --gameplay-only --reports-only fails before readiness or browser startup
+ok 53 - --gameplay-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 103.7462
+  ...
+# Subtest: --gameplay-only --report-layout-only fails before readiness or browser startup
+ok 54 - --gameplay-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 129.497
+  ...
+# Subtest: --gameplay-only --gameplay-only fails before readiness or browser startup
+ok 55 - --gameplay-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 105.4169
+  ...
+# Subtest: --gameplay-only --placeholders-only fails before readiness or browser startup
+ok 56 - --gameplay-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 104.8123
+  ...
+# Subtest: --gameplay-only --photos-only fails before readiness or browser startup
+ok 57 - --gameplay-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 91.9674
+  ...
+# Subtest: --gameplay-only --evidence-only fails before readiness or browser startup
+ok 58 - --gameplay-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 84.9504
+  ...
+# Subtest: --gameplay-only --slideshow-only fails before readiness or browser startup
+ok 59 - --gameplay-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 110.0863
+  ...
+# Subtest: --placeholders-only --about-me-only fails before readiness or browser startup
+ok 60 - --placeholders-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 138.3619
+  ...
+# Subtest: --placeholders-only --skills-only fails before readiness or browser startup
+ok 61 - --placeholders-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 94.9052
+  ...
+# Subtest: --placeholders-only --reports-only fails before readiness or browser startup
+ok 62 - --placeholders-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 100.625
+  ...
+# Subtest: --placeholders-only --report-layout-only fails before readiness or browser startup
+ok 63 - --placeholders-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 94.5308
+  ...
+# Subtest: --placeholders-only --gameplay-only fails before readiness or browser startup
+ok 64 - --placeholders-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 95.8972
+  ...
+# Subtest: --placeholders-only --placeholders-only fails before readiness or browser startup
+ok 65 - --placeholders-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 135.5445
+  ...
+# Subtest: --placeholders-only --photos-only fails before readiness or browser startup
+ok 66 - --placeholders-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 88.26
+  ...
+# Subtest: --placeholders-only --evidence-only fails before readiness or browser startup
+ok 67 - --placeholders-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 95.687
+  ...
+# Subtest: --placeholders-only --slideshow-only fails before readiness or browser startup
+ok 68 - --placeholders-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 82.5843
+  ...
+# Subtest: --photos-only --about-me-only fails before readiness or browser startup
+ok 69 - --photos-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 93.1177
+  ...
+# Subtest: --photos-only --skills-only fails before readiness or browser startup
+ok 70 - --photos-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 100.824
+  ...
+# Subtest: --photos-only --reports-only fails before readiness or browser startup
+ok 71 - --photos-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 133.5599
+  ...
+# Subtest: --photos-only --report-layout-only fails before readiness or browser startup
+ok 72 - --photos-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 170.7484
+  ...
+# Subtest: --photos-only --gameplay-only fails before readiness or browser startup
+ok 73 - --photos-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 147.2503
+  ...
+# Subtest: --photos-only --placeholders-only fails before readiness or browser startup
+ok 74 - --photos-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 151.9242
+  ...
+# Subtest: --photos-only --photos-only fails before readiness or browser startup
+ok 75 - --photos-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 159.0026
+  ...
+# Subtest: --photos-only --evidence-only fails before readiness or browser startup
+ok 76 - --photos-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 139.353
+  ...
+# Subtest: --photos-only --slideshow-only fails before readiness or browser startup
+ok 77 - --photos-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 98.9333
+  ...
+# Subtest: --evidence-only --about-me-only fails before readiness or browser startup
+ok 78 - --evidence-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 95.1695
+  ...
+# Subtest: --evidence-only --skills-only fails before readiness or browser startup
+ok 79 - --evidence-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 127.5624
+  ...
+# Subtest: --evidence-only --reports-only fails before readiness or browser startup
+ok 80 - --evidence-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 117.2139
+  ...
+# Subtest: --evidence-only --report-layout-only fails before readiness or browser startup
+ok 81 - --evidence-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 107.6879
+  ...
+# Subtest: --evidence-only --gameplay-only fails before readiness or browser startup
+ok 82 - --evidence-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 113.872
+  ...
+# Subtest: --evidence-only --placeholders-only fails before readiness or browser startup
+ok 83 - --evidence-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 119.6141
+  ...
+# Subtest: --evidence-only --photos-only fails before readiness or browser startup
+ok 84 - --evidence-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 114.7374
+  ...
+# Subtest: --evidence-only --evidence-only fails before readiness or browser startup
+ok 85 - --evidence-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 127.4944
+  ...
+# Subtest: --evidence-only --slideshow-only fails before readiness or browser startup
+ok 86 - --evidence-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 97.2864
+  ...
+# Subtest: --slideshow-only --about-me-only fails before readiness or browser startup
+ok 87 - --slideshow-only --about-me-only fails before readiness or browser startup
+  ---
+  duration_ms: 94.2861
+  ...
+# Subtest: --slideshow-only --skills-only fails before readiness or browser startup
+ok 88 - --slideshow-only --skills-only fails before readiness or browser startup
+  ---
+  duration_ms: 92.1662
+  ...
+# Subtest: --slideshow-only --reports-only fails before readiness or browser startup
+ok 89 - --slideshow-only --reports-only fails before readiness or browser startup
+  ---
+  duration_ms: 90.9498
+  ...
+# Subtest: --slideshow-only --report-layout-only fails before readiness or browser startup
+ok 90 - --slideshow-only --report-layout-only fails before readiness or browser startup
+  ---
+  duration_ms: 92.9111
+  ...
+# Subtest: --slideshow-only --gameplay-only fails before readiness or browser startup
+ok 91 - --slideshow-only --gameplay-only fails before readiness or browser startup
+  ---
+  duration_ms: 108.4495
+  ...
+# Subtest: --slideshow-only --placeholders-only fails before readiness or browser startup
+ok 92 - --slideshow-only --placeholders-only fails before readiness or browser startup
+  ---
+  duration_ms: 102.1778
+  ...
+# Subtest: --slideshow-only --photos-only fails before readiness or browser startup
+ok 93 - --slideshow-only --photos-only fails before readiness or browser startup
+  ---
+  duration_ms: 91.2567
+  ...
+# Subtest: --slideshow-only --evidence-only fails before readiness or browser startup
+ok 94 - --slideshow-only --evidence-only fails before readiness or browser startup
+  ---
+  duration_ms: 123.6128
+  ...
+# Subtest: --slideshow-only --slideshow-only fails before readiness or browser startup
+ok 95 - --slideshow-only --slideshow-only fails before readiness or browser startup
+  ---
+  duration_ms: 87.4751
+  ...
+# Subtest: successful subprocess runs preserve output, commit, input identity and all check results
+ok 96 - successful subprocess runs preserve output, commit, input identity and all check results
+  ---
+  duration_ms: 1602.2208
+  ...
+# Subtest: failure retains progress without claiming suite success
+ok 97 - failure retains progress without claiming suite success
+  ---
+  duration_ms: 349.0011
+  ...
+# Subtest: obsolete retains progress without claiming suite success
+ok 98 - obsolete retains progress without claiming suite success
+  ---
+  duration_ms: 504.5735
+  ...
+# Subtest: final-edit retains progress without claiming suite success
+ok 99 - final-edit retains progress without claiming suite success
+  ---
+  duration_ms: 450.3258
+  ...
+# Subtest: missing-completion retains progress without claiming suite success
+ok 100 - missing-completion retains progress without claiming suite success
+  ---
+  duration_ms: 404.3196
+  ...
+# Subtest: cancellation preserves earlier passes and interrupted status
+ok 101 - cancellation preserves earlier passes and interrupted status
+  ---
+  duration_ms: 357.1976
+  ...
+# Subtest: a forcibly terminated supervisor leaves readable incomplete checkpoints
+ok 102 - a forcibly terminated supervisor leaves readable incomplete checkpoints
+  ---
+  duration_ms: 718.632
+  ...
+# Subtest: successful checks report timing, discard traces and close their context
+ok 103 - successful checks report timing, discard traces and close their context
+  ---
+  duration_ms: 1397.0484
+  ...
+# Subtest: failed checks save a real trace and focused DOM diagnostics before closing
+ok 104 - failed checks save a real trace and focused DOM diagnostics before closing
+  ---
+  duration_ms: 333.5706
+  ...
+# Subtest: unwritable artifact destinations preserve the original check failure
+ok 105 - unwritable artifact destinations preserve the original check failure
+  ---
+  duration_ms: 205.332
+  ...
+# Subtest: child context failures retain child actions and DOM before cleanup
+ok 106 - child context failures retain child actions and DOM before cleanup
+  ---
+  duration_ms: 472.3056
+  ...
+# Subtest: handled child failures discard their artifacts when the check succeeds
+ok 107 - handled child failures discard their artifacts when the check succeeds
+  ---
+  duration_ms: 178.2551
+  ...
+# Subtest: edited successful checks report no ordinary result
+ok 108 - edited successful checks report no ordinary result
+  ---
+  duration_ms: 289.9347
+  ...
+# Subtest: edited failing checks report no ordinary result
+ok 109 - edited failing checks report no ordinary result
+  ---
+  duration_ms: 360.5294
+  ...
+# Subtest: failure artifacts include observable inspection state and a viewport screenshot
+ok 110 - failure artifacts include observable inspection state and a viewport screenshot
+  ---
+  duration_ms: 459.825
+  ...
+# Subtest: screenshot failure preserves JSON, trace and original assertion
+ok 111 - screenshot failure preserves JSON, trace and original assertion
+  ---
+  duration_ms: 221.0293
+  ...
+# Subtest: closing the failed page still preserves failure JSON and trace
+ok 112 - closing the failed page still preserves failure JSON and trace
+  ---
+  duration_ms: 197.1389
+  ...
+# Subtest: report progress records elapsed context and selected evidence in failure diagnostics
+ok 113 - report progress records elapsed context and selected evidence in failure diagnostics
+  ---
+  duration_ms: 328.08
+  ...
+# Subtest: progress stays scoped to its check and does not create successful artifacts
+ok 114 - progress stays scoped to its check and does not create successful artifacts
+  ---
+  duration_ms: 385.5613
+  ...
+# Subtest: unchanged content and diagnostic output remain valid
+ok 115 - unchanged content and diagnostic output remain valid
+  ---
+  duration_ms: 312.4645
+  ...
+# Subtest: source edit invalidates successful results and names the changed input
+ok 116 - source edit invalidates successful results and names the changed input
+  ---
+  duration_ms: 186.7906
+  ...
+# Subtest: check edit invalidates successful results and names the changed input
+ok 117 - check edit invalidates successful results and names the changed input
+  ---
+  duration_ms: 189.7041
+  ...
+# Subtest: changed production bundle invalidates successful results and names the changed input
+ok 118 - changed production bundle invalidates successful results and names the changed input
+  ---
+  duration_ms: 125.8931
+  ...
+# Subtest: new source file invalidates successful results and names the changed input
+ok 119 - new source file invalidates successful results and names the changed input
+  ---
+  duration_ms: 122.4736
+  ...
+# Subtest: removed source file invalidates successful results and names the changed input
+ok 120 - removed source file invalidates successful results and names the changed input
+  ---
+  duration_ms: 71.4319
+  ...
+# Subtest: renamed source file invalidates successful results and names the changed input
+ok 121 - renamed source file invalidates successful results and names the changed input
+  ---
+  duration_ms: 62.6852
+  ...
+# Subtest: changed inputs invalidate a failed check and retain its original cause
+ok 122 - changed inputs invalidate a failed check and retain its original cause
+  ---
+  duration_ms: 55.9698
+  ...
+# Subtest: unchanged failures preserve the check error
+ok 123 - unchanged failures preserve the check error
+  ---
+  duration_ms: 274.0493
+  ...
+# Subtest: fails on trailing whitespace added to the pull-request diff with a line diagnostic
+ok 124 - fails on trailing whitespace added to the pull-request diff with a line diagnostic
+  ---
+  duration_ms: 3083.1845
+  ...
+# Subtest: uses the same trailing-whitespace policy when local Git configuration disables it
+ok 125 - uses the same trailing-whitespace policy when local Git configuration disables it
+  ---
+  duration_ms: 2960.5532
+  ...
+# Subtest: passes a clean diff without flagging unchanged historical whitespace
+ok 126 - passes a clean diff without flagging unchanged historical whitespace
+  ---
+  duration_ms: 1681.939
+  ...
+# Subtest: checks unstaged tracked work before a commit
+ok 127 - checks unstaged tracked work before a commit
+  ---
+  duration_ms: 1020.6958
+  ...
+# Subtest: checks staged content even when the unstaged copy has already been fixed
+ok 128 - checks staged content even when the unstaged copy has already been fixed
+  ---
+  duration_ms: 1436.4357
+  ...
+# Subtest: fails clearly when a base, head, or merge base is unavailable
+ok 129 - fails clearly when a base, head, or merge base is unavailable
+  ---
+  duration_ms: 1936.2046
+  ...
+# Subtest: up-to-date PR passes on the exact published head and the check preserves the checkout
+ok 130 - up-to-date PR passes on the exact published head and the check preserves the checkout
+  ---
+  duration_ms: 8693.2112
+  ...
+# Subtest: fresh target history overrides a stale mergeable result after main advances
+ok 131 - fresh target history overrides a stale mergeable result after main advances
+  ---
+  duration_ms: 4980.0022
+  ...
+# Subtest: local and published pull-request heads must match
+ok 132 - local and published pull-request heads must match
+  ---
+  duration_ms: 2883.8714
+  ...
+# Subtest: missing validation check is not ready
+ok 133 - missing validation check is not ready
+  ---
+  duration_ms: 2402.4917
+  ...
+# Subtest: running validation check is not ready
+ok 134 - running validation check is not ready
+  ---
+  duration_ms: 2587.6656
+  ...
+# Subtest: failed validation check is not ready
+ok 135 - failed validation check is not ready
+  ---
+  duration_ms: 2503.3156
+  ...
+# Subtest: cancelled validation check is not ready
+ok 136 - cancelled validation check is not ready
+  ---
+  duration_ms: 2085.2836
+  ...
+# Subtest: missing validation run and passing evidence for a different head are not ready
+ok 137 - missing validation run and passing evidence for a different head are not ready
+  ---
+  duration_ms: 4323.1521
+  ...
+# Subtest: focused or external-preview evidence cannot satisfy complete validation
+ok 138 - focused or external-preview evidence cannot satisfy complete validation
+  ---
+  duration_ms: 4589.3588
+  ...
+# Subtest: pending, failed, and cancelled latest workflow runs are not ready
+ok 139 - pending, failed, and cancelled latest workflow runs are not ready
+  ---
+  duration_ms: 7011.7088
+  ...
+# Subtest: GitHub API and Git fetch failures return non-ready results without checkout changes
+ok 140 - GitHub API and Git fetch failures return non-ready results without checkout changes
+  ---
+  duration_ms: 4471.923
+  ...
+# Subtest: pull-request base repository must match the explicit target repository
+ok 141 - pull-request base repository must match the explicit target repository
+  ---
+  duration_ms: 2213.1943
+  ...
+# Subtest: unavailable validation evidence explains how to recover
+ok 142 - unavailable validation evidence explains how to recover
+  ---
+  duration_ms: 2645.3082
+  ...
+# Subtest: dirty worktrees are rejected without changing their contents
+ok 143 - dirty worktrees are rejected without changing their contents
+  ---
+  duration_ms: 1650.5898
+  ...
+# Subtest: project dependency readiness passes with the required local installation
+ok 144 - project dependency readiness passes with the required local installation
+  ---
+  duration_ms: 318.746
+  ...
+# Subtest: missing local dependencies fail early with a locked-install instruction
+ok 145 - missing local dependencies fail early with a locked-install instruction
+  ---
+  duration_ms: 264.0586
+  ...
+# Subtest: packages in a parent checkout cannot satisfy the intended checkout
+ok 146 - packages in a parent checkout cannot satisfy the intended checkout
+  ---
+  duration_ms: 308.8599
+  ...
+# Subtest: build and preview hooks stop before work even when a parent checkout supplies packages
+ok 147 - build and preview hooks stop before work even when a parent checkout supplies packages
+  ---
+  duration_ms: 4813.9323
+  ...
+# Subtest: focused browser npm scripts run the checkout dependency preflight first
+ok 148 - focused browser npm scripts run the checkout dependency preflight first
+  ---
+  duration_ms: 9800.1398
+  ...
+# Subtest: direct focused browser runs reject parent Playwright before external-preview checks
+ok 149 - direct focused browser runs reject parent Playwright before external-preview checks
+  ---
+  duration_ms: 342.8603
+  ...
+# Subtest: preflight reports missing tools without installation, authentication or history writes
+ok 150 - preflight reports missing tools without installation, authentication or history writes
+  ---
+  duration_ms: 309.7949
+  ...
+# Subtest: report generation normalizes CRLF copies, preserves original bytes and remains repeatable
+ok 151 - report generation normalizes CRLF copies, preserves original bytes and remains repeatable
+  ---
+  duration_ms: 1541.5559
+  ...
+1..151
+# tests 151
+# suites 0
+# pass 151
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 53277.6954
