@@ -49,7 +49,7 @@ export async function validateContentSections({ page, context, projects, evidenc
         if (!record) errors.push(`${referenceLocation}.evidenceId: unknown evidence reference ${JSON.stringify(reference.evidenceId)}.`);
         else if (section.visible === true && !visibleEvidence.has(record.id)) {
           const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id);
-          errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/content/pages/portfolio.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/content/evidence.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);
+          errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/data.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/data.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);
         }
         requiredString(reference.projectId, `${referenceLocation}.projectId`, errors);
         if (reference.projectId !== undefined) {

@@ -23,9 +23,9 @@ function evidenceDestination(value, anchor) {
 
 export async function validateProjectContent({ projects, evidence, portfolioPage, sourceFiles = {} }, { publicDirectory }) {
   const errors = [];
-  const projectFile = sourceFiles.projects ?? "src/content/projects.ts";
-  const evidenceFile = sourceFiles.evidence ?? "src/content/evidence.ts";
-  const pageFile = sourceFiles.portfolio ?? "src/content/pages/portfolio.ts";
+  const projectFile = sourceFiles.projects ?? "src/data.ts";
+  const evidenceFile = sourceFiles.evidence ?? "src/data.ts";
+  const pageFile = sourceFiles.portfolio ?? "src/data.ts";
   const projectRecords = records(projects, `${projectFile}: projects`, errors);
   const evidenceRecords = records(evidence, `${evidenceFile}: evidence`, errors);
   const sections = records(portfolioPage?.sections, `${pageFile}: portfolioPage.sections`, errors, { nonempty: false });

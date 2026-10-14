@@ -7,17 +7,15 @@ import { startPreview } from "./browser/preview-server.mjs";
 import { withBrowserContext } from "./browser/run-browser-check.mjs";
 import { loadContentDefinitions, repositoryRoot } from "./content-validation.mjs";
 
-const directory = path.join(repositoryRoot, "src/content");
-const files = { skillsPage: "pages/skills.ts", evidence: "evidence.ts", portfolioPage: "pages/portfolio.ts" };
-const originals = Object.fromEntries(await Promise.all(Object.entries(files).map(async ([name, file]) =>
-  [name, await readFile(path.join(directory, file), "utf8")])));
-const types = { skillsPage: ["SkillsPageContent", "../../page-schema"], evidence: ["EvidenceContent[]", "../content-schema"], portfolioPage: ["PortfolioPageContent", "../../content-schema"] };
+import { contentPath, createContentEditor, writeContentFixture } from "./content-editing-fixture.mjs";
+const directory = path.dirname(contentPath);
+const contentEditor = await createContentEditor();
 async function writeDefinitions(target, definitions) {
-  for (const [name, file] of Object.entries(files)) {
-    const [type, source] = types[name];
-    await writeFile(path.join(target, file), `import type { ${type.replace("[]", "")} } from "${source}";\nexport const ${name}: ${type} = ${JSON.stringify(definitions[name], null, 2)};\n`);
-  }
+  if (target !== directory) return writeContentFixture(target, definitions);
+  for (const name of ["siteContent", "portfolioPage", "projects", "evidence", "skillsPage", "aboutMePage"])
+    await contentEditor.write(name, definitions[name]);
 }
+
 function command(script, args = []) {
   if (script === "validate:content") {
     const result = spawnSync(process.execPath, ["scripts/validate-content.mjs", ...args], { cwd: repositoryRoot, encoding: "utf8", windowsHide: true });
@@ -32,23 +30,23 @@ async function invalidEdits(definitions) {
   await mkdir(path.join(repositoryRoot, ".scratch"), { recursive: true });
   const disposable = await mkdtemp(path.join(repositoryRoot, ".scratch/skills-content-"));
   try {
-    await cp(directory, disposable, { recursive: true });
+    await cp(contentPath, path.join(disposable, "data.ts"));
     const variants = [
-      [v => { v.skillsPage.sections[0].cards[1].evidence[0].evidenceId = "missing"; }, /skills\.ts.*performance-investigation.*evidence\[0\].evidenceId: unknown evidence/],
-      [v => { v.skillsPage.sections[0].cards[1].evidence[0].projectId = "missing"; }, /skills\.ts.*performance-investigation.*projectId: unknown project/],
-      [v => { v.skillsPage.sections[0].cards[1].evidence[1].projectId = "regulus"; }, /skills\.ts.*evidenceId: evidence does not belong/],
-      [v => { v.skillsPage.sections[1].id = "capabilities"; }, /skills\.ts.*id: duplicate record identity/],
-      [v => { v.skillsPage.sections[0].cards[1].id = "functional-testing"; }, /skills\.ts.*cards.*id: duplicate record identity/],
-      [v => { v.skillsPage.sections[0].cards[1].evidence.push(v.skillsPage.sections[0].cards[1].evidence[0]); }, /skills\.ts.*evidenceId: duplicate evidence reference/],
-      [v => { v.skillsPage.sections[0].preset = "wide"; }, /skills\.ts.*capabilities.*preset: unsupported/],
-      [v => { v.skillsPage.sections[0].type = "carousel"; }, /skills\.ts.*type: unsupported section/],
-      [v => { v.skillsPage.sections[0].cards[0].description = ""; }, /skills\.ts.*functional-testing.*description: required/],
-      [v => { v.skillsPage.sections[0].visible = "yes"; }, /skills\.ts.*visible: required boolean/],
-      [v => { v.evidence[0].destination = "javascript:alert(1)"; }, /evidence\.ts.*android-reports.*destination: malformed or unresolved/],
-      [v => { v.evidence[1].destination = "/?evidence=missing"; }, /evidence\.ts.*pix-capture.*destination: malformed or unresolved/],
-      [v => { v.evidence[0].destination = "/?evidence=android-reports&evidence=pix-capture"; }, /evidence\.ts.*destination: malformed or unresolved/],
-      [v => { v.portfolioPage.sections[0].visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
-      [v => { v.portfolioPage.sections.find(section => section.projectId === "vecchio-furioso").visible = false; }, /skills\.ts.*evidenceId: live reference targets hidden/],
+      [v => { v.skillsPage.sections[0].cards[1].evidence[0].evidenceId = "missing"; }, /data\.ts.*performance-investigation.*evidence\[0\].evidenceId: unknown evidence/],
+      [v => { v.skillsPage.sections[0].cards[1].evidence[0].projectId = "missing"; }, /data\.ts.*performance-investigation.*projectId: unknown project/],
+      [v => { v.skillsPage.sections[0].cards[1].evidence[1].projectId = "regulus"; }, /data\.ts.*evidenceId: evidence does not belong/],
+      [v => { v.skillsPage.sections[1].id = "capabilities"; }, /data\.ts.*id: duplicate record identity/],
+      [v => { v.skillsPage.sections[0].cards[1].id = "functional-testing"; }, /data\.ts.*cards.*id: duplicate record identity/],
+      [v => { v.skillsPage.sections[0].cards[1].evidence.push(v.skillsPage.sections[0].cards[1].evidence[0]); }, /data\.ts.*evidenceId: duplicate evidence reference/],
+      [v => { v.skillsPage.sections[0].preset = "wide"; }, /data\.ts.*capabilities.*preset: unsupported/],
+      [v => { v.skillsPage.sections[0].type = "carousel"; }, /data\.ts.*type: unsupported section/],
+      [v => { v.skillsPage.sections[0].cards[0].description = ""; }, /data\.ts.*functional-testing.*description: required/],
+      [v => { v.skillsPage.sections[0].visible = "yes"; }, /data\.ts.*visible: required boolean/],
+      [v => { v.evidence[0].destination = "javascript:alert(1)"; }, /data\.ts.*android-reports.*destination: malformed or unresolved/],
+      [v => { v.evidence[1].destination = "/?evidence=missing"; }, /data\.ts.*pix-capture.*destination: malformed or unresolved/],
+      [v => { v.evidence[0].destination = "/?evidence=android-reports&evidence=pix-capture"; }, /data\.ts.*destination: malformed or unresolved/],
+      [v => { v.portfolioPage.sections[0].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      [v => { v.portfolioPage.sections.find(section => section.projectId === "vecchio-furioso").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
     ];
     for (const [edit, diagnostic] of variants) {
       const invalid = structuredClone(definitions);
@@ -161,14 +159,14 @@ try {
   for (const script of ["build", "dev"]) {
     const rejected = command(script, script === "dev" ? ["--help"] : []);
     assert.notEqual(rejected.status, 0, rejected.output);
-    assert.match(rejected.output, /skills\.ts.*performance-investigation.*evidenceId: unknown evidence/);
+    assert.match(rejected.output, /data\.ts.*performance-investigation.*evidenceId: unknown evidence/);
   }
   await writeDefinitions(directory, edited);
   const result = command("build");
   assert.equal(result.status, 0, result.output);
   await renderedEdits();
 } catch (error) { failure = error; } finally {
-  for (const [name, file] of Object.entries(files)) await writeFile(path.join(directory, file), originals[name]);
+  await contentEditor.restore();
   const restored = command("build");
   if (restored.status !== 0) failure = new AggregateError([failure, new Error(restored.output)].filter(Boolean), "Canonical production build could not be restored.");
 }

@@ -5,11 +5,11 @@ import Footer from "./Components/Footer";
 import MainPage from "./Pages/MainPage";
 import Skills from "./Pages/Skills";
 import AboutMe from "./Pages/AboutMe";
-import { siteContent } from "./content/site";
-import { aboutMePage } from "./content/pages/aboutMe";
-import { evidence as evidenceRecords } from "./content/evidence";
+import { siteContent } from "./data";
+import { aboutMePage } from "./data";
+import { evidence as evidenceRecords } from "./data";
 import { assetUrl } from "./data";
-import { skillsPage } from "./content/pages/skills";
+import { skillsPage } from "./data";
 
 export default function App() {
   const { pathname, search } = useLocation();

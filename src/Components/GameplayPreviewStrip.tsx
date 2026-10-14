@@ -1,4 +1,4 @@
-import { siteContent } from "../content/site";
+import { siteContent } from "../data";
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import type { MediaGalleryItem } from "./MediaGallery";
 

@@ -1,4 +1,4 @@
-import { siteContent } from "../content/site";
+import { siteContent } from "../data";
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 import EvidenceModal from "./EvidenceModal";

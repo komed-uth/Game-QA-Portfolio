@@ -1,6 +1,6 @@
-import { portfolioPage } from "../content/pages/portfolio";
-import { projects } from "../content/projects";
-import { evidence } from "../content/evidence";
+import { portfolioPage } from "../data";
+import { projects } from "../data";
+import { evidence } from "../data";
 import FatherSonShowcase from "../Components/FatherSonShowcase";
 import PcPerformanceProject from "../Components/PcPerformanceProject";
 import RegulusShowcase from "../Components/RegulusShowcase";

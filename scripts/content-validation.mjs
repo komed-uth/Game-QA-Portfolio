@@ -10,7 +10,7 @@ import ts from "typescript";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 export const repositoryRoot = path.resolve(scriptDirectory, "..");
-const defaultDefinitionsDirectory = path.join(repositoryRoot, "src", "content");
+const defaultDefinitionsDirectory = path.join(repositoryRoot, "src");
 const defaultPublicDirectory = path.join(repositoryRoot, "public");
 const allowedTextPresets = new Set(["standard"]);
 const supportedNavigationPaths = new Set(["/", "/skills", "/about-me"]);
@@ -46,36 +46,13 @@ async function loadTypedModule(sourcePath) {
 }
 
 export async function loadContentDefinitions({ directory = defaultDefinitionsDirectory } = {}) {
-  const sitePath = path.join(directory, "site.ts");
-  const aboutMePath = path.join(directory, "pages", "aboutMe.ts");
-  const projectsPath = path.join(directory, "projects.ts");
-  const evidencePath = path.join(directory, "evidence.ts");
-  const skillsPath = path.join(directory, "pages", "skills.ts");
-  const portfolioPath = path.join(directory, "pages", "portfolio.ts");
-  const [siteModule, aboutMeModule, projectsModule, evidenceModule, portfolioModule, skillsModule] = await Promise.all([
-    loadTypedModule(sitePath),
-    loadTypedModule(aboutMePath),
-    loadTypedModule(projectsPath),
-    loadTypedModule(evidencePath),
-    loadTypedModule(portfolioPath),
-    loadTypedModule(skillsPath),
-  ]);
-
+  const sourcePath = path.join(directory, "data.ts");
+  const definitions = await loadTypedModule(sourcePath);
+  const names = ["siteContent", "aboutMePage", "skillsPage", "projects", "evidence", "portfolioPage"];
   return {
-    skillsPage: skillsModule.skillsPage,
-    projects: projectsModule.projects,
-    evidence: evidenceModule.evidence,
-    portfolioPage: portfolioModule.portfolioPage,
-    siteContent: siteModule.siteContent,
-    aboutMePage: aboutMeModule.aboutMePage,
-    sourceFiles: {
-      skills: displayPath(skillsPath),
-      projects: displayPath(projectsPath),
-      evidence: displayPath(evidencePath),
-      portfolio: displayPath(portfolioPath),
-      site: displayPath(sitePath),
-      aboutMe: displayPath(aboutMePath),
-    },
+    ...Object.fromEntries(names.map(name => [name, definitions[name]])),
+    sourceFiles: Object.fromEntries(["site", "aboutMe", "skills", "projects", "evidence", "portfolio"]
+      .map(name => [name, displayPath(sourcePath)])),
   };
 }
 
@@ -137,8 +114,8 @@ export async function validateContent(
 ) {
   const errors = await validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory });
   errors.push(...await validateSkillsContent({ skillsPage, projects, evidence, portfolioPage, sourceFiles }, { publicDirectory }));
-  const siteFile = sourceFiles.site ?? "src/content/site.ts";
-  const aboutFile = sourceFiles.aboutMe ?? "src/content/pages/aboutMe.ts";
+  const siteFile = sourceFiles.site ?? "src/data.ts";
+  const aboutFile = sourceFiles.aboutMe ?? "src/data.ts";
 
   if (!isObject(siteContent)) {
     errors.push(`${siteFile}: siteContent: required record is missing.`);
@@ -214,7 +191,7 @@ export async function validateContent(
             const target = Array.isArray(evidence) && evidence.find(record => record?.anchor === selectors[0]);
             const { section } = findEvidenceTarget(Array.isArray(projects) ? projects : [], portfolioPage?.sections, target?.id);
             if (url.pathname !== "/" || selectors.length !== 1 || !target || section?.visible !== true) {
-              errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/content/pages/portfolio.ts"} and ${sourceFiles.evidence ?? "src/content/evidence.ts"}.`);
+              errors.push(`${context}.destination: unresolved or hidden evidence target ${JSON.stringify(selectors[0])}; check ${sourceFiles.portfolio ?? "src/data.ts"} and ${sourceFiles.evidence ?? "src/data.ts"}.`);
             }
           }
         }

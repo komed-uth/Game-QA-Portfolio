@@ -1,4 +1,4 @@
-import { siteContent } from "../content/site";
+import { siteContent } from "../data";
 import { useEffect, useId, useRef, useState } from "react";
 
 export type InspectionPosition = { left: number; top: number };

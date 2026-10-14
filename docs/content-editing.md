@@ -1,15 +1,35 @@
 # Editing portfolio content
 
-Begin in `src/content/`. These TypeScript files provide VS Code field suggestions. Definitions describe content and supported presentation; renderers, schemas (`src/page-schema.ts`, `src/content-schema.ts`), validation, and asset resolution remain outside this editing area.
+Open **`src/data.ts`** for every routine content edit. It is the single editable content file for all three pages, project galleries, reports, and the shared header/footer. Labeled sections and TypeScript definitions provide navigation and VS Code field suggestions. Renderers, schemas (`src/page-schema.ts`, `src/content-schema.ts`), and validation remain separate from editable content.
 
 | Owner | Editable content |
 | --- | --- |
-| `pages/portfolio.ts` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
-| `pages/skills.ts` | Page title/description, capabilities/tools, text/card sections, evidence references, action suffix |
-| `pages/aboutMe.ts` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
-| `site.ts` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
-| `projects.ts` | Project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
-| `evidence.ts` | Shared report/PIX destinations and labels, report headings/actions/alternatives/default/choices/files, PIX file/alternative/opening label/modal title |
+| `portfolioPage` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
+| `skillsPage` | Page title/description, capabilities/tools, text/card sections, evidence references, action suffix |
+| `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
+| `siteContent` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
+| `projects` | All six project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
+| `evidence` | Shared report/PIX destinations and labels, report headings/actions/alternatives/default/choices/files, PIX file/alternative/opening label/modal title |
+
+Use VS Code's Outline panel to jump to one of these exports, or search for a project name such as `Invictus: Lost Soul`. The former `src/content/` files have been consolidated; there are no separate copies to update.
+
+### Replace a placeholder gallery picture
+
+1. Put the new picture in `public/images/invictus-lost-soul/`, for example `gameplay-01.png`.
+2. In `src/data.ts`, search for `invictus-lost-soul`, then find that project's `media` list.
+3. Update the existing entry's `path`, `label`, and `alt`, keeping its `id` stable:
+
+```ts
+{
+  id: "mock-1",
+  type: "image",
+  path: "images/invictus-lost-soul/gameplay-01.png",
+  label: "Combat",
+  alt: "Describe the actual gameplay shown in your screenshot",
+}
+```
+
+Use the real file extension; do not rename a PNG file to SVG. Once verified screenshots replace the mock panels, update the project's overview and gallery disclosure to describe the supplied media accurately. Leave unconfirmed role/responsibility fields unconfirmed until you can supply them. The same steps apply to The Collectors and MeowMoney.
 
 There is no second copy of project facts or evidence destinations in a page component. Original reports, captures, and videos remain evidence files rather than editable page prose. Public routes (`/`, `/skills`, `/about-me`), the legacy `/about` redirect, and public evidence anchors are stable application contracts. Styles, breakpoints, YouTube provider endpoints and decorative video indicators are implementation; page editors do not configure arbitrary CSS or a new section engine.
 
@@ -21,7 +41,7 @@ Keep stable IDs when renaming headings, cards, projects, quality labels or media
 
 Local assets use forward-slash paths relative to `public/`, such as `images/example.png`. Update an image's `path` and descriptive `alt` together; the file must actually exist. The shared base-aware resolver handles repository/subfolder hosting. Project images choose either `path` or an absolute `url`, never both; videos use an 11-character YouTube `videoId`, with at most one video per gallery. Move media entries to change their order. `media: []` intentionally omits a project gallery, and omitting a text section's `media` removes its image without an empty frame. A supplied missing file is an error, including on hidden records.
 
-Shared interface templates in `site.ts` keep their named tokens: `openScreenshot` and `showPreview` require `{label}`, and `videoTitle` requires `{project}`. Change surrounding wording while retaining the token. The shared metadata title, description and icon also supply `index.html`, so routine shell edits do not require changing HTML or a component.
+Shared interface templates in `siteContent` keep their named tokens: `openScreenshot` and `showPreview` require `{label}`, and `videoTitle` requires `{project}`. Change surrounding wording while retaining the token. The shared metadata title, description and icon also supply `index.html`, so routine shell edits do not require changing HTML or a component.
 
 URL-format validation checks syntax and internal targets. It does **not** prove that an external URL is reachable or that its content is appropriate.
 
