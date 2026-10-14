@@ -30,10 +30,10 @@ async function captureFailure(context, error, run) {
         viewport: { width: innerWidth, height: innerHeight, scrollX, scrollY },
         visibility: { state: document.visibilityState, hidden: document.hidden, focused: document.hasFocus() },
         modalOpen: !!document.querySelector('dialog[open]'),
-        report: document.querySelector('.report-selector') ? {
+        report: document.querySelector('#android-reports .evidence-open, .report-selector') ? {
           selected: [...document.querySelectorAll('.report-selector button[aria-pressed="true"]')].map(element => element.textContent.trim()),
-          outputName: document.querySelector('.report-output')?.getAttribute('aria-label'),
-          openerNames: [...document.querySelectorAll('.report-preview, .report-controls .evidence-open')].map(element => element.getAttribute('aria-label')),
+          outputName: document.querySelector('.report-output, #android-reports')?.getAttribute('aria-label'),
+          openerNames: [...document.querySelectorAll('.report-preview, .report-controls .evidence-open, #android-reports .evidence-open')].map(element => element.getAttribute('aria-label')),
           modalTitle: document.querySelector('dialog[open] h2')?.textContent,
           iframeSource: document.querySelector('dialog[open] iframe')?.getAttribute('src'),
         } : null,

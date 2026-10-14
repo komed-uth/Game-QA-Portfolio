@@ -1,11 +1,11 @@
-import { visibleProjectEvidence, findEvidenceTarget } from "./project-evidence.mjs";
+import { visibleSkillsEvidence, findEvidenceTarget } from "./project-evidence.mjs";
 import { isObject, requiredString, records, validateMediaPath, registerIdentity } from "./content-validation-fields.mjs";
 
 export async function validateContentSections({ page, context, projects, evidence, portfolioPage, skillsPage, sourceFiles = {}, anchors = new Set(["main-content"]) }, { publicDirectory }) {
   const errors = [];
   const projectRecords = Array.isArray(projects) ? projects : [];
   const evidenceRecords = Array.isArray(evidence) ? evidence : [];
-  const visibleEvidence = visibleProjectEvidence(projectRecords, portfolioPage?.sections, skillsPage?.sections);
+  const visibleEvidence = visibleSkillsEvidence(skillsPage?.sections);
   const sections = records(page.sections, `${context}.sections`, errors, { nonempty: false });
   for (const section of sections) {
     const location = `${context}.sections[${JSON.stringify(section.id)}]`;
@@ -52,9 +52,9 @@ export async function validateContentSections({ page, context, projects, evidenc
         identities.add(reference.evidenceId);
         const record = evidenceRecords.find(record => record?.id === reference.evidenceId);
         if (!record) errors.push(`${referenceLocation}.evidenceId: unknown evidence reference ${JSON.stringify(reference.evidenceId)}.`);
-        else if (section.type === "evidence" && record.kind !== "capture") errors.push(`${referenceLocation}.evidenceId: Skills evidence rows currently support captures only.`);
+        else if (section.type === "evidence" && !["capture", "reports"].includes(record.kind)) errors.push(`${referenceLocation}.evidenceId: unsupported Skills evidence kind.`);
         else if (section.visible === true && !visibleEvidence.has(record.id)) {
-          const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id, skillsPage?.sections);
+          const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, record.id, skillsPage?.sections);
           errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/data.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/data.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);
         }
         if (section.type === "evidence" && section.visible === true && record) {

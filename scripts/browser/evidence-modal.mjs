@@ -38,7 +38,7 @@ export default async function check(page) {
         await d.locator('img').click();
         assert.equal(await d.count(), 1, 'Inside image interaction keeps the modal open');
     }
-    const capture = p.locator('.capture-media');
+    const capture = p.locator('#pix-capture .capture-media');
     const captureOpener = capture.getByRole('button', {
         name: 'Open full-size Microsoft PIX capture for Vecchio Furioso', exact: true,
     });
@@ -59,7 +59,7 @@ export default async function check(page) {
             'Capture fills its opener without clipping');
         const ratio = await capture.locator('img').evaluate(img => img.naturalWidth / img.naturalHeight);
         assert(Math.abs(imageBox.width / imageBox.height - ratio) < .01, 'Complete capture keeps its original aspect ratio');
-        const detailsBox = await p.locator('.performance-evidence-details').boundingBox();
+        const detailsBox = await p.locator('#pix-capture .performance-evidence-details').boundingBox();
         const headingBox = await p.getByRole('heading', { name: 'Vecchio Furioso', exact: true }).boundingBox();
         if (p.viewportSize().width <= 900) {
             assert(figureBox.y >= detailsBox.y + detailsBox.height && headingBox.y >= detailsBox.y,
@@ -124,7 +124,7 @@ export default async function check(page) {
     assert.equal(await d.getByRole('button', { name: 'Next screenshot' }).count(), 0);
     await close();
     assert(await captureOpener.evaluate(element => element === document.activeElement));
-    await p.locator('.capture-media .evidence-image-button').click();
+    await p.locator('#pix-capture .capture-media .evidence-image-button').click();
     await p.waitForTimeout(250);
     const exitAnimation = await d.evaluate(async (element) => {
         element.querySelector('button').click();
@@ -141,55 +141,6 @@ export default async function check(page) {
     assert.notEqual(await p.evaluate(() => document.documentElement.style.overflow), 'hidden');
     console.log('PASS: all seven evidence images, actions, originals, navigation/video skip, focus, dismissal and background lock');
     await p.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
-    let summaryPosition;
-    const labels = ['Very High', 'High', 'Medium', 'Low', 'Very Low', 'Overall'];
-    for (let i = 0; i < labels.length; i++) {
-        await p.getByRole('button', { name: labels[i], exact: true }).click();
-        assert.equal(await d.count(), 0);
-        await p.locator('.report-preview').click();
-        if (i < 5) {
-            const f = await d.locator('iframe').elementHandle();
-            const frame = await f.contentFrame();
-            await frame.waitForLoadState();
-            assert.equal(await frame.evaluate(() => scrollY), 0);
-            assert((await frame.locator('svg').count()) > 0);
-            await frame.evaluate(y => scrollTo(0, y), 350 + i * 100);
-            await p.waitForTimeout(100);
-            await d.locator('iframe').focus();
-            await close('escape');
-        }
-        else {
-            await d.locator('img').evaluate(img => img.decode());
-            await d.locator('.evidence-modal-content').evaluate(e => e.scrollTo(80, 600));
-            await p.waitForTimeout(100);
-            summaryPosition = await d.locator('.evidence-modal-content').evaluate(e => e.scrollTop);
-            await close();
-        }
-    }
-    for (let i = 0; i < labels.length; i++) {
-        await p.getByRole('button', { name: labels[i], exact: true }).click();
-        await p.locator('.report-controls .evidence-open').click();
-        if (i < 5) {
-            const frame = await (await d.locator('iframe').elementHandle()).contentFrame();
-            await frame.waitForLoadState();
-            await p.waitForTimeout(100);
-            assert.equal(await frame.evaluate(() => scrollY), 350 + i * 100);
-        }
-        else {
-            await d.locator('img').evaluate(img => img.decode());
-            await p.waitForTimeout(100);
-            assert.equal(await d.locator('.evidence-modal-content').evaluate(e => e.scrollTop), summaryPosition);
-        }
-        assert.equal(await d.locator('a').getAttribute('target'), '_blank');
-        await close();
-    }
-    console.log('PASS: six reports, chart rendering, iframe Escape, independent scroll restoration and originals');
-    await p.reload();
-    await p.locator('.report-preview').click();
-    let frame = await (await d.locator('iframe').elementHandle()).contentFrame();
-    await frame.waitForLoadState();
-    assert.equal(await frame.evaluate(() => scrollY), 0);
-    await close();
     for (const [width, height] of [[1920, 1080], [1366, 768], [390, 845], [845, 390], [360, 840], [840, 360], [1200, 800], [800, 1200], [899, 700], [900, 700], [901, 700]]) {
         await p.setViewportSize({ width, height });
         await checkProjectLayout(p);
@@ -229,20 +180,20 @@ export default async function check(page) {
         assert.equal(await d.getByRole('button', { name: /screenshot/ }).count(), 0);
         await close('backdrop');
         assert(await captureOpener.evaluate(element => element === document.activeElement), 'Capture restores focus after resizing');
-        await p.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
-        await p.locator('.report-preview').click();
+        await p.locator('#android-reports .evidence-open').click();
         const box = await d.boundingBox();
         assert(box.x >= 8 && box.y >= 8 && box.x + box.width <= width - 8 && box.y + box.height <= height - 8);
         assert(await d.getByRole('button', { name: 'Close evidence' }).isVisible());
         await close();
         assert(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await p.getByRole('navigation').getByRole('link', { name: 'Portfolio', exact: true }).click();
         await checkHomepageFooter(p);
     }
     await checkShowcaseResizeAndKeyboard(p);
     await checkVecchioGameplay(p);
     await p.emulateMedia({ reducedMotion: 'reduce' });
     await p.getByRole('navigation').getByRole('link', { name: 'Skills', exact: true }).click();
-    await p.locator('.capture-media .evidence-image-button').click();
+    await p.locator('#pix-capture .capture-media .evidence-image-button').click();
     assert.equal(await d.evaluate(e => getComputedStyle(e).animationName), 'none');
     await close();
     console.log('PASS: reload reset, eleven responsive viewports including exactly 900px, project/media ordering, outside margins, no page overflow and reduced motion');

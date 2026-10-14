@@ -39,14 +39,14 @@ async function checkInvalidDefinitions(definitions) {
       ["missing asset", value => { value.projects[0].media[1].path = "images/missing.png"; }, /data\.ts.*path: local media file does not exist/],
       ["traversal", value => { value.projects[0].media[1].path = "../public/favicon.svg"; }, /data\.ts.*path: must stay within/],
       ["store destination", value => { value.projects[0].stores[0].destination = "javascript:alert(1)"; }, /data\.ts.*destination: malformed/],
-      ["report default", value => { value.evidence[0].defaultReportId = "Ultra"; }, /data\.ts.*defaultReportId: invalid report default/],
-      ["report asset", value => { value.evidence[0].reports[0].path = "missing.html"; }, /data\.ts.*reports.*path: local media file does not exist/],
+      ["report title", value => { value.evidence[0].report.title = ""; }, /data\.ts.*report.title: required/],
+      ["report asset", value => { value.evidence[0].report.path = "missing.html"; }, /data\.ts.*report.*path: local media file does not exist/],
       ["duplicate evidence", value => { value.evidence.push(structuredClone(value.evidence[0])); }, /data\.ts.*id: duplicate record identity/],
-      ["duplicate report", value => { value.evidence[0].reports[1].id = value.evidence[0].reports[0].id; }, /data\.ts.*reports.*id: duplicate record identity/],
+      ["invalid report format", value => { value.evidence[0].report.path = "images/regulus-s10-very-high.png"; }, /data\.ts.*report.path: expected an HTML report/],
       ["duplicate anchor", value => { value.projects[0].headingId = "pc-project-title"; }, /data\.ts.*headingId: duplicate rendered anchor/],
       ["unresolved capture", value => { value.evidence[1].anchor = "missing"; value.evidence[1].destination = "/?evidence=missing"; }, /data\.ts.*anchor: preserve the established/],
       ["malformed internal link", value => { value.evidence[0].destination = "/?evidence=missing"; }, /data\.ts.*destination: malformed or unresolved/],
-      ["hidden live evidence", value => { value.portfolioPage.sections[0].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      ["hidden live evidence", value => { value.skillsPage.sections[2].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
       ["duplicate project", value => { value.projects.push(structuredClone(value.projects[1])); }, /data\.ts.*id: duplicate record identity/],
       ["missing Father media", value => { value.projects[1].media[1].path = "images/missing.png"; }, /data\.ts.*father-son.*path: local media file does not exist/],
       ["missing placeholder media", value => { value.projects[3].media[0].path = "images/missing.svg"; }, /data\.ts.*invictus-lost-soul.*path: local media file does not exist/],
@@ -94,27 +94,23 @@ async function checkRenderedEdits() {
       assert.equal(await previews.nth(1).locator("img").getAttribute("src"), "./images/regulus/shop.jpg");
       await previews.nth(1).click();
       await project.locator('.gallery-photo img[alt="An edited gameplay alternative"]').waitFor();
-      assert.equal(await project.getByRole("button", { name: "Ultra", exact: true }).getAttribute("aria-pressed"), "true");
-      assert.deepEqual(await project.locator(".report-selector button").allTextContents(), ["Ultra", "High", "Medium", "Low", "Very Low", "Overall"]);
-      for (const opener of [project.locator(".report-preview"), project.locator(".report-controls .evidence-open")]) {
-        await opener.click();
-        const dialog = page.getByRole("dialog");
-        await dialog.waitFor();
-        assert.match(await dialog.locator("h2").textContent(), /^Ultra quality/);
-        assert((await dialog.getByRole("link", { name: "Open original in new tab" }).getAttribute("href")).endsWith("S10_Very_High_Fixed.html"));
-        await page.keyboard.press("Escape");
-        await dialog.waitFor({ state: "detached" });
-        assert(await opener.evaluate(element => element === document.activeElement));
-      }
       await page.setViewportSize({ width: 900, height: 1000 });
-      assert.equal(await project.getByRole("button", { name: "Ultra", exact: true }).getAttribute("aria-pressed"), "true");
       const order = await project.evaluate(section => {
         const top = selector => section.querySelector(selector).getBoundingClientRect().top;
-        return { title: top(".project-heading"), media: top(".game-gallery"), details: top(".project-info"), output: top(".report-output"), controls: top(".report-controls") };
+        return { title: top(".project-heading"), media: top(".game-gallery"), details: top(".project-info") };
       });
-      assert(order.title < order.media && order.media < order.details && order.output < order.controls);
+      assert(order.title < order.media && order.media < order.details);
+      await page.getByRole("navigation").getByRole("link", { name: "Skills", exact: true }).click();
+      const opener = page.locator('#android-reports .evidence-open');
+      await opener.click();
+      const dialog = page.getByRole('dialog');
+      assert.equal(await dialog.locator('h2').textContent(), 'Ultra');
+      assert((await dialog.locator('a').getAttribute('href')).endsWith('S10_Very_High_Fixed.html'));
+      await page.keyboard.press('Escape');
+      await dialog.waitFor({ state: 'detached' });
+      assert(await opener.evaluate(e => e === document.activeElement));
       await page.goto(new URL("#/skills", preview.url).href);
-      const androidLink = page.getByRole("link", { name: "Regulus the Advent · Android performance reports →", exact: true }).first();
+      const androidLink = page.getByRole("link", { name: "Regulus the Advent · Samsung Galaxy S10 Very High performance evidence →", exact: true }).first();
       await androidLink.click();
       await page.locator("#android-reports").waitFor();
       assert.equal(await page.locator("#android-reports").evaluate(element => element === document.activeElement), true);
@@ -236,7 +232,7 @@ try {
   const media = edited.projects[0].media;
   [media[1], media[2]] = [media[2], media[1]];
   Object.assign(media[1], { path: "images/regulus/shop.jpg", label: "Edited boss photo", alt: "An edited gameplay alternative" });
-  edited.evidence[0].reports[0].label = "Ultra";
+  edited.evidence[0].report.title = "Ultra";
   const father = edited.projects.find(p => p.id === "father-son");
   father.name = "Father edited title";
   father.details[0].value = "Real project overview edited through the shared definition.";
@@ -266,4 +262,4 @@ try {
   if (restored.status !== 0) failure = new AggregateError([failure, new Error(restored.output)].filter(Boolean), "Canonical production build could not be restored.");
 }
 if (failure) throw failure;
-console.log("PASS: all six showcases, real/placeholder edits, Portfolio reordering, optional/external media, PIX inspection, hosting base, and shared project copy/media/order/store edits, report-label rename/default/both openers, responsive order, and Android/PIX evidence destinations.");
+console.log("PASS: all six showcases, real/placeholder edits, Portfolio reordering, optional/external media, PIX inspection, hosting base, and shared project copy/media/order/store edits, single report title edit and inspection, responsive order, and Android/PIX evidence destinations.");

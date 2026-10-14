@@ -34,7 +34,9 @@ export default async function check(page) {
     await p.keyboard.press('Escape');
     await d.waitFor({ state: 'detached' });
     await p.setViewportSize({ width: 1366, height: 768 });
-    await p.locator('.report-preview').click();
+    const portfolioUrl = p.url();
+    await p.getByRole('navigation').getByRole('link', { name: 'Skills', exact: true }).click();
+    await p.locator('#android-reports .evidence-open').click();
     const f = await (await d.locator('iframe').elementHandle()).contentFrame();
     await f.waitForLoadState();
     await f.locator('.toggleImage').first().click();
@@ -58,7 +60,7 @@ export default async function check(page) {
         viewport: { width: 390, height: 845 }, hasTouch: true, isMobile: true,
     }, async touchContext => {
         const touchPage = await touchContext.newPage();
-        await touchPage.goto(p.url());
+        await touchPage.goto(portfolioUrl);
         const gallery = touchPage.locator('.game-gallery').first();
         await gallery.locator('.gallery-thumbnail').nth(1).click();
         const touchSurface = gallery.locator('.gallery-viewer');
