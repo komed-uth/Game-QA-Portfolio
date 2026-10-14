@@ -9,9 +9,29 @@ import { checkGalleryControlLayout } from './gallery-control-layout.mjs';
 const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
 
+export async function checkHeadingColors(page) {
+  const headings = await page.locator('.project-grid .project-title, .project-grid .eyebrow').evaluateAll(elements => {
+    const reference = document.createElement('span');
+    document.body.append(reference);
+    const headings = elements.map(element => {
+      const token = element.classList.contains('project-title') ? '--cyan' : '--green';
+      reference.style.color = `var(${token})`;
+      return { text: element.textContent, color: getComputedStyle(element).color,
+        expected: getComputedStyle(reference).color, token };
+    });
+    reference.remove();
+    return headings;
+  });
+  assert.equal(headings.length, 12, 'All six project titles and showcase labels are present');
+  for (const heading of headings) {
+    assert.equal(heading.color, heading.expected, `${heading.text}: heading matches ${heading.token}`);
+  }
+}
+
 export default async function checkPlaceholders(page) {
   await installVideoFixture(page.context());
   await page.reload();
+  await checkHeadingColors(page);
   for (const projectName of projectNames) {
     await withBrowserContext(page.context().browser(), {}, async context => {
       await installVideoFixture(context);
@@ -182,6 +202,7 @@ async function checkProject(page, projectName) {
     await page.emulateMedia({ reducedMotion: motion });
     for (const [width, height] of viewports) {
       await page.setViewportSize({ width, height });
+      await checkHeadingColors(page);
       await previews.first().click();
       await waitForPhoto(gallery);
       await checkPreviewStripLayout(gallery);

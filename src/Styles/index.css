@@ -237,8 +237,7 @@ nav a.active {
 .placeholder-project-heading { grid-area: heading; min-width: 0; overflow-wrap: anywhere; }
 .placeholder-project > .project-details { grid-area: details; min-width: 0; overflow-wrap: anywhere; }
 .project-grid.placeholder-project > .game-gallery { grid-area: gallery; }
-.placeholder-project .project-title,
-.placeholder-project .eyebrow { color: var(--project-accent); }
+.placeholder-project .project-title { color: var(--project-accent); }
 .placeholder-project:not(:has(> .game-gallery)) {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "heading" "details";
