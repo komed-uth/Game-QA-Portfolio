@@ -61,6 +61,10 @@ export const evidence: EvidenceContent[] = [
     "kind": "capture",
     "destination": "/?evidence=pix-capture",
     "label": "Vecchio Furioso · Microsoft PIX GPU capture",
-    "anchor": "pix-capture"
+    "anchor": "pix-capture",
+    "path": "images/vecchio-furioso-pix.png",
+    "alt": "Microsoft PIX GPU capture of Vecchio Furioso showing rendering events, a gameplay preview, and the GPU timing timeline",
+    "openLabel": "Open full-size Microsoft PIX capture for Vecchio Furioso",
+    "title": "Vecchio Furioso · Microsoft PIX capture"
   }
 ];

@@ -239,6 +239,11 @@ nav a.active {
 .project-grid.placeholder-project > .game-gallery { grid-area: gallery; }
 .placeholder-project .project-title,
 .placeholder-project .eyebrow { color: var(--project-accent); }
+.placeholder-project:not(:has(> .game-gallery)) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "heading" "details";
+  grid-template-rows: auto auto;
+}
 @media (max-width: 900px) {
   .placeholder-project { grid-template-areas: "heading" "gallery" "details"; grid-template-rows: auto; }
 }
@@ -501,6 +506,11 @@ nav a.active {
     grid-column: 2;
     grid-row: 3;
   }
+  .pc-project:not(:has(> .game-gallery)) {
+    grid-template-rows: max-content auto;
+  }
+  .pc-project:not(:has(> .game-gallery)) > .project-info { grid-row: 2; }
+  .pc-project:not(:has(> .game-gallery)) > .capture-media { grid-row: 1 / span 2; }
 }
 .capture-media > a {
   display: block;
