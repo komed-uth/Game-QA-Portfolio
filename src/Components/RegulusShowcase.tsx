@@ -1,86 +1,52 @@
-import { assetUrl, project } from "../data";
+import { assetUrl } from "../data";
+import type { ProjectContent, ReportEvidence } from "../content-schema";
+import { siteContent } from "../content/site";
 import MediaGallery, { type MediaGalleryItem } from "./MediaGallery";
 import ReportViewer from "./ReportViewer";
 
-const videoId = "-dEsiPzZ4v8";
-const media: MediaGalleryItem[] = [
-  {
-    type: "video",
-    source: "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg",
-    label: "Video",
-    alt: "Regulus the Advent video preview",
-  },
-  {
-    type: "image",
-    source: assetUrl("images/regulus/combat.png"),
-    label: "Combat",
-    alt: "Regulus the Advent party combat with enemies on a raised walkway",
-  },
-  {
-    type: "image",
-    source: assetUrl("images/regulus/boss-battle.png"),
-    label: "Boss battle",
-    alt: "Regulus the Advent boss battle in a fiery arena",
-  },
-  {
-    type: "image",
-    source: assetUrl("images/regulus/shop.jpg"),
-    label: "Shop",
-    alt: "Regulus the Advent shop interface showing Thai text and item bundles",
-  },
-];
-
-export default function RegulusShowcase() {
+export default function RegulusShowcase({ project, reportEvidence }: { project: ProjectContent; reportEvidence: ReportEvidence }) {
+  const videoId = project.media.find(item => item.type === "video")?.videoId;
+  const media: MediaGalleryItem[] = project.media.map(item => ({
+    type: item.type,
+    source: item.type === "image" ? assetUrl(item.path) : "https://i.ytimg.com/vi/" + item.videoId + "/hqdefault.jpg",
+    label: item.label,
+    alt: item.alt,
+  }));
   return (
     <section
       className="project-grid regulus-showcase"
-      aria-labelledby="regulus-showcase-title"
+      aria-labelledby={project.headingId}
     >
       <header className="project-heading">
-        <p className="eyebrow">Project showcase</p>
-        <h1 id="regulus-showcase-title" className="project-title">
+        <p className="eyebrow">{project.eyebrow}</p>
+        <h1 id={project.headingId} className="project-title">
           {project.name}
         </h1>
       </header>
       <MediaGallery
         projectName={project.name}
-        galleryName="Regulus the Advent media"
+        galleryName={project.galleryName}
         videoId={videoId}
         media={media}
       />
       <div className="project-info">
-        <div className="project-details" aria-label="Project details">
-          {project.details.map(({ label, value }) => (
-            <div key={label}>
+        <div className="project-details" aria-label={project.detailsLabel}>
+          {project.details.map(({ id, label, value }) => (
+            <div key={id}>
               <h3 className="project-detail-label">{label}</h3>
               <p>{value}</p>
             </div>
           ))}
         </div>
-        <div className="store-links" aria-label="Get Regulus the Advent">
-          <a
-            className="store-icon"
-            href="https://apps.apple.com/th/app/regulus-the-advent/id6739992769"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Regulus the Advent on the App Store (opens in a new tab)"
-            title="App Store"
-          >
-            <img src={assetUrl("images/store-badges/app-store-icon.png")} alt="App Store" />
-          </a>
-          <a
-            className="store-icon"
-            href="https://play.google.com/store/apps/details?id=com.jj.regulus.android&hl=en"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Regulus the Advent on Google Play (opens in a new tab)"
-            title="Google Play"
-          >
-            <img src={assetUrl("images/store-badges/google-play-icon.svg")} alt="Google Play" />
-          </a>
+        <div className="store-links" aria-label={project.storesLabel}>
+          {project.stores.map(store => <a key={store.id} className="store-icon" href={store.destination}
+            target="_blank" rel="noopener noreferrer"
+            aria-label={store.accessibleLabel + " " + siteContent.interface.opensInNewTab} title={store.label}>
+            <img src={assetUrl(store.icon)} alt={store.label} />
+          </a>)}
         </div>
       </div>
-      <ReportViewer />
+      <ReportViewer evidence={reportEvidence} />
     </section>
   );
 }

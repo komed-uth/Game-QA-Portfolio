@@ -1,4 +1,6 @@
-import { readFile, stat } from "node:fs/promises";
+import { isObject, requiredString, registerIdentity, validateMediaPath } from "./content-validation-fields.mjs";
+import { validateProjectContent } from "./project-content-validation.mjs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
@@ -43,38 +45,38 @@ async function loadTypedModule(sourcePath) {
 export async function loadContentDefinitions({ directory = defaultDefinitionsDirectory } = {}) {
   const sitePath = path.join(directory, "site.ts");
   const aboutMePath = path.join(directory, "pages", "aboutMe.ts");
-  const [siteModule, aboutMeModule] = await Promise.all([
+  const projectsPath = path.join(directory, "projects.ts");
+  const evidencePath = path.join(directory, "evidence.ts");
+  const portfolioPath = path.join(directory, "pages", "portfolio.ts");
+  const [siteModule, aboutMeModule, projectsModule, evidenceModule, portfolioModule] = await Promise.all([
     loadTypedModule(sitePath),
     loadTypedModule(aboutMePath),
+    loadTypedModule(projectsPath),
+    loadTypedModule(evidencePath),
+    loadTypedModule(portfolioPath),
   ]);
 
   return {
+    projects: projectsModule.projects,
+    evidence: evidenceModule.evidence,
+    portfolioPage: portfolioModule.portfolioPage,
     siteContent: siteModule.siteContent,
     aboutMePage: aboutMeModule.aboutMePage,
     sourceFiles: {
+      projects: displayPath(projectsPath),
+      evidence: displayPath(evidencePath),
+      portfolio: displayPath(portfolioPath),
       site: displayPath(sitePath),
       aboutMe: displayPath(aboutMePath),
     },
   };
 }
 
-function isObject(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
-function requiredString(value, context, errors) {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    errors.push(`${context}: required non-empty string is missing.`);
-  }
-}
 
-function registerIdentity(value, identities, context, label, errors) {
-  if (typeof value !== "string" || value.trim().length === 0) return;
-  if (identities.has(value)) {
-    errors.push(`${context}: duplicate ${label} ${JSON.stringify(value)}.`);
-  }
-  identities.add(value);
-}
+
+
+
 
 function isValidContactDestination(destination) {
   if (
@@ -120,44 +122,13 @@ function sectionRecordName(section, index) {
     : `sections[${index}]`;
 }
 
-async function validateMediaPath(pathValue, context, publicDirectory, errors) {
-  if (typeof pathValue !== "string" || pathValue.trim().length === 0) {
-    errors.push(`${context}: required local media path is missing.`);
-    return;
-  }
 
-  const normalizedReference = pathValue.replaceAll("\\", "/");
-  if (normalizedReference.split("/").includes("..")) {
-    errors.push(`${context}: must stay within public/ and cannot contain parent-directory segments.`);
-    return;
-  }
-  const resolvedPublicDirectory = path.resolve(publicDirectory);
-  const resolvedAssetPath = path.resolve(resolvedPublicDirectory, normalizedReference);
-  const relativeAssetPath = path.relative(resolvedPublicDirectory, resolvedAssetPath);
-  if (
-    path.isAbsolute(normalizedReference) ||
-    relativeAssetPath === ".." ||
-    relativeAssetPath.startsWith(`..${path.sep}`) ||
-    relativeAssetPath.length === 0
-  ) {
-    errors.push(`${context}: must be a local path inside public/.`);
-    return;
-  }
-
-  try {
-    if (!(await stat(resolvedAssetPath)).isFile()) {
-      errors.push(`${context}: local media file does not exist: public/${normalizedReference}.`);
-    }
-  } catch {
-    errors.push(`${context}: local media file does not exist: public/${normalizedReference}.`);
-  }
-}
 
 export async function validateContent(
-  { siteContent, aboutMePage, sourceFiles = {} },
+  { siteContent, aboutMePage, projects, evidence, portfolioPage, sourceFiles = {} },
   { publicDirectory = defaultPublicDirectory } = {},
 ) {
-  const errors = [];
+  const errors = await validateProjectContent({ projects, evidence, portfolioPage, sourceFiles }, { publicDirectory });
   const siteFile = sourceFiles.site ?? "src/content/site.ts";
   const aboutFile = sourceFiles.aboutMe ?? "src/content/pages/aboutMe.ts";
 

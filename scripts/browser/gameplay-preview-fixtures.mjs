@@ -57,11 +57,11 @@ export default async function checkPreviewFixtures(page) {
   const browser = page.context().browser();
   for (const fixture of ["empty", "single", "single-photo", "long"]) {
     const adjustment = fixture === "empty" ? "media.splice(0);" : fixture === "single" ?
-      "media.splice(1);" : fixture === "single-photo" ? "media.splice(0, media.length, media[1]);" : "media.push(...Array.from({length:12}, (_,index) => ({...media[1],label:'Fixture photo '+(index+1)})));";
+      "media.splice(1);" : fixture === "single-photo" ? "media.splice(0, media.length, media[1]);" : "media.push(...Array.from({length:12}, (_,index) => ({...media[1],id:'fixture-photo-'+(index+1),label:'Fixture photo '+(index+1)})));";
     const result = await build({ logLevel: "silent", plugins: [{ name: "gameplay-list-fixture", enforce: "pre",
       transform(code, id) {
-        if (!id.replaceAll('\\', '/').endsWith('/src/Components/RegulusShowcase.tsx')) return;
-        return code.replace("export default function RegulusShowcase()", adjustment + "\nexport default function RegulusShowcase()");
+        if (!id.replaceAll('\\', '/').endsWith('/src/content/projects.ts')) return;
+        return code + "\nconst media = projects.find(project => project.id === 'regulus')!.media;\n" + adjustment;
       } }], build: { write: false } });
     const output = Array.isArray(result) ? result[0].output : result.output;
     const entry = output.find(file => file.type === "chunk" && file.isEntry);
