@@ -20,6 +20,8 @@ export async function runRecordedSuite({ suite, args = [], root = process.cwd(),
   const changes = git(['status', '--porcelain', '--untracked-files=no']);
   const summary = { suite: suite.label, checks: [], selectedChecks: suite.checks.map(check => check.name),
     commit: git(['rev-parse', 'HEAD']), trackedChanges: changes === null ? null : changes !== '',
+    pullRequestNumber: Number.isSafeInteger(Number(process.env.PORTFOLIO_PR_NUMBER)) && Number(process.env.PORTFOLIO_PR_NUMBER) > 0 ? Number(process.env.PORTFOLIO_PR_NUMBER) : null,
+    pullRequestHeadSha: /^[a-f0-9]{40}$/i.test(process.env.PORTFOLIO_PR_HEAD_SHA ?? '') ? process.env.PORTFOLIO_PR_HEAD_SHA.toLowerCase() : null,
     preview: process.env.PORTFOLIO_URL ? 'external' : 'local',
     startedAt: new Date().toISOString(), status: 'running', inputFingerprint: null };
   // Append-only checkpoints stay readable without replacing an open Windows file.

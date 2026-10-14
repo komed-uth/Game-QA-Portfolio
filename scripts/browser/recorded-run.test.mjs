@@ -87,11 +87,25 @@ test('successful subprocess runs preserve output, commit, input identity and all
     assert.equal(spawnSync('git', args, { cwd: options.root }).status, 0);
   }
   const commit = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: options.root, encoding: 'utf8' }).stdout.trim();
-  const result = await runRecordedSuite({ ...options, suite, stdout: sink(), stderr: sink() });
+  const previousPrNumber = process.env.PORTFOLIO_PR_NUMBER;
+  const previousPrHead = process.env.PORTFOLIO_PR_HEAD_SHA;
+  process.env.PORTFOLIO_PR_NUMBER = '84';
+  process.env.PORTFOLIO_PR_HEAD_SHA = commit;
+  let result;
+  try {
+    result = await runRecordedSuite({ ...options, suite, stdout: sink(), stderr: sink() });
+  } finally {
+    if (previousPrNumber === undefined) delete process.env.PORTFOLIO_PR_NUMBER;
+    else process.env.PORTFOLIO_PR_NUMBER = previousPrNumber;
+    if (previousPrHead === undefined) delete process.env.PORTFOLIO_PR_HEAD_SHA;
+    else process.env.PORTFOLIO_PR_HEAD_SHA = previousPrHead;
+  }
   assert.equal(result.exitCode, 0);
   const summary = await readSummary(result.directory);
   assert.equal(summary.status, 'passed');
   assert.equal(summary.commit, commit);
+  assert.equal(summary.pullRequestNumber, 84);
+  assert.equal(summary.pullRequestHeadSha, commit);
   assert.equal(summary.trackedChanges, false);
   assert.match(summary.inputFingerprint, /^[a-f0-9]{64}$/);
   assert.deepEqual(summary.checks.map(check => [check.name, check.status]), [['first', 'passed'], ['second', 'passed']]);

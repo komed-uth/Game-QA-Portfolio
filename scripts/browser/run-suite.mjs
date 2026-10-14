@@ -2,6 +2,7 @@ import { startPreview } from './preview-server.mjs';
 import { selectSuite } from './check-suites.mjs';
 import { withStableInputs } from './stable-inputs.mjs';
 import { runBrowserCheck } from './run-browser-check.mjs';
+import { dependencyReadinessMessage, findMissingProjectDependencies } from '../project-dependencies.mjs';
 
 const suite = selectSuite(process.argv.slice(2));
 let server;
@@ -19,6 +20,10 @@ const interrupt = () => {
 process.on('message', message => { if (message.type === 'interrupt') interrupt(); });
 process.on('disconnect', interrupt);
 try {
+  const projectRoot = process.cwd();
+  const missing = await findMissingProjectDependencies(projectRoot);
+  if (missing.length) throw new Error(dependencyReadinessMessage(projectRoot, missing));
+
   await withStableInputs(async (validateInputs, { fingerprint }) => {
     await report({ type: 'inputs', fingerprint });
     // Load checks after the input snapshot so edits cannot validate stale imports.

@@ -43,15 +43,7 @@ export async function checkProjectLayout(page) {
     const bounds = await project.boundingBox();
     assert(frame.width > 0 && frame.height > 0 && frame.x >= bounds.x - 1 &&
       frame.x + frame.width <= bounds.x + bounds.width + 1, `${name}: media stays inside project`);
-    for (const image of await media.locator('.gallery-viewer img, .capture-media img').all()) {
-      await image.evaluate(img => img.decode());
-      const complete = await image.evaluate(img => {
-        const box = img.getBoundingClientRect();
-        return getComputedStyle(img).objectFit === 'contain' ||
-          Math.abs(box.width / box.height - img.naturalWidth / img.naturalHeight) < .01;
-      });
-      assert(complete, `${name}: complete original image framing`);
-    }
+    await checkOriginalImageFraming(media, name);
     {
       assert(await media.getByRole('group', { name: `${name} media gameplay previews`, exact: true }).isVisible());
       const viewer = await media.locator('.gallery-viewer').boundingBox();
@@ -85,6 +77,41 @@ export async function checkProjectLayout(page) {
     assert(box.y >= Math.max(info.y + info.height, gallery.y + gallery.height), 'Report block stays after project content');
   }
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No page overflow');
+}
+
+async function checkOriginalImageFraming(media, name) {
+  const frames = await media.locator('.gallery-photo img, .capture-media img').evaluateAll(async images => {
+    const frames = [];
+    for (const image of images) {
+      let decodeError = '';
+      try {
+        await image.decode();
+      } catch (error) {
+        decodeError = error instanceof Error ? error.message : String(error);
+      }
+      if (!image.isConnected) continue;
+      const box = image.getBoundingClientRect();
+      frames.push({
+        source: image.currentSrc || image.src,
+        decodeError,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight,
+        width: box.width,
+        height: box.height,
+        objectFit: image.ownerDocument.defaultView.getComputedStyle(image).objectFit,
+      });
+    }
+    return frames;
+  });
+  for (const frame of frames) {
+    const detail = `${frame.source}; fit=${frame.objectFit}; displayed=${frame.width}x${frame.height}; ` +
+      `original=${frame.naturalWidth}x${frame.naturalHeight}${frame.decodeError ? `; decode=${frame.decodeError}` : ''}`;
+    assert(!frame.decodeError && frame.naturalWidth > 0 && frame.naturalHeight > 0 &&
+      frame.width > 0 && frame.height > 0, `${name}: original image decodes and has a visible frame (${detail})`);
+    const complete = frame.objectFit === 'contain' ||
+      Math.abs(frame.width / frame.height - frame.naturalWidth / frame.naturalHeight) < .01;
+    assert(complete, `${name}: complete original image framing (${detail})`);
+  }
 }
 
 async function visibleFocus(page, locator) {
