@@ -54,14 +54,7 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     if (section.visible === true) {
       addAnchor(project.headingId, `${projectFile}: projects[${JSON.stringify(project.id)}].headingId`);
       if (project.captureEvidenceId) liveEvidence.add(project.captureEvidenceId);
-      for (const id of [project.reportEvidenceId].filter(Boolean)) {
-        liveEvidence.add(id);
-        const record = evidenceRecords.find(record => record.id === id);
-        if (record) {
-          addAnchor(record.anchor, `${evidenceFile}: evidence[${JSON.stringify(record.id)}].anchor`);
-          if (record.kind === "reports") addAnchor(record.headingId, `${evidenceFile}: evidence[${JSON.stringify(record.id)}].headingId`);
-        }
-      }
+      if (project.reportEvidenceId) liveEvidence.add(project.reportEvidenceId);
     }
   }
 
@@ -115,19 +108,16 @@ export async function validateProjectContent({ projects, evidence, portfolioPage
     const expected = `${pathname}?evidence=${record.anchor}`;
     if (!evidenceDestination(record.destination, record.anchor, pathname) || /\s|\\|[&#?]/.test(record.anchor ?? "")) errors.push(`${context}.destination: malformed or unresolved internal evidence destination; expected ${expected} (additional query parameters are allowed).`);
     if (liveEvidence.has(record.id) && (!visibleEvidence.has(record.id) || (pathname === "/" && !anchors.has(record.anchor)))) errors.push(`${context}.destination: live reference targets hidden or unresolved evidence.`);
-    if (record.kind === "capture") {
+    if (record.kind === "capture" || record.kind === "reports") {
       for (const field of ["alt", "openLabel", "title"]) requiredString(record[field], `${context}.${field}`, errors);
       await validateMediaPath(record.path, `${context}.path`, publicDirectory, errors);
     }
     if (record.kind !== "reports") continue;
-    for (const field of ["headingId", "heading", "selectorLabel", "openLabel", "openAction", "selectedLabel", "summaryTitle", "reportTitle", "summaryAlt", "defaultReportId"]) requiredString(record[field], `${context}.${field}`, errors);
-    const reports = records(record.reports, `${context}.reports`, errors);
-    if (!reports.some(report => report.id === record.defaultReportId)) errors.push(`${context}.defaultReportId: invalid report default; select an existing stable report identity.`);
-    for (const report of reports) {
-      const location = `${context}.reports[${JSON.stringify(report.id)}]`;
-      requiredString(report.label, `${location}.label`, errors);
-      if (!["html", "image"].includes(report.kind)) errors.push(`${location}.kind: unsupported report kind.`);
-      await validateMediaPath(report.path, `${location}.path`, publicDirectory, errors);
+    if (!isObject(record.report)) errors.push(`${context}.report: required full report record is missing.`);
+    else {
+      for (const field of ["title", "openLabel"]) requiredString(record.report[field], `${context}.report.${field}`, errors);
+      await validateMediaPath(record.report.path, `${context}.report.path`, publicDirectory, errors);
+      if (typeof record.report.path === "string" && !record.report.path.endsWith(".html")) errors.push(`${context}.report.path: expected an HTML report.`);
     }
   }
   for (const id of liveEvidence) {

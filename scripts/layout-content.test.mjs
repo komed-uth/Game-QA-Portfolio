@@ -42,8 +42,8 @@ test("isolated invalid presets, rendered anchors and destinations identify their
     [v => { v.siteContent.navigation.links[1].destination = "/skills?evidence=missing"; }, /data\.ts.*destination:.*unresolved/],
     [v => { v.siteContent.navigation.links[0].destination = "/?evidence=missing"; }, /data\.ts.*destination:.*unresolved/],
     [v => { v.siteContent.navigation.links[0].destination = "/?evidence=android-reports"; v.portfolioPage.sections[0].visible = false; v.skillsPage.sections.forEach(s => { s.visible = false; }); }, /data\.ts.*destination:.*hidden.*android-reports/],
-    [v => { v.portfolioPage.sections[0].visible = false; }, /data\.ts.*performance-investigation.*evidence\[0\].*android-reports.*data\.ts.*regulus/],
-    [v => { v.portfolioPage.sections[0].visible = false; v.portfolioPage.sections.push({ ...text, projectId: "regulus" }); }, /data\.ts.*evidenceId: live reference targets hidden.*android-reports/],
+    [v => { v.skillsPage.sections[2].visible = false; }, /data\.ts.*performance-investigation.*evidence\[0\].*android-reports/],
+    [v => { v.skillsPage.sections[2].visible = false; v.portfolioPage.sections.push({ ...text, projectId: "regulus" }); }, /data\.ts.*evidenceId: live reference targets hidden.*android-reports/],
     [v => { v.portfolioPage.sections[0].preset = "media-left"; v.projects[0].media = []; }, /data\.ts.*regulus.*preset:.*requires.*media/],
     [v => { delete v.skillsPage.sections[0].cards[1].evidence[0].projectId; }, /data\.ts.*projectId: required/],
   ];
@@ -63,8 +63,9 @@ test("hiding sections without incoming live references remains valid", async () 
 });
 
 
-test("Skills capture placement/order and visibility track the actual rendered page", async () => {
+test("Skills evidence placement/order and visibility track the actual rendered page", async () => {
   await fixture(v => {
+    v.skillsPage.sections[2].evidence.reverse();
     v.skillsPage.sections.unshift(v.skillsPage.sections.pop());
     v.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false;
     v.siteContent.navigation.links[1].destination = "/skills?evidence=pix-capture";
@@ -75,8 +76,8 @@ test("Skills capture placement/order and visibility track the actual rendered pa
     [v => { v.skillsPage.sections[2].evidence.push(v.skillsPage.sections[2].evidence[0]); }, /duplicate.*(anchor|reference)/],
     [v => { v.skillsPage.sections.push({ ...v.skillsPage.sections[2], id: "another-capture" }); }, /duplicate rendered anchor/],
     [v => { v.skillsPage.sections[2].preset = "media-left"; }, /preset: unsupported/],
-    [v => { v.skillsPage.sections[2].evidence[0].projectId = "regulus"; }, /does not belong/],
-    [v => { v.skillsPage.sections[2].evidence[0] = { evidenceId: "android-reports", projectId: "regulus" }; }, /captures only/],
+    [v => { v.skillsPage.sections[2].evidence[0].projectId = "vecchio-furioso"; }, /does not belong/],
+    [v => { v.evidence[0].report.path = "images/regulus-s10-very-high.png"; }, /expected an HTML report/],
     [v => { v.skillsPage.sections[2].id = "pix-capture"; v.evidence[1].anchor = "pix-capture-heading"; v.evidence[1].destination = "/skills?evidence=pix-capture-heading"; }, /duplicate.*anchor/],
     [v => { v.siteContent.navigation.links[1].destination = "/?evidence=pix-capture"; }, /unresolved or hidden/],
     [v => { v.aboutMePage.sections.push(v.skillsPage.sections[2]); }, /unsupported section type/],
@@ -87,7 +88,8 @@ test("Skills capture placement/order and visibility track the actual rendered pa
   await fixture(v => {
     v.skillsPage.sections[2].visible = false;
     for (const section of v.skillsPage.sections.filter(s => s.type === "cards"))
-      for (const card of section.cards) card.evidence = card.evidence.filter(r => r.evidenceId !== "pix-capture");
+      for (const card of section.cards) card.evidence = [];
     v.portfolioPage.sections.find(s => s.projectId === "vecchio-furioso").visible = false;
+    v.portfolioPage.sections[0].visible = false;
   }, (status, output) => assert.equal(status, 0, output));
 });

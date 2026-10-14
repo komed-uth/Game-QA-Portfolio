@@ -52,7 +52,7 @@ export async function validateContentSections({ page, context, projects, evidenc
         identities.add(reference.evidenceId);
         const record = evidenceRecords.find(record => record?.id === reference.evidenceId);
         if (!record) errors.push(`${referenceLocation}.evidenceId: unknown evidence reference ${JSON.stringify(reference.evidenceId)}.`);
-        else if (section.type === "evidence" && record.kind !== "capture") errors.push(`${referenceLocation}.evidenceId: Skills evidence rows currently support captures only.`);
+        else if (section.type === "evidence" && !["capture", "reports"].includes(record.kind)) errors.push(`${referenceLocation}.evidenceId: unsupported Skills evidence kind.`);
         else if (section.visible === true && !visibleEvidence.has(record.id)) {
           const { project: target, section: targetSection } = findEvidenceTarget(projectRecords, portfolioPage?.sections, record.id, skillsPage?.sections);
           errors.push(`${referenceLocation}.evidenceId: live reference targets hidden or unresolved evidence ${JSON.stringify(record.id)} at ${sourceFiles.portfolio ?? "src/data.ts"}: sections[${JSON.stringify(targetSection?.id ?? target?.id)}] -> ${sourceFiles.evidence ?? "src/data.ts"}: evidence[${JSON.stringify(record.id)}].anchor.`);

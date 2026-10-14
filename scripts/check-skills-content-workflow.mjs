@@ -45,7 +45,7 @@ async function invalidEdits(definitions) {
       [v => { v.evidence[0].destination = "javascript:alert(1)"; }, /data\.ts.*android-reports.*destination: malformed or unresolved/],
       [v => { v.evidence[1].destination = "/?evidence=missing"; }, /data\.ts.*pix-capture.*destination: malformed or unresolved/],
       [v => { v.evidence[0].destination = "/?evidence=android-reports&evidence=pix-capture"; }, /data\.ts.*destination: malformed or unresolved/],
-      [v => { v.portfolioPage.sections[0].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
+      [v => { v.skillsPage.sections[2].visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
       [v => { v.skillsPage.sections.find(section => section.type === "evidence").visible = false; }, /data\.ts.*evidenceId: live reference targets hidden/],
     ];
     for (const [edit, diagnostic] of variants) {
@@ -91,7 +91,7 @@ async function renderedEdits() {
       assert.equal(await main.getByText("Edited capability description", { exact: true }).count(), 1);
       assert.equal(await main.getByText("Edited tool description", { exact: true }).count(), 1);
       assert.equal(await main.getByText("Added card description", { exact: true }).count(), 1);
-      assert.deepEqual(await main.getByRole("region", { name: "Performance testing", exact: true }).getByRole("heading", { level: 3 }).allTextContents(), ["Fixture project", "Vecchio Furioso"]);
+      assert.deepEqual(await main.getByRole("region", { name: "Performance testing", exact: true }).getByRole("heading", { level: 3 }).allTextContents(), ["Fixture project", "Vecchio Furioso", "Regulus the Advent"]);
       const links = main.getByRole("link");
       assert.deepEqual(await links.allTextContents().then(items => items.map(s => s.trim())), ["Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Added project evidence Inspect"]);
       // DOM and keyboard order follow the edited section list at desktop and mobile widths.
@@ -109,10 +109,10 @@ async function renderedEdits() {
       for (const [name, target] of [["Edited Android evidence Inspect", "android-reports"], ["Vecchio Furioso · Microsoft PIX GPU capture Inspect", "pix-capture"]]) {
         await visit("/skills");
         const relevant = main.getByRole("link", { name, exact: true });
-        for (const link of await relevant.all()) assert.equal(await link.getAttribute("href"), `#${target === "pix-capture" ? "/skills" : "/"}?context=edited&evidence=${target}`);
+        for (const link of await relevant.all()) assert.equal(await link.getAttribute("href"), `#/skills?context=edited&evidence=${target}`);
         await relevant.first().click();
         await page.waitForFunction(id => document.activeElement?.id === id, target);
-        const opener = target === "android-reports" ? page.locator("#android-reports .report-preview") : page.locator("#pix-capture button");
+        const opener = target === "android-reports" ? page.locator("#android-reports .evidence-open") : page.locator("#pix-capture button");
         await opener.click();
         const dialog = page.getByRole("dialog");
         await dialog.waitFor();
@@ -124,7 +124,8 @@ async function renderedEdits() {
       }
       // Portfolio uses the same edited report asset as the Skills entry point.
       await visit("/");
-      await page.locator("#android-reports .report-preview").click();
+      await page.locator(".regulus-showcase .skill-evidence").click();
+      await page.locator("#android-reports .evidence-open").click();
       assert((await page.getByRole("dialog").getByRole("link", { name: "Open original in new tab" }).getAttribute("href")).endsWith("S10_High_Fixed.html"));
       await page.keyboard.press("Escape");
       await visit("/about");
@@ -153,10 +154,11 @@ try {
   const extraCapture = { ...edited.evidence[1], id: "fixture-capture", anchor: "fixture-capture", label: "Fixture capture attribution", title: "Fixture capture" };
   edited.evidence.push(extraCapture);
   edited.projects.push({ ...edited.projects.find(p => p.id === "vecchio-furioso"), id: "fixture-project", headingId: "fixture-project-heading", name: "Fixture project", captureEvidenceId: extraCapture.id });
+  page.sections.at(-1).evidence.reverse();
   page.sections.at(-1).evidence.unshift({ evidenceId: extraCapture.id, projectId: "fixture-project" });
   edited.evidence[0].label = "Edited Android evidence";
-  for (const record of edited.evidence) record.destination = `${record.kind === "capture" ? "/skills" : "/"}?context=edited&evidence=${record.anchor}`;
-  edited.evidence[0].reports[0].path = "Performance-Testing-Mobile/Full Report/S10_High_Fixed.html";
+  for (const record of edited.evidence) record.destination = `/skills?context=edited&evidence=${record.anchor}`;
+  edited.evidence[0].report.path = "Performance-Testing-Mobile/Full Report/S10_High_Fixed.html";
   await writeDefinitions(directory, edited);
   const invalid = structuredClone(edited);
   invalid.skillsPage.sections[2].cards[1].evidence[0].evidenceId = "missing";

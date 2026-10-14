@@ -36,7 +36,7 @@ try {
     await page.getByRole("heading", { name: "Regulus the Advent", exact: true }).waitFor();
     for (const [name, edit, diagnostic] of [
       ["projects", value => { value[0].media[1].path = "images/missing.png"; }, /media.*path: local media file does not exist/],
-      ["evidence", value => { value[0].defaultReportId = "missing"; }, /defaultReportId: invalid report default/],
+      ["evidence", value => { value[0].report.path = "missing.html"; }, /report.path: local media file does not exist/],
       ["portfolioPage", value => { value.sections[0].projectId = "missing"; }, /projectId: unknown project/],
       ["skillsPage", value => { value.sections[0].cards[1].evidence[0].evidenceId = "missing"; }, /evidenceId: unknown evidence reference/],
     ]) {

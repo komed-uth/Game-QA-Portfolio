@@ -68,14 +68,8 @@ export async function checkProjectLayout(page) {
       assert.equal(await project.getByRole('link', { name: /Microsoft PIX GPU capture/ }).getAttribute('href'), '#/skills?evidence=pix-capture');
     }
   }
-  const regulus = page.locator('.regulus-showcase');
-  const info = await regulus.locator('.project-info').boundingBox();
-  const gallery = await regulus.getByRole('region', { name: 'Regulus the Advent media', exact: true }).boundingBox();
-  for (const report of await regulus.locator('.report-controls, .report-output').all()) {
-    await precedes(regulus.locator('.store-links'), report, 'Report block reading order stays after stores');
-    const box = await report.boundingBox();
-    assert(box.y >= Math.max(info.y + info.height, gallery.y + gallery.height), 'Report block stays after project content');
-  }
+  assert.equal(await page.locator('.regulus-showcase .report-block, .regulus-showcase .capture-media').count(), 0);
+  assert.equal(await page.locator('.regulus-showcase .skill-evidence').getAttribute('href'), '#/skills?evidence=android-reports');
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No page overflow');
 }
 
@@ -184,9 +178,7 @@ export async function checkShowcaseResizeAndKeyboard(page) {
         await page.keyboard.press('Tab');
         await visibleFocus(page, page.getByRole('link', { name: 'Regulus the Advent on Google Play ↗' }));
         await page.keyboard.press('Tab');
-        await visibleFocus(page, page.locator('.report-preview'));
-        await page.keyboard.press('Tab');
-        await visibleFocus(page, page.getByRole('button', { name: 'Very High', exact: true }));
+        await visibleFocus(page, page.locator('.regulus-showcase .skill-evidence'));
       }
     }
     const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ });

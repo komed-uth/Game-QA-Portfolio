@@ -1,5 +1,6 @@
 import type { EvidenceSection } from "../page-schema";
 import { evidence, projects } from "../data";
+import ReportViewer from "./ReportViewer";
 import CaptureViewer from "./CaptureViewer";
 
 export default function PerformanceEvidenceSection({ section }: { section: EvidenceSection }) {
@@ -8,11 +9,11 @@ export default function PerformanceEvidenceSection({ section }: { section: Evide
     {section.evidence.map(reference => {
       const capture = evidence.find(record => record.id === reference.evidenceId)!;
       const project = projects.find(record => record.id === reference.projectId)!;
-      if (capture.kind !== "capture") throw new Error("Expected capture evidence for " + capture.id);
       return <article key={capture.id} id={capture.anchor} tabIndex={-1} className="performance-evidence" aria-label={capture.title}>
         <div className="performance-evidence-details">
           <h3>{project.name}</h3>
-          <p>{capture.label}</p>
+          <p>{capture.title}</p>
+          {capture.kind === "reports" && <ReportViewer evidence={capture} />}
         </div>
         <CaptureViewer capture={capture} />
       </article>;

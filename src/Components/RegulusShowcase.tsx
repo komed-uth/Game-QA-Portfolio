@@ -1,6 +1,6 @@
 import type { ProjectContent, ReportEvidence, ProjectPreset } from "../content-schema";
 import { ProjectDetails, ProjectGallery, ProjectStores } from "./ProjectContent";
-import ReportViewer from "./ReportViewer";
+import { Link } from "react-router-dom";
 
 export default function RegulusShowcase({ project, reportEvidence, preset }: { project: ProjectContent; preset: ProjectPreset; reportEvidence: ReportEvidence }) {
   return <section className={`project-grid regulus-showcase project-preset--${preset}`} aria-labelledby={project.headingId}>
@@ -13,6 +13,6 @@ export default function RegulusShowcase({ project, reportEvidence, preset }: { p
       <ProjectDetails project={project} />
       <ProjectStores project={project} />
     </div>
-    <ReportViewer evidence={reportEvidence} />
+    <Link className="skill-evidence" to={reportEvidence.destination}>{reportEvidence.label} →</Link>
   </section>;
 }

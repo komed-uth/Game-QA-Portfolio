@@ -568,57 +568,18 @@ export const evidence: EvidenceContent[] = [
   {
     "id": "android-reports",
     "kind": "reports",
-    "destination": "/?evidence=android-reports",
-    "label": "Regulus the Advent · Android performance reports",
+    "destination": "/skills?evidence=android-reports",
+    "label": "Regulus the Advent · Samsung Galaxy S10 Very High performance evidence",
     "anchor": "android-reports",
-    "headingId": "report-heading",
-    "heading": "Performance reports",
-    "selectorLabel": "Graphics quality setting",
-    "openLabel": "Open report",
-    "openAction": "Open",
-    "selectedLabel": "Selected report:",
-    "summaryTitle": "performance summary",
-    "reportTitle": "quality — Samsung Galaxy S10 Performance Advisor report",
-    "summaryAlt": "Overall FPS comparison for A32, S10, and S21, followed by Performance Advisor capture summaries and frame rate charts",
-    "defaultReportId": "very-high",
-    "reports": [
-      {
-        "id": "very-high",
-        "label": "Very High",
-        "kind": "html",
-        "path": "Performance-Testing-Mobile/Full Report/S10_Very_High_Fixed.html"
-      },
-      {
-        "id": "high",
-        "label": "High",
-        "kind": "html",
-        "path": "Performance-Testing-Mobile/Full Report/S10_High_Fixed.html"
-      },
-      {
-        "id": "medium",
-        "label": "Medium",
-        "kind": "html",
-        "path": "Performance-Testing-Mobile/Full Report/S10_Medium_Fixed.html"
-      },
-      {
-        "id": "low",
-        "label": "Low",
-        "kind": "html",
-        "path": "Performance-Testing-Mobile/Full Report/S10_Low_Fixed.html"
-      },
-      {
-        "id": "very-low",
-        "label": "Very Low",
-        "kind": "html",
-        "path": "Performance-Testing-Mobile/Full Report/S10_Very_Low_Fixed.html"
-      },
-      {
-        "id": "overall",
-        "label": "Overall",
-        "kind": "image",
-        "path": "images/overall-performance-report.png"
-      }
-    ]
+    "path": "images/regulus-s10-very-high.png",
+    "alt": "ARM Streamline / Performance Advisor capture for Regulus the Advent on Samsung Galaxy S10 at Very High quality, showing performance summaries and part of the frame-rate chart",
+    "openLabel": "Open full-size Samsung Galaxy S10 Very High screenshot for Regulus the Advent",
+    "title": "Regulus the Advent · Samsung Galaxy S10 · Very High · ARM Streamline / Performance Advisor",
+    "report": {
+      "path": "Performance-Testing-Mobile/Full Report/S10_Very_High_Fixed.html",
+      "title": "Regulus the Advent · Samsung Galaxy S10 · Very High · Performance Advisor full report",
+      "openLabel": "View full report"
+    }
   },
   {
     "id": "pix-capture",
@@ -762,7 +723,7 @@ export const skillsPage: SkillsPageContent = {
       visible: true,
       preset: "standard",
       title: "Performance testing",
-      evidence: [{ evidenceId: "pix-capture", projectId: "vecchio-furioso" }]
+      evidence: [{ evidenceId: "android-reports", projectId: "regulus" }, { evidenceId: "pix-capture", projectId: "vecchio-furioso" }]
     }
   ]
 };

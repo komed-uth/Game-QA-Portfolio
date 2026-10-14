@@ -29,8 +29,8 @@ export default async function checkOverlayFixture(page) {
   });
 
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.getByRole("button", { name: "Very High", exact: true }).click();
-  const opener = page.locator(".report-preview");
+  await page.getByRole("navigation").getByRole("link", { name: "Skills", exact: true }).click();
+  const opener = page.locator("#android-reports .evidence-open");
   await opener.click();
   const dialog = page.getByRole("dialog");
   const frame = await (await dialog.locator("iframe").elementHandle()).contentFrame();

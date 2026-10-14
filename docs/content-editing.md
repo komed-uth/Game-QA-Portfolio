@@ -9,7 +9,7 @@ Open **`src/data.ts`** for every routine content edit. It is the single editable
 | `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
 | `siteContent` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
 | `projects` | All six project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
-| `evidence` | Shared report/PIX destinations and labels, report headings/actions/alternatives/default/choices/files, PIX file/alternative/opening label/modal title |
+| `evidence` | Shared evidence destinations and labels, screenshot/PIX paths/alternatives/opening labels/modal titles, single full report path/title/action |
 
 Use VS Code's Outline panel to jump to one of these exports, or search for a project name such as `Invictus: Lost Soul`. The former `src/content/` files have been consolidated; there are no separate copies to update.
 
@@ -35,9 +35,9 @@ There is no second copy of project facts or evidence destinations in a page comp
 
 ## Copy, links and media
 
-Edit `description` or a project detail's `value` to change wording. Edit `siteContent.contact.destination` once to update the header and About me contact. Contact destinations accept absolute HTTP(S) or mailto URLs. Store and external image destinations accept absolute HTTP(S) URLs. Navigation must resolve to a supported page; an evidence query must target a visible Portfolio evidence block on `/`. Fragments are unsupported in navigation definitions.
+Edit `description` or a project detail's `value` to change wording. Edit `siteContent.contact.destination` once to update the header and About me contact. Contact destinations accept absolute HTTP(S) or mailto URLs. Store and external image destinations accept absolute HTTP(S) URLs. Navigation must resolve to a supported page; an evidence query must target a visible Skills evidence row on `/skills`. Fragments are unsupported in navigation definitions.
 
-Keep stable IDs when renaming headings, cards, projects, quality labels or media labels. For example, rename report `id: "very-high"` from `Very High` to `Ultra`, leaving `defaultReportId: "very-high"`. Inspection memory uses report identity. Gallery selection uses media identity, so moving or renaming a surviving media entry retains its selection during development edits.
+Keep stable IDs when renaming headings, cards, projects or media labels. The single full report uses its shared evidence identity for visit-local inspection memory. Gallery selection uses media identity, so moving or renaming a surviving media entry retains its selection during development edits.
 
 Local assets use forward-slash paths relative to `public/`, such as `images/example.png`. Update an image's `path` and descriptive `alt` together; the file must actually exist. The shared base-aware resolver handles repository/subfolder hosting. Project images choose either `path` or an absolute `url`, never both; videos use an 11-character YouTube `videoId`, with at most one video per gallery. Move media entries to change their order. `media: []` intentionally omits a project gallery, and omitting a text section's `media` removes its image without an empty frame. A supplied missing file is an error, including on hidden records.
 
@@ -54,13 +54,13 @@ Cards on any page select evidence by identity, with its owning project:
 { projectId: "vecchio-furioso", evidenceId: "pix-capture" }
 ```
 
-The optional `label` changes only that reference's action text; omit it to use the shared evidence label. Never copy a destination into a card. Change the evidence record's `destination`, `path`, or report file once to update its inspection and every page reference. Internal evidence destinations preserve their anchor, e.g. `/?context=review&evidence=android-reports`. Additional query parameters are allowed; duplicate selectors, fragments, different targets, and malformed destinations fail validation.
+The optional `label` changes only that reference's action text; omit it to use the shared evidence label. Never copy a destination into a card. Change the evidence record's `destination`, `path`, or report file once to update its inspection and every page reference. Internal evidence destinations preserve their anchor, e.g. `/skills?context=review&evidence=android-reports`. Additional query parameters are allowed; duplicate selectors, fragments, different targets, and malformed destinations fail validation.
 
-A **live** reference is one rendered in a visible card section, navigation link, or Portfolio evidence link. Hiding the Regulus Portfolio reports or the Skills capture section while a live reference points to that evidence fails with the reference and target context. Hiding Vecchio on Portfolio does not hide its Skills capture. Remove the incoming links or hide their referring sections before hiding the target. Unreferenced sections can be hidden. Hidden referring sections still need well-formed records and known IDs.
+A **live** reference is one rendered in a visible card section, navigation link, or Portfolio evidence link. Hiding the Skills performance evidence section while a live reference points to that evidence fails with the reference and target context. Hiding Vecchio on Portfolio does not hide its Skills capture. Remove the incoming links or hide their referring sections before hiding the target. Unreferenced sections can be hidden. Hidden referring sections still need well-formed records and known IDs.
 
 ## Supported sections, order and visibility
 
-All pages use one ordered section list. Move the complete entry to reorder it and set `visible: false` to hide it without leaving a layout gap. Keep its `id` stable. Text and card groups can be added on all three pages; Portfolio additionally supports project showcases, Skills supports capture evidence sections, and About me supports one contact section.
+All pages use one ordered section list. Move the complete entry to reorder it and set `visible: false` to hide it without leaving a layout gap. Keep its `id` stable. Text and card groups can be added on all three pages; Portfolio additionally supports project showcases, Skills supports performance evidence sections, and About me supports one contact section.
 
 ```ts
 {
@@ -94,7 +94,7 @@ Each card has an `evidence` array; `[]` is valid. Card/group descriptions and re
 { id: "regulus", type: "project", visible: true, preset: "media-left", projectId: "regulus" }
 ```
 
-Do not render the same project twice: its public heading/evidence anchors would conflict. A different project record needs its own identity and heading anchor. Section IDs are unique per page; card IDs per group; project/evidence IDs in their collections; media/store/detail/report IDs within their owning record. Rendered anchors are unique per page, including the shell and fixed page heading.
+Do not render the same project twice: its public heading/evidence anchors would conflict. A different project record needs its own identity and heading anchor. Section IDs are unique per page; card IDs per group; project/evidence IDs in their collections; media/store/detail IDs within their owning record. Rendered anchors are unique per page, including the shell and fixed page heading.
 
 ## Allowed presets
 
@@ -103,7 +103,7 @@ Do not render the same project twice: its public heading/evidence anchors would 
 | Project showcase | `standard`, `media-left`, `media-right` | Side variants require gallery media |
 | Text | `standard`, `media-left`, `media-right` | Side variants require supplied local media and an alternative |
 | Cards | `standard` | Existing grid adapts automatically |
-| Skills evidence | `standard` | Ordered shared capture/project references |
+| Skills evidence | `standard` | Ordered shared evidence/project references |
 | About me contact | `standard` | One contact section per page |
 
 `standard` preserves the approved appearance. Project `media-right` uses the established desktop media column; `media-left` places media on the left. PIX performance evidence renders separately on Skills; the Portfolio project links to it. Report preview remains before controls in reading order and on narrow screens. Every preset stacks automatically at **900px and below**, preserving title, media, details. No second mobile section list is required. DOM and keyboard order follow the same list; preset CSS does not remount galleries or report viewers.
@@ -119,16 +119,18 @@ A completely new section style needs a reusable component and contract extension
 - **Hidden target:** correct the incoming live reference or target section's visibility; do not silently redirect it.
 - **Duplicate ID/anchor:** choose a unique stable identity; avoid repeated projects and the reserved About me heading.
 - **Unsupported type/preset:** use the table above; side presets need compatible media.
-- **Invalid default:** choose an existing report ID, independent of its editable label.
+- **Invalid full report:** supply its `report.title`, `report.openLabel` and a local HTML `report.path`.
 - **Missing local asset:** correct the file/path under `public/`; do not substitute an external destination into a local field.
 - **Malformed/unresolved link:** correct its scheme, route or evidence selector. URL format alone does not attest external availability.
 
 Run `npm run check:content` for isolated diagnostic fixtures and `npm run check:content-workflow` for the complete definition-edit → validation/dev/build → rendered-page boundary. The workflow asserts independently chosen copy, destinations, supported additions/order/visibility, presets, responsive/keyboard order, and surviving selection/inspection. Fixtures are disposable or restored byte-for-byte; the canonical production build is restored before exit. `node scripts/check-layout-content-workflow.mjs` focuses on the final preset safeguards. Run the required complete validation in `docs/development/validation.md` before publishing a PR.
 
-## Performance testing on Skills (ticket #127 intermediate state)
+## Performance testing on Skills
 
-`skillsPage.sections` supports `type: "evidence"`, `preset: "standard"`, a stable `id`, `title`, boolean `visible`, and an ordered `evidence` list of `{ evidenceId, projectId }` references. The initial Performance testing section follows the complete Tools list and references `pix-capture` / `vecchio-furioso`. Move the section in the array to change placement; reorder references to change row order. Only shared capture records are supported in these rows in this slice. The renderer supplies desktop details beside the image and mobile details above it, with the existing image viewer.
+`skillsPage.sections` supports `type: "evidence"`, `preset: "standard"`, a stable `id`, `title`, boolean `visible`, and an ordered `evidence` list of `{ evidenceId, projectId }` references. The initial Performance testing section follows the complete Tools list, with `android-reports` / `regulus` first and `pix-capture` / `vecchio-furioso` second. Move the complete section in the array to change placement; reorder references to change row order without renderer edits. The renderer supplies desktop details beside each image and mobile details above it, using the shared image viewer.
 
-Keep the image, accessible labels, anchor and destination in the shared evidence record; do not copy records into Skills. Project associations establish provenance even when a Portfolio project is hidden. Vecchio's capture reference no longer renders an image on Portfolio: it renders a link to the shared `/skills?evidence=pix-capture` destination. The saved `/?evidence=pix-capture` route forwards with replacement history. Regulus's `android-reports` still renders on Portfolio with all six existing report choices; its destination remains `/?evidence=android-reports`. The later Regulus move is outside #127.
+Keep images, accessible labels, anchors and destinations in shared evidence records. Regulus's `path` is the owner's exact 1196 by 735 Samsung Galaxy S10 Very High screenshot, `images/regulus-s10-very-high.png`. Its `report` contains `path`, `title` and `openLabel` for the one matching Very High HTML report. The screenshot and PIX image open enlarged; their original-file actions open the respective image. **View full report** opens the HTML report and its original-file action opens that HTML file. No quality selector, secondary report browser or image slideshow is supported here. The five unused report choices and longer original images remain stored as source assets.
 
-Validation resolves targets from the page sections that actually render them. Visible cards, navigation and Portfolio project links must not target hidden evidence. To hide the PIX section, remove incoming live card/navigation references and hide its Portfolio project section as well. Hiding the Portfolio project alone leaves the Skills evidence available. Duplicate visible anchors (including a capture referenced by two visible sections), dangling references, incorrect project provenance, unsupported presets/kinds and wrong-page canonical destinations fail validation. Editing visibility does not delete source assets.
+Project references establish provenance even when a Portfolio project is hidden. Both projects render short links to shared `/skills?evidence=android-reports` and `/skills?evidence=pix-capture` destinations. Existing saved `/?evidence=android-reports` and `/?evidence=pix-capture` routes forward to Skills with replacement history; direct Skills arrivals, reload and Back/Forward reveal and focus the stable row. Keep these evidence IDs and anchors unchanged. Capability/tool links reuse these records.
+
+Validation resolves visibility from the Skills sections that actually render evidence. Visible cards, navigation and Portfolio project links must not target hidden rows. To hide the section, remove incoming live card/navigation references and hide the two referring Portfolio projects, or remove their supported references as part of a separately validated content change. Hiding a Portfolio project alone leaves its Skills evidence available. Duplicate visible anchors (including a row referenced by two visible sections), dangling references, incorrect project provenance, unsupported presets/kinds and wrong-page canonical destinations fail validation. Visibility changes do not delete source assets.

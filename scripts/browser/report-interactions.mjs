@@ -6,8 +6,8 @@ import { reportProgress } from './run-browser-check.mjs';
 // Exhaustive inspection complements the quick layout check on the rendered portfolio.
 export default async function check(page) {
     const dialog = page.getByRole('dialog');
-    const preview = page.locator('.report-preview');
-    const action = page.locator('.report-controls .evidence-open');
+    const preview = page.locator('#android-reports .evidence-open');
+    const action = page.locator('#android-reports .evidence-open');
     const closeButton = dialog.getByRole('button', { name: 'Close evidence' });
     const original = dialog.getByRole('link', { name: 'Open original in new tab' });
     const errors = [];
@@ -17,8 +17,9 @@ export default async function check(page) {
         reportProgress('Open report', { viewport: page.viewportSize(), report: label, opener: trigger === action ? 'controls' : 'preview' });
         await selectReport(page, label);
         if (trigger === action) {
-            await page.getByRole('button', { name: 'Overall', exact: true }).focus();
-            await page.keyboard.press('Tab');
+            await action.focus();
+            await page.keyboard.press("Tab");
+            await page.keyboard.press("Shift+Tab");
             assert(await action.evaluate(element => element === document.activeElement), 'Tab reaches controls opener');
             assert(await action.evaluate(element => getComputedStyle(element).outlineStyle !== 'none'), 'Keyboard opener has visible focus');
             await page.keyboard.press('Enter');
@@ -59,7 +60,7 @@ export default async function check(page) {
     await page.context().route('https://developer.arm.com/**', route => route.fulfill({
         contentType: 'text/html', body: '<h1>Report documentation destination</h1>',
     }));
-    for (const label of labels.slice(0, 5)) {
+    for (const label of labels) {
         const frame = await open(label);
         assert(await frame.locator('svg').count() > 0, 'Charts are rendered');
         const toggle = frame.locator('.toggleImage').first();
@@ -103,42 +104,19 @@ export default async function check(page) {
         await close('escape');
         assert.equal(await page.evaluate(() => scrollY), pagePosition, 'Close preserves portfolio position');
     }
-    console.log('PASS: five HTML reports, toggles, chart tooltips, real documentation tabs, iframe link-focused Escape and focus boundaries');
+    console.log('PASS: retained Very High HTML report, toggles, chart tooltips, real documentation tabs, iframe link-focused Escape and focus boundaries');
 
-    // Save both axes in the narrow Overall viewport, including an immediate close.
-    await page.setViewportSize({ width: 390, height: 845 });
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await open('Overall', action);
-    const position = await dialog.evaluate(element => {
-        const viewport = element.querySelector('.evidence-modal-content');
-        viewport.scrollTo(120, 725);
-        const saved = { left: viewport.scrollLeft, top: viewport.scrollTop };
-        element.querySelector('button').click();
-        return saved;
-    });
-    assert(position.left > 0 && position.top > 0, 'Overall is readable through two-axis internal scrolling');
-    await dialog.waitFor({ state: 'detached' });
-    assert(await action.evaluate(element => element === document.activeElement));
-    await open('Very High');
+    const memoryFrame = await open('Very High');
+    await memoryFrame.evaluate(() => scrollTo(0, 600));
+    await page.waitForFunction(() => document.querySelector('dialog iframe')?.contentWindow?.scrollY === 600);
+    await close('escape');
+    const restored = await open('Very High');
+    await page.waitForFunction(() => document.querySelector('dialog iframe')?.contentWindow?.scrollY === 600);
+    assert.equal(await restored.evaluate(() => scrollY), 600, 'Visit-local report position is restored');
     await close();
-    await open('Overall');
-    assert.deepEqual(await dialog.locator('.evidence-modal-content').evaluate(element => ({
-        left: element.scrollLeft, top: element.scrollTop,
-    })), position, 'Immediate close retains Overall position independently');
-    await close();
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-
-    // Exercise the second entry point for every report on mobile as well as desktop.
-    for (const label of labels) {
-        await open(label, action);
-        await close('escape', action);
-    }
-    await page.getByRole('button', { name: 'Overall', exact: true }).click();
 
     for (const [width, height] of reportViewports) {
         await page.setViewportSize({ width, height });
-        assert.equal(await page.getByRole('button', { name: 'Overall', exact: true }).getAttribute('aria-pressed'), 'true',
-            'Resizing preserves selected report');
         for (const label of labels) {
             const frame = await open(label);
             const panel = await dialog.boundingBox();
@@ -158,10 +136,9 @@ export default async function check(page) {
         }
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     }
-    console.log('PASS: all six report inspection layouts across ten viewports plus 900px');
+    console.log('PASS: single report inspection layout across ten viewports plus 900px');
 
     await page.reload();
-    assert.equal(await page.getByRole('button', { name: 'Very High', exact: true }).getAttribute('aria-pressed'), 'true');
     for (const label of labels) {
         const frame = await open(label);
         const reset = frame ? await frame.evaluate(() => ({ left: scrollX, top: scrollY })) :
@@ -176,5 +153,5 @@ export default async function check(page) {
         await close();
     }
     assert.deepEqual(errors, [], 'Report inspection produces no browser exceptions');
-    console.log('PASS: Overall immediate-close memory, reload resets, Very High default and original tabs for all six reports');
+    console.log('PASS: Very High position memory, reload reset and original HTML tab');
 }
