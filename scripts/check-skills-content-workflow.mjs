@@ -93,7 +93,7 @@ async function renderedEdits() {
       assert.equal(await main.getByText("Added card description", { exact: true }).count(), 1);
       assert.deepEqual(await main.getByRole("region", { name: "Performance testing", exact: true }).getByRole("heading", { level: 3 }).allTextContents(), ["Fixture project", "Vecchio Furioso", "Regulus the Advent"]);
       const links = main.getByRole("link");
-      assert.deepEqual(await links.allTextContents().then(items => items.map(s => s.trim())), ["Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Edited Android evidence Inspect", "Vecchio Furioso · Microsoft PIX GPU capture Inspect", "Added project evidence Inspect"]);
+      assert.deepEqual(await links.allTextContents().then(items => items.map(s => s.trim())), ["Edited Android evidence Inspect", "Vecchio Furioso · PIX GPU usage analysis Inspect", "Edited Android evidence Inspect", "Vecchio Furioso · PIX GPU usage analysis Inspect", "Added project evidence Inspect"]);
       // DOM and keyboard order follow the edited section list at desktop and mobile widths.
       for (const width of [1366, 900, 390]) {
         await page.setViewportSize({ width, height: 900 });
@@ -106,7 +106,7 @@ async function renderedEdits() {
         }
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       }
-      for (const [name, target] of [["Edited Android evidence Inspect", "android-reports"], ["Vecchio Furioso · Microsoft PIX GPU capture Inspect", "pix-capture"]]) {
+      for (const [name, target] of [["Edited Android evidence Inspect", "android-reports"], ["Vecchio Furioso · PIX GPU usage analysis Inspect", "pix-capture"]]) {
         await visit("/skills");
         const relevant = main.getByRole("link", { name, exact: true });
         for (const link of await relevant.all()) assert.equal(await link.getAttribute("href"), `#/skills?context=edited&evidence=${target}`);

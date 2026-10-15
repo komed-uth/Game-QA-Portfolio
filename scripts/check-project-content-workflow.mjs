@@ -110,12 +110,12 @@ async function checkRenderedEdits() {
       await dialog.waitFor({ state: 'detached' });
       assert(await opener.evaluate(e => e === document.activeElement));
       await page.goto(new URL("#/skills", preview.url).href);
-      const androidLink = page.getByRole("link", { name: "Regulus the Advent · Samsung Galaxy S10 Very High performance evidence →", exact: true }).first();
+      const androidLink = page.getByRole("link", { name: "Regulus the Advent · Performance Report Example →", exact: true }).first();
       await androidLink.click();
       await page.locator("#android-reports").waitFor();
       assert.equal(await page.locator("#android-reports").evaluate(element => element === document.activeElement), true);
       await page.goto(new URL("#/skills", preview.url).href);
-      await page.getByRole("link", { name: "Vecchio Furioso · Microsoft PIX GPU capture →", exact: true }).first().click();
+      await page.getByRole("link", { name: "Vecchio Furioso · PIX GPU usage analysis →", exact: true }).first().click();
       await page.locator("#pix-capture").waitFor();
       assert.equal(await page.locator("#pix-capture").evaluate(element => element === document.activeElement), true);
       await page.getByRole("navigation").getByRole("link", { name: "Portfolio", exact: true }).click();
@@ -167,7 +167,7 @@ async function checkRemainingEdits(page, previewUrl) {
     const pc = page.locator(".pc-project");
     assert.equal(await pc.locator(".game-gallery").count(), 0);
     assert.equal(await pc.getByRole("link", { name: "Vecchio Furioso on Steam ↗", exact: true }).getAttribute("href"), "https://store.example.test/vecchio");
-    await pc.getByRole("link", { name: /Microsoft PIX GPU capture/ }).click();
+    await pc.getByRole("link", { name: /PIX GPU usage analysis/ }).click();
     const capture = page.getByRole("button", { name: "Inspect edited PIX", exact: true });
     assert.equal(await capture.locator("img").getAttribute("alt"), "Edited PIX alternative");
     await capture.click();
@@ -214,7 +214,7 @@ async function checkRemainingEdits(page, previewUrl) {
       assert.equal(await page.evaluate(() => document.activeElement.closest(".project-grid")?.querySelector(".project-title").textContent), expected[interactiveSections[index + 1]], "Keyboard traversal follows configured order");
     }
     await page.goto(new URL(prefix + "#/skills", previewUrl).href);
-    await page.getByRole("link", { name: "Vecchio Furioso · Microsoft PIX GPU capture →", exact: true }).first().click();
+    await page.getByRole("link", { name: "Vecchio Furioso · PIX GPU usage analysis →", exact: true }).first().click();
     await page.locator("#pix-capture").waitFor();
     assert(await page.locator("#pix-capture").evaluate(e => e === document.activeElement), "Skills still resolves PIX after reordering");
   }

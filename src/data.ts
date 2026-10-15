@@ -761,6 +761,9 @@ export const aboutMePage: AboutMePageContent = {
       preset: "standard",
       title: "Contact",
       linkLabel: "Contact me on LinkedIn",
+      linkedInLabel: "LinkedIn",
+      email: { label: "Email", value: "komed.uth@gmail.com", destination: "mailto:komed.uth@gmail.com" },
+      phone: { label: "Phone", value: "+66 99 967 4270", destination: "tel:+66999674270" },
     },
   ],
 };

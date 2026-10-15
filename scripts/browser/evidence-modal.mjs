@@ -72,7 +72,7 @@ export default async function check(page) {
     }
     async function checkCaptureContent() {
         assert.equal(await d.getAttribute('aria-labelledby') !== null, true);
-        assert(await p.getByRole('dialog', { name: 'Vecchio Furioso · Microsoft PIX capture', exact: true }).isVisible());
+        assert(await p.getByRole('dialog', { name: 'Vecchio Furioso · PIX GPU usage analysis', exact: true }).isVisible());
         assert.equal(await d.locator('img').getAttribute('src'), await capture.locator('img').getAttribute('src'));
         assert.equal(await d.locator('img').getAttribute('alt'), captureAlt);
         assert.equal(await d.locator('a').getAttribute('href'), await capture.locator('img').getAttribute('src'));
@@ -117,7 +117,7 @@ export default async function check(page) {
         assert.equal(await g.locator('.gallery-viewer iframe').count(), 1);
     }
     await checkProjectLayout(p);
-    await p.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ }).click();
+    await p.locator('.pc-project').getByRole('link', { name: /PIX GPU usage analysis/ }).click();
     await checkCaptureLayout();
     await captureOpener.click();
     await checkCaptureContent();

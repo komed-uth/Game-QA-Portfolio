@@ -27,7 +27,7 @@
     "check:placeholders": "node scripts/check-browser.mjs --placeholders-only",
     "check:photos": "node scripts/check-browser.mjs --photos-only",
     "check:evidence": "node scripts/check-browser.mjs --evidence-only",
-    "check:runner": "node --test scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/capture-region.test.mjs scripts/check-workstation.test.mjs scripts/check-project-dependencies.test.mjs scripts/check-merge-readiness.test.mjs scripts/check-diff-whitespace.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs",
+    "check:runner": "node --test scripts/browser/project-showcase-layout.test.mjs scripts/browser/check-selection.test.mjs scripts/browser/stable-inputs.test.mjs scripts/browser/run-browser-check.test.mjs scripts/browser/capture-region.test.mjs scripts/check-workstation.test.mjs scripts/check-project-dependencies.test.mjs scripts/check-merge-readiness.test.mjs scripts/check-diff-whitespace.test.mjs scripts/browser/recorded-run.test.mjs scripts/sync-reports.test.mjs",
     "prepreview": "npm run check:project-dependencies",
     "precheck:browser": "npm run check:project-dependencies",
     "precheck:preview": "npm run check:project-dependencies",

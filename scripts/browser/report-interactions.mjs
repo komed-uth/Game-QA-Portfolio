@@ -25,7 +25,7 @@ export default async function check(page) {
         } else await action.click();
         await dialog.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
         assert((await dialog.getAttribute('aria-labelledby'))?.length, 'Inspection has an accessible title');
-        assert((await dialog.locator('h2').textContent()).includes('Very High'));
+        assert.equal(await dialog.locator('h2').textContent(), 'Regulus the Advent · Performance Report Example');
         assert.equal(await original.getAttribute('target'), '_blank');
         assert((await original.getAttribute('rel')).includes('noopener'));
         assert((await original.getAttribute('href')).endsWith(reportFile));

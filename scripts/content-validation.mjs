@@ -246,7 +246,19 @@ export async function validateContent(
       if (section.preset !== "standard") errors.push(`${context}.preset: unsupported contact preset; supported presets: standard.`);
       contactSections += 1;
       requiredString(section.title, `${context}.title`, errors);
-      requiredString(section.linkLabel, `${context}.linkLabel`, errors);
+      requiredString(section.linkLabel, context + ".linkLabel", errors);
+      requiredString(section.linkedInLabel, context + ".linkedInLabel", errors);
+      for (const method of ["email", "phone"]) {
+        const contact = section[method];
+        for (const field of ["label", "value", "destination"]) {
+          requiredString(contact?.[field], context + "." + method + "." + field, errors);
+        }
+        const valid = typeof contact?.destination === "string" && (method === "email"
+          ? /^mailto:[a-z0-9!$&'*+_=%{}~^-]+(?:\.[a-z0-9!$&'*+_=%{}~^-]+)*@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i.test(contact.destination)
+          : /^tel:\+[1-9]\d{1,14}$/.test(contact.destination));
+        if (!valid) errors.push(context + "." + method + ".destination: malformed destination; " +
+          (method === "email" ? "use mailto: followed by one email address without subject/body or fragments." : "use tel: followed by an international + number with up to 15 digits and no spaces."));
+      }
     } else {
       errors.push(`${context}.type: unsupported section type ${JSON.stringify(section.type)}.`);
     }

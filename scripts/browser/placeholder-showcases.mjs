@@ -169,9 +169,9 @@ async function checkProject(page, projectName) {
   assert.equal(await section.evaluate(e => e.previousElementSibling.querySelector('h2').textContent.trim()), preceding);
   assert(await page.locator('footer').last().isVisible(), 'Subsequent footer remains present');
   const publishedDetails = {
-    'Invictus: Lost Soul': ['Medival themed Card PVP based game', 'QA Enginner || Acting Project Coordinator', 'Contribute with QA team to do multiple test workflow such as regression test, functionality test, visual test, and network stress test. Handling customer report from publisher', 'Unity | iOS, Android'],
-    'The Collectors': ['casual multiple player based mobile game', 'QA Enginner', 'Contribute with the team to handle multiplayer test', 'Unity | iOS, Android'],
-    'MeowMoney': ['Play to earn based game in Truemoney App include various of mini-game', 'QA Enginner', 'Help team colleague to do mini-game and main page functionality including game and business logic', 'Unity, Vue.js | iOS, Android'],
+    'Invictus: Lost Soul': ['Medival themed Card PVP based game', 'QA Engineer || Acting Project Coordinator', 'Contribute with QA team to do multiple test workflow such as regression test, functionality test, visual test, and network stress test. Handling customer report from publisher', 'Unity | iOS, Android'],
+    'The Collectors': ['casual multiple player based mobile game', 'QA Engineer', 'Contribute with the team to handle multiplayer test', 'Unity | iOS, Android'],
+    'MeowMoney': ['Play to earn based game in Truemoney App include various of mini-game', 'QA Engineer', 'Help team colleague to do mini-game and main page functionality including game and business logic', 'Unity, Vue.js | iOS(WebGL), Android(WebGL)'],
   };
   assert.deepEqual(await section.locator('.project-detail-label').allTextContents(), ['Project overview', 'My role', 'Responsibilities', 'Platforms']);
   assert.deepEqual((await section.locator('.project-details p').allTextContents()).map(value => value.trim()), publishedDetails[projectName]);
@@ -186,8 +186,21 @@ async function checkProject(page, projectName) {
   for (const source of sources) {
     const response = await page.request.get(new URL(source, page.url()).href);
     assert(response.ok(), 'Each base-aware asset loads');
-    const text = await page.evaluate(svg => new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement.textContent, await response.text());
-    assert(text.includes(projectName) && text.includes('Mock image'), 'The panel itself contains its project name and mock label');
+    const contentType = response.headers()['content-type'];
+    assert(contentType?.startsWith('image/'), 'Each gallery asset is served as an image');
+    if (contentType.includes('svg')) {
+      const text = await page.evaluate(svg => new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement.textContent, await response.text());
+      assert(text.includes(projectName) && text.includes('Mock image'), 'Designed SVG panels retain their embedded labels');
+    } else {
+      assert(await page.evaluate(async source => {
+        const image = new Image();
+        image.src = source;
+        await image.decode();
+        return image.naturalWidth > 0 && image.naturalHeight > 0;
+      }, new URL(source, page.url()).href), 'Supplied bitmap gallery images decode');
+    }
+    const controlName = await previews.nth(sources.indexOf(source)).getAttribute('aria-label');
+    assert(controlName.toLowerCase().includes('mock image'), 'Named gallery controls retain the current mock-image disclosure');
   }
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
@@ -222,10 +235,10 @@ async function checkProject(page, projectName) {
         assert.equal(await gallery.locator('.gallery-thumbnail[aria-pressed="true"]').count(), 1);
         const alt = await opener.locator('img').getAttribute('alt');
         assert(alt.includes(projectName) && alt.includes('Mock image') && alt.includes('not gameplay'));
-        const image = await opener.locator('img').evaluate(e => ({ loaded: e.complete && e.naturalWidth > 0, ratio: e.naturalWidth / e.naturalHeight }));
+        const image = await opener.locator('img').evaluate(e => ({ loaded: e.complete && e.naturalWidth > 0, width: e.getBoundingClientRect().width, height: e.getBoundingClientRect().height, fit: getComputedStyle(e).objectFit }));
         assert(image.loaded);
         const box = await opener.boundingBox();
-        assert(Math.abs(box.width / box.height - image.ratio) < .02, 'Complete main-image framing retains labels');
+        assert(box.width > 0 && box.height > 0 && image.width > 0 && image.height > 0 && image.fit === 'contain', 'Complete images fit the visible main frame without cropping');
         await opener.click();
         const dialog = page.getByRole('dialog', { name: new RegExp(projectName + '.*Mock image') });
         await dialog.locator('img').evaluate(e => e.decode());

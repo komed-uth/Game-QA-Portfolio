@@ -51,6 +51,9 @@ export interface AboutMeContactSection {
   preset: "standard";
   title: string;
   linkLabel: string;
+  linkedInLabel: string;
+  email: { label: string; value: string; destination: string };
+  phone: { label: string; value: string; destination: string };
 }
 
 export type AboutMeSection = TextSection | CardsSection | AboutMeContactSection;

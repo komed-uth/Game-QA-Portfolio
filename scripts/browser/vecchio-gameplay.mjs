@@ -61,7 +61,7 @@ export default async function checkVecchioGameplay(page) {
   await page.keyboard.press('Enter');
   await waitForPhoto(gallery, sources[1]);
   assert.equal(await selected(gallery), 1, 'Keyboard activates the focused preview');
-  const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ });
+  const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /PIX GPU usage analysis/ });
   await evidenceLink.click();
   await page.locator('#pix-capture button').click();
   assert.equal(await dialog.getByRole('button', { name: /screenshot/ }).count(), 0, 'PIX stays outside gameplay navigation');

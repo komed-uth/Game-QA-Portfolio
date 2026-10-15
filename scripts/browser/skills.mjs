@@ -90,11 +90,11 @@ export default async function check(page) {
   for (const region of ['QA capabilities', 'Tools']) {
     const descriptions = page.getByRole('region', { name: region });
     for (const [name, evidence, opener, title] of [
-      ['Regulus the Advent · Samsung Galaxy S10 Very High performance evidence', 'android-reports',
+      ['Regulus the Advent · Performance Report Example', 'android-reports',
         'Open full-size Samsung Galaxy S10 Very High screenshot for Regulus the Advent',
-        'Regulus the Advent · Samsung Galaxy S10 · Very High · ARM Streamline / Performance Advisor'],
-      ['Vecchio Furioso · Microsoft PIX GPU capture', 'pix-capture',
-        'Open full-size Microsoft PIX capture for Vecchio Furioso', 'Vecchio Furioso · Microsoft PIX capture'],
+        'Regulus the Advent · Performance Report Example'],
+      ['Vecchio Furioso · PIX GPU usage analysis', 'pix-capture',
+        'Open full-size Microsoft PIX capture for Vecchio Furioso', 'Vecchio Furioso · PIX GPU usage analysis'],
     ]) {
       await descriptions.getByRole('link', { name: name + ' →', exact: true }).click();
       assert.equal(new URL(page.url()).hash, '#/skills' + '?evidence=' + evidence);
@@ -128,7 +128,7 @@ export default async function check(page) {
     await page.goForward();
     await page.waitForFunction(id => document.activeElement?.id === id, id);
   }
-  await page.getByRole('region', { name: 'Tools', exact: true }).getByRole('link', { name: /Microsoft PIX GPU capture/ }).click();
+  await page.getByRole('region', { name: 'Tools', exact: true }).getByRole('link', { name: /PIX GPU usage analysis/ }).click();
   await page.waitForFunction(() => document.activeElement?.id === 'pix-capture');
   await skills.click();
   for (const [width, height] of [[1920,1080], [1366,768], [390,845], [845,390], [360,840],

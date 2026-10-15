@@ -22,7 +22,27 @@ async function about(page) {
   }
   assert.doesNotMatch(await main.innerText(), /Development draft|awaiting confirmation|Personal gaming detail|\bFPS\b|\bpresent\b|\bcurrently employed\b/i);
   assert.equal(await main.locator('img, iframe, form, input, a[download]').count(), 0);
-  assert.equal(await main.getByRole('link').count(), 1);
+  assert.equal(await main.getByRole('link').count(), 3);
+  const contactRegion = main.getByRole('region', { name: 'Contact', exact: true });
+  assert.deepEqual(await contactRegion.getByRole('term').allTextContents(), ['Email', 'Phone', 'LinkedIn']);
+  assert.deepEqual(await contactRegion.getByRole('link').evaluateAll(links => links.map(link => link.getAttribute('href'))), [
+    'mailto:komed.uth@gmail.com', 'tel:+66999674270', profile,
+  ]);
+  for (const name of ['komed.uth@gmail.com', '+66 99 967 4270']) {
+    const link = contactRegion.getByRole('link', { name, exact: true });
+    assert.equal(await link.innerText(), name);
+    assert.equal(await link.getAttribute('target'), null);
+    assert(await link.evaluate(element => {
+      const selection = getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      const selected = selection.toString() === element.textContent && getComputedStyle(element).userSelect !== 'none';
+      selection.removeAllRanges();
+      return selected;
+    }), 'Contact text is selectable');
+  }
   const contact = main.getByRole('link', { name: 'Contact me on LinkedIn ↗' });
   assert.equal(await contact.getAttribute('href'), profile);
   assert.equal(await contact.getAttribute('target'), '_blank');
@@ -72,8 +92,34 @@ export default async function check(page) {
   await focusVisible(skip);
   await page.keyboard.press('Enter');
   assert(await page.getByRole('main').evaluate(element => document.activeElement === element));
+  // Observe native application requests without launching email or calling software.
+  await page.evaluate(() => {
+    window.contactRequests = [];
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a');
+      if (link && /^(mailto:|tel:)/.test(link.href)) {
+        event.preventDefault();
+        window.contactRequests.push(link.href);
+      }
+    });
+  });
+  await page.getByRole('main').focus();
+  for (const [name, destination] of [
+    ['komed.uth@gmail.com', 'mailto:komed.uth@gmail.com'],
+    ['+66 99 967 4270', 'tel:+66999674270'],
+  ]) {
+    await page.keyboard.press('Tab');
+    const link = page.getByRole('link', { name, exact: true });
+    await focusVisible(link);
+    await page.evaluate(() => { window.contactRequests = []; });
+    await page.keyboard.press('Enter');
+    assert.deepEqual(await page.evaluate(() => window.contactRequests), [destination]);
+    await link.click();
+    assert.deepEqual(await page.evaluate(() => window.contactRequests), [destination, destination]);
+    await link.focus();
+  }
+  await page.keyboard.press('Tab');
   const contact = page.getByRole('link', { name: /Contact me on LinkedIn/ });
-  await contact.focus();
   await focusVisible(contact);
   // Verify activation and destination without depending on LinkedIn availability.
   await page.context().route('https://www.linkedin.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<h1>LinkedIn contact boundary</h1>' }));
@@ -83,6 +129,21 @@ export default async function check(page) {
   await popup.waitForLoadState();
   assert.equal(popup.url(), profile);
   await popup.close();
+  const headerContact = page.getByRole('link', { name: 'Komed Uthisanont on LinkedIn ↗' });
+  await headerContact.focus();
+  await focusVisible(headerContact);
+  const headerPopupPromise = page.waitForEvent('popup');
+  await page.keyboard.press('Enter');
+  const headerPopup = await headerPopupPromise;
+  await headerPopup.waitForLoadState();
+  assert.equal(headerPopup.url(), profile);
+  await headerPopup.close();
+  for (const name of ['Portfolio', 'Skills', 'About me']) {
+    await nav.getByRole('link', { name, exact: true }).click();
+    assert.equal(await headerContact.getAttribute('href'), profile);
+    assert.equal(await headerContact.getAttribute('target'), '_blank');
+    if (name !== 'About me') assert.equal(await page.getByRole('link', { name: 'komed.uth@gmail.com', exact: true }).count(), 0);
+  }
   const legacy = new URL(home);
   legacy.hash = '/about';
   await page.goto(legacy.href);

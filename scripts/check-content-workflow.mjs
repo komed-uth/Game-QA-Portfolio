@@ -111,6 +111,10 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
         1,
       );
 
+      const contact = main.getByRole("region", { name: "Contact", exact: true });
+      assert.deepEqual(await contact.getByRole("term").allTextContents(), ["Write to me", "Call me", "Professional profile"]);
+      assert.equal(await contact.getByRole("link", { name: "qa@example.com", exact: true }).getAttribute("href"), "mailto:qa@example.com");
+      assert.equal(await contact.getByRole("link", { name: "+44 20 7946 0958", exact: true }).getAttribute("href"), "tel:+442079460958");
       const aboutContact = main.getByRole("link", { name: "Contact me on LinkedIn ↗" });
       const shellContact = page.getByRole("link", { name: "Komed Uthisanont on LinkedIn ↗" });
       assert.equal(await aboutContact.getAttribute("href"), siteContent.contact.destination);
@@ -130,6 +134,8 @@ async function checkRenderedVariant(siteContent, aboutMePage) {
         "Skills",
         "About me",
         "Komed Uthisanont on LinkedIn ↗",
+        "qa@example.com",
+        "+44 20 7946 0958",
         "Contact me on LinkedIn ↗",
       ]);
     });
@@ -156,6 +162,9 @@ try {
   editedAboutMe.sections.push(careerDirection);
   const contactSection = editedAboutMe.sections.find((section) => section.id === "contact");
   assert(introduction?.type === "text" && background?.type === "text" && careerDirection && contactSection);
+  contactSection.email = { label: "Write to me", value: "qa@example.com", destination: "mailto:qa@example.com" };
+  contactSection.phone = { label: "Call me", value: "+44 20 7946 0958", destination: "tel:+442079460958" };
+  contactSection.linkedInLabel = "Professional profile";
   introduction.description = "A content edit made in the About me definition.";
   introduction.media = { path: "favicon.svg", alt: "Portfolio mark" };
   careerDirection.visible = false;
@@ -255,6 +264,12 @@ try {
         diagnostic: "siteContent.contact.destination: malformed destination",
       });
 
+      for (const [method, destination] of [["email", "mailto:invalid"], ["phone", "tel:0999674270"]]) {
+        const invalidContact = structuredClone(editedAboutMe);
+        invalidContact.sections.find(section => section.type === "contact")[method].destination = destination;
+        invalidVariants.push({ source: "aboutMe", value: invalidContact, diagnostic: method + ".destination: malformed destination" });
+      }
+
       const unresolvedNavigation = structuredClone(editedSite);
       unresolvedNavigation.navigation.links[1].destination = "/typo";
       invalidVariants.push({
@@ -282,6 +297,9 @@ try {
       }
 
       const correctedAboutMe = structuredClone(editedAboutMe);
+      correctedAboutMe.sections.find(section => section.type === "contact").email = {
+        label: "Email after correction", value: "updated@example.com", destination: "mailto:updated@example.com",
+      };
       correctedAboutMe.sections.find((section) => section.id === "introduction").description =
         "A valid development edit after correction.";
       await Promise.all([
@@ -289,6 +307,8 @@ try {
         contentEditor.write("aboutMePage", correctedAboutMe),
       ]);
       await page.getByText("A valid development edit after correction.", { exact: true }).waitFor();
+      assert.equal(await page.getByRole("link", { name: "updated@example.com", exact: true }).getAttribute("href"), "mailto:updated@example.com");
+      await page.getByText("Email after correction", { exact: true }).waitFor();
       await page.goto(new URL("#/", developmentServer.url ?? await waitForDevelopmentUrl(developmentServer)).href);
       const editedProjects = structuredClone(definitions.projects);
       editedProjects[0].name = "Regulus live content edit";

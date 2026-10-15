@@ -594,6 +594,18 @@ footer {
   border-top: 1px solid var(--line);
   padding: 32px 0;
 }
+.contact-methods {
+  margin: 0;
+}
+.contact-methods > div {
+  margin-top: 12px;
+}
+.contact-methods dt {
+  color: var(--muted);
+}
+.contact-methods dd {
+  margin: 0;
+}
 .workflow-list {
   list-style: none;
   padding: 0;
