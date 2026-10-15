@@ -105,8 +105,6 @@ export interface SiteContent {
     failedPhoto: string;
     failedVideo: string;
     retry: string;
-    resumeSlideshow: string;
-    pauseSlideshow: string;
     previews: string;
     showPreview: string;
   };

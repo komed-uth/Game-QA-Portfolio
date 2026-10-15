@@ -149,7 +149,7 @@ export async function validateContent(
       );
     }
 
-    for (const field of ["skipLinkLabel", "identityHomeLabel", "opensInNewTab", "externalLinkArrow", "closeEvidence", "closeSymbol", "scrollableSummary", "previousScreenshot", "nextScreenshot", "openOriginal", "openOriginalFile", "openScreenshot", "videoTitle", "loadingPhoto", "loadingVideo", "failedPhoto", "failedVideo", "retry", "resumeSlideshow", "pauseSlideshow", "previews", "showPreview"]) {
+    for (const field of ["skipLinkLabel", "identityHomeLabel", "opensInNewTab", "externalLinkArrow", "closeEvidence", "closeSymbol", "scrollableSummary", "previousScreenshot", "nextScreenshot", "openOriginal", "openOriginalFile", "openScreenshot", "videoTitle", "loadingPhoto", "loadingVideo", "failedPhoto", "failedVideo", "retry", "previews", "showPreview"]) {
       requiredString(
         siteContent.interface?.[field],
         `${siteFile}: siteContent.interface.${field}`,

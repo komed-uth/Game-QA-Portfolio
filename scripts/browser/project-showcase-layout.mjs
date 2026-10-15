@@ -164,13 +164,7 @@ export async function checkShowcaseResizeAndKeyboard(page) {
       await page.keyboard.press('Escape');
       await page.getByRole('dialog').waitFor({ state: 'detached' });
       await visibleFocus(page, opener);
-      const slideshow = gallery.getByRole('button', { name: /slideshow/ });
-      await page.keyboard.press('Tab');
-      await visibleFocus(page, slideshow);
-      await page.keyboard.press('Enter');
-      assert.equal(await slideshow.textContent(), 'Pause slideshow', 'Keyboard Resume enables progression');
-      await page.keyboard.press('Enter');
-      assert.equal(await slideshow.textContent(), 'Resume slideshow', 'Keyboard Pause disables progression');
+      assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
       const previews = gallery.locator('.gallery-thumbnail');
       for (const preview of await previews.all()) {
         await page.keyboard.press('Tab');

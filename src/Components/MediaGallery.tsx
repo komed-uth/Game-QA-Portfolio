@@ -72,7 +72,6 @@ export default function MediaGallery({
 
   function startSwipe(event: PointerEvent<HTMLDivElement>) {
     suppressClick.current = false;
-    if ((event.target as Element).closest(".gallery-slideshow-control")) return;
     if (!event.isPrimary || event.button !== 0) return;
     gesture.current = {
       id: event.pointerId,
@@ -185,10 +184,6 @@ export default function MediaGallery({
               </div> : presentation.phase === "loading" && <div className="gallery-photo-status" role="status">
                 {activeItem.type === "video" ? siteContent.interface.loadingVideo : siteContent.interface.loadingPhoto}
               </div>}
-          {media.length > 1 && <button type="button" className="gallery-arrow gallery-slideshow-control"
-            onClick={slideshow.togglePause}>
-            {slideshow.paused ? siteContent.interface.resumeSlideshow : siteContent.interface.pauseSlideshow}
-          </button>}
         </div>
       </figure>
 

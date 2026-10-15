@@ -54,7 +54,7 @@ test('gallery target checks tolerate photo/video control removal during measurem
 test('gallery target checks still reject zero-sized and undersized visible actions', async t => {
   const { page, gallery } = await galleryPage(t);
   for (const size of [0, 20]) {
-    await page.addStyleTag({ content: '.video-project .gallery-slideshow-control { width: ' + size + 'px !important; min-width: 0 !important; height: ' + size + 'px !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; }' });
+    await page.addStyleTag({ content: '.video-project .gallery-thumbnail { width: ' + size + 'px !important; min-width: 0 !important; height: ' + size + 'px !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; }' });
     await assert.rejects(checkGalleryActionTargets(gallery, 'Father, Son & Holy Guns'), /usable media action targets/);
   }
 });

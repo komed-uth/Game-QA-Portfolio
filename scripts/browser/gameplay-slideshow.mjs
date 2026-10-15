@@ -90,7 +90,7 @@ export default async function checkSlideshow(page) {
   for (let index = 0; index < 2; index++) {
     await page.reload();
     const gallery = galleries.nth(index);
-    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
     await photo(gallery, 1);
     await fullInterval(gallery, 1, 2);
     await waitForPhoto(gallery);
@@ -296,7 +296,7 @@ export default async function checkSlideshow(page) {
   await page.reload();
   for (const gallery of await galleries.all()) {
     await photo(gallery, 1);
-    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
+    assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
     await page.clock.fastForward(20000);
     await isSelected(gallery, 1, 'Reduced motion disables automatic progression without Resume');
     await photo(gallery, 2);
@@ -317,14 +317,14 @@ export default async function checkSlideshow(page) {
   await page.clock.fastForward(20000);
   await isSelected(galleries.first(), 1, 'Live reduced-motion preference suspends an active countdown');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await galleries.first().getByRole('button', { name: 'Resume slideshow', exact: true }).evaluate(e => e.click());
   await releaseInspection();
-  await fullInterval(galleries.first(), 1, 2);
+  await page.clock.fastForward(20000);
+  await isSelected(galleries.first(), 1, 'Disabling reduced motion does not restart a suspended mounted visit');
   await page.reload();
   await photo(galleries.first(), 1);
   await page.getByRole('link', { name: /^Skills$/ }).first().click();
   await page.goBack();
   await isSelected(galleries.first(), 0, 'Route return resets video-first selection');
-  assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
+  assert.equal(await galleries.first().getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
   console.log('PASS: both slideshow sequences, full dwell/reset/reselection, video retention, timer independence, combined hover/focus/visibility, drag, offscreen, modal, reduced motion and route reset');
 }

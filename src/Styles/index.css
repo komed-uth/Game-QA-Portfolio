@@ -362,16 +362,6 @@ nav a.active {
   font-size: 1.8rem;
   cursor: pointer;
 }
-.gallery-slideshow-control {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-  min-width: 44px;
-  padding: 0 12px;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
 .gallery-thumbnails {
   position: relative;
   display: flex;
