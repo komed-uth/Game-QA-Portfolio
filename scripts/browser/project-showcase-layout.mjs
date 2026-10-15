@@ -77,6 +77,11 @@ export async function checkProjectLayout(page) {
       assert(links.y >= info.y + info.height, `${name}: stores follow details visually`);
     }
     if (name === 'Vecchio Furioso') {
+      const evidence = await project.locator('.skill-evidence').boundingBox();
+      const content = await project.locator('.project-info').boundingBox();
+      const evidenceGap = evidence.y - Math.max(frame.y + frame.height, content.y + content.height);
+      assert(Math.abs(evidenceGap - (narrow ? 24 : 16)) < 1,
+        'Vecchio Furioso: evidence link follows visible content without a reserved empty row');
       assert.equal(await project.locator('.capture-media').count(), 0, 'PIX has moved to Skills');
       assert.equal(await project.getByRole('link', { name: /PIX GPU usage analysis/ }).getAttribute('href'), '#/skills?evidence=pix-capture');
     }
