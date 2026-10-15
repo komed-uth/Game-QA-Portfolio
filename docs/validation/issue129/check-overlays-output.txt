@@ -1,0 +1,23 @@
+
+> game-qa-portfolio@1.0.0 check:overlays
+> node --test scripts/browser/report-overlay-data.test.mjs && node scripts/check-report-overlays.mjs
+
+✔ empty screenshot lists report unavailable real overlay data (1.8744ms)
+✔ readiness counts usable paths in visible graphs and ignores empty placeholders (0.3023ms)
+✔ absent or malformed report data fails instead of silently reporting readiness (0.5468ms)
+✔ replacement shares script matching and preserves surrounding report content (0.2896ms)
+✔ replacement rejects missing and malformed original report data (0.2406ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.2738
+SKIP: real capture overlay checks — S10_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Low_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Medium_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_High_Fixed.html: screenshotPathList is empty.
+SKIP: real capture overlay checks — S10_Very_Low_Fixed.html: screenshotPathList is empty.
+COVERAGE: the synthetic overlay fixture checks modal integration; it does not certify real capture images.

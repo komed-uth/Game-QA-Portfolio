@@ -84,3 +84,29 @@ test("media paths cannot escape the deployed public base even when filesystem no
     /data\.ts: aboutMePage\.sections\["introduction"\]\.media\.path: must stay within public\/ and cannot contain parent-directory segments/,
   );
 });
+
+
+test("About me email and phone reject incorrect native destinations with field context", async () => {
+  const definitions = await loadContentDefinitions();
+  for (const [method, destination] of [
+    ["email", "https://example.com"], ["email", "mailto:missing-at"], ["email", "mailto:qa name@example.com"], ["email", "mailto:.qa@example.com"], ["email", "mailto:qa..name@example.com"],
+    ["email", "mailto:qa@example.com?subject=Hello"], ["email", "mailto:qa@example.com#fragment"],
+    ["phone", "tel:0999674270"], ["phone", "tel:+66 99 967 4270"],
+    ["phone", "javascript:alert(1)"],
+  ]) {
+    const invalid = structuredClone(definitions);
+    const contact = invalid.aboutMePage.sections.find(section => section.type === "contact");
+    contact[method] = { label: method, value: "Visible contact", destination };
+    assert.match((await validateContent(invalid, { publicDirectory })).join("\n"),
+      new RegExp(method + "\\.destination: malformed destination"));
+  }
+});
+
+
+test("About me contact edits accept one email recipient and an international phone number", async () => {
+  const definitions = await loadContentDefinitions();
+  const contact = definitions.aboutMePage.sections.find(section => section.type === "contact");
+  contact.email = { label: "Write", value: "qa+work@example.com", destination: "mailto:qa+work@example.com" };
+  contact.phone = { label: "Call", value: "+44 20 7946 0958", destination: "tel:+442079460958" };
+  assert.deepEqual(await validateContent(definitions, { publicDirectory }), []);
+});

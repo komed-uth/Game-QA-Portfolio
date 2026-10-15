@@ -65,7 +65,7 @@ export async function checkProjectLayout(page) {
     }
     if (name === 'Vecchio Furioso') {
       assert.equal(await project.locator('.capture-media').count(), 0, 'PIX has moved to Skills');
-      assert.equal(await project.getByRole('link', { name: /Microsoft PIX GPU capture/ }).getAttribute('href'), '#/skills?evidence=pix-capture');
+      assert.equal(await project.getByRole('link', { name: /PIX GPU usage analysis/ }).getAttribute('href'), '#/skills?evidence=pix-capture');
     }
   }
   assert.equal(await page.locator('.regulus-showcase .report-block, .regulus-showcase .capture-media').count(), 0);
@@ -179,7 +179,7 @@ export async function checkShowcaseResizeAndKeyboard(page) {
         await visibleFocus(page, page.locator('.regulus-showcase .skill-evidence'));
       }
     }
-    const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /Microsoft PIX GPU capture/ });
+    const evidenceLink = page.locator('.pc-project').getByRole('link', { name: /PIX GPU usage analysis/ });
     await page.keyboard.press('Tab');
     await visibleFocus(page, evidenceLink);
     await page.keyboard.press('Tab');

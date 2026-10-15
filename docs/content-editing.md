@@ -6,7 +6,7 @@ Open **`src/data.ts`** for every routine content edit. It is the single editable
 | --- | --- |
 | `portfolioPage` | Ordered Portfolio sections, visibility, project selection, presets, added text/card copy |
 | `skillsPage` | Page title/description, capabilities/tools, text/card/evidence sections, ordered evidence references, action suffix |
-| `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading/action |
+| `aboutMePage` | Page title/eyebrow, text/card sections, optional text media, contact heading, method labels, email/phone values and destinations, LinkedIn action |
 | `siteContent` | Shared identity/title/description/icon, navigation labels/routes, contact destination/icon, footer landmark, accessible shell labels, gallery/loading/retry/slideshow/preview and inspection actions |
 | `projects` | All six project names, facts, disclosures, heading/gallery/detail/store labels, store links/icons, ordered media and alternatives |
 | `evidence` | Shared evidence destinations and labels, screenshot/PIX paths/alternatives/opening labels/modal titles, single full report path/title/action |
@@ -35,7 +35,9 @@ There is no second copy of project facts or evidence destinations in a page comp
 
 ## Copy, links and media
 
-Edit `description` or a project detail's `value` to change wording. Edit `siteContent.contact.destination` once to update the header and About me contact. Contact destinations accept absolute HTTP(S) or mailto URLs. Store and external image destinations accept absolute HTTP(S) URLs. Navigation must resolve to a supported page; an evidence query must target a visible Skills evidence row on `/skills`. Fragments are unsupported in navigation definitions.
+Edit `description` or a project detail's `value` to change wording. Edit `siteContent.contact.destination` once to update the header and About me contact. The shared destination accepts absolute HTTP(S) or mailto URLs. Store and external image destinations accept absolute HTTP(S) URLs. Navigation must resolve to a supported page; an evidence query must target a visible Skills evidence row on `/skills`. Fragments are unsupported in navigation definitions.
+
+In the About me contact section, edit `email` and `phone` records in `src/data.ts`: each has a `label`, selectable visible `value`, and `destination`. Keep the email value and recipient in sync; use `mailto:qa@example.com` with one address and no subject/body or fragment. Display the phone with readable international spacing, and use `tel:+66999674270` with a country code and digits only (up to 15 digits). Invalid native destinations fail validation with their method and field. `linkedInLabel` labels the final row and `linkLabel` supplies its action text; its destination still comes from `siteContent.contact.destination`. Rows render Email, Phone, then LinkedIn; only LinkedIn opens a new web tab.
 
 Keep stable IDs when renaming headings, cards, projects or media labels. The single full report uses its shared evidence identity for visit-local inspection memory. Gallery selection uses media identity, so moving or renaming a surviving media entry retains its selection during development edits.
 
