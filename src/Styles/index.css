@@ -467,24 +467,6 @@ nav a.active {
   min-width: 0;
   margin: 0;
 }
-/* Keep gameplay and performance evidence in distinct desktop grid rows. */
-@media (width > 900px) {
-  .pc-project {
-    grid-template-rows: max-content auto auto;
-  }
-  .pc-project > .project-info {
-    grid-row: 2 / span 2;
-  }
-  .pc-project > .capture-media {
-    grid-column: 2;
-    grid-row: 3;
-  }
-  .pc-project:not(:has(> .game-gallery)) {
-    grid-template-rows: max-content auto;
-  }
-  .pc-project:not(:has(> .game-gallery)) > .project-info { grid-row: 2; }
-  .pc-project:not(:has(> .game-gallery)) > .capture-media { grid-row: 1 / span 2; }
-}
 .capture-media > a {
   display: block;
   padding: 6px;
