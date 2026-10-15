@@ -33,7 +33,7 @@ export default async function checkGameplay(page) {
         await checkPreviewStripLayout(gallery);
         assert.equal(await previews.count(), 4);
         await checkGalleryControlLayout(gallery);
-        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1, 'Visitor can pause/resume automatic selection');
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0, 'No slideshow action is available');
         assert.equal(await gallery.getByRole('link', { name: /Watch on YouTube/ }).count(), 0);
         assert.equal(await gallery.getByRole('button', { name: 'Open full-size image', exact: true }).count(), 0);
         assert.deepEqual(await previews.allTextContents(), ['▶', '', '', ''], 'Only the video play indicator remains on previews');
@@ -125,7 +125,7 @@ export default async function checkGameplay(page) {
         assert((await gallery.locator('[aria-live="polite"]').innerText()).includes('2 / 4'));
         await waitForPhoto(gallery);
         await checkGalleryControlLayout(gallery);
-        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 1);
+        assert.equal(await gallery.getByRole('button', { name: /slideshow/i, includeHidden: true }).count(), 0);
         assert(await previews.nth(1).evaluate(e => getComputedStyle(e).outlineStyle !== 'none'), 'Keyboard preview focus is visible');
         const image=gallery.locator('.gallery-viewer img');
         await image.evaluate(e => e.decode());

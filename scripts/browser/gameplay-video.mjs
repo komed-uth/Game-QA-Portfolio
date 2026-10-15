@@ -64,19 +64,6 @@ export default async function checkVideo(page) {
     assert.notEqual(replacement,player,'New video visit gets a fresh player');
     assert.deepEqual(await page.evaluate(i => [window.videoPlayers[i].mutes,window.videoPlayers[i].plays],replacement),[1,1]);
     player = replacement;
-    // Explicit Pause persists across selection and does not control playback.
-    await gallery.getByRole('button',{name:'Pause slideshow',exact:true}).click(); await release();
-    await emit(player,0); await page.clock.fastForward(20000);
-    await selected(gallery,0,'Explicit Pause defers actual completion');
-    await gallery.getByRole('button',{name:'Resume slideshow',exact:true}).click(); await release();
-    await waitForPhoto(gallery); await selected(gallery,1,'Explicit Resume consumes completion once');
-    await gallery.getByRole('button',{name:'Pause slideshow',exact:true}).click();
-    await gallery.locator('.gallery-thumbnail').nth(2).evaluate(e=>e.click());
-    await waitForPhoto(gallery); await release(); await page.clock.fastForward(20000);
-    await selected(gallery,2,'Explicit Pause persists through manual photo selection');
-    await gallery.getByRole('button',{name:'Resume slideshow',exact:true}).click(); await release();
-    await page.clock.fastForward(4500); await selected(gallery,2,'Resumed photo gets five full seconds');
-    await page.clock.fastForward(700); await waitForPhoto(gallery); await selected(gallery,3,'Resumed photo advances');
     await gallery.locator('.gallery-thumbnail').first().evaluate(e=>e.click()); player=await playerIndex(gallery);
     await gallery.locator('.gallery-thumbnail').first().focus(); await page.keyboard.press('Shift'); await settle();
     await emit(player,0); await page.clock.fastForward(20000); await selected(gallery,0,'Keyboard focus defers completion');
@@ -119,11 +106,16 @@ export default async function checkVideo(page) {
     await page.emulateMedia({reducedMotion:'reduce'}); await settle();
     await emit(player,0); await page.clock.fastForward(20000);
     await selected(gallery,0,'Reduced motion retains completed video while paused');
-    await gallery.getByRole('button',{name:'Resume slideshow',exact:true}).click(); await release();
-    await waitForPhoto(gallery); await selected(gallery,1,'Explicit Resume permits reduced-motion completion');
+    assert.equal(await gallery.getByRole('button',{name:/slideshow/i,includeHidden:true}).count(),0);
+    // Native playback stays available, but reduced motion has no gallery opt-in.
+    await emit(player,1); await release();
+    await page.clock.fastForward(20000);
+    await selected(gallery,0,'Reduced-motion replay remains on the manually selected video');
+    assert(await gallery.frameLocator('iframe').getByRole('button',{name:'Play',exact:true}).isVisible());
+    await gallery.locator('.gallery-thumbnail').nth(1).evaluate(e=>e.click());
+    await waitForPhoto(gallery); await release();
     assert.equal(await gallery.locator('.gallery-photo').evaluate(e=>getComputedStyle(e).animationName),'none');
-    await page.clock.fastForward(4500); await selected(gallery,1,'Reduced-motion Resume keeps five-second dwell');
-    await page.clock.fastForward(700); await waitForPhoto(gallery); await selected(gallery,2,'Reduced-motion Resume advances without fades');
+    await page.clock.fastForward(20000); await selected(gallery,1,'Reduced-motion photos remain manual');
     await gallery.locator('.gallery-thumbnail').first().evaluate(e=>e.click()); player=await playerIndex(gallery);
     await page.getByRole('link',{name:/^Skills$/}).first().click();
     await emit(player,0);

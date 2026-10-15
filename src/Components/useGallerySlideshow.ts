@@ -10,11 +10,12 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
   videoShowcase?: boolean;
 }) {
   const gallery = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // Preserve the mounted-visit suspension when reduced motion is later disabled.
+  const [reducedMotionSuspended, setReducedMotionSuspended] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
-      if (preference.matches) setPaused(true);
+      if (preference.matches) setReducedMotionSuspended(true);
     };
     update();
     preference.addEventListener("change", update);
@@ -109,12 +110,12 @@ export default function useGallerySlideshow({ selected, ready, count, inspecting
     setInspection(current => current.hover === hover ? current : { ...current, hover });
   }, [inspecting]);
   const suspended = inspecting || inspection.hover || inspection.focus || inspection.dragging || !inspection.visible || inspection.hidden;
-  const eligible = count > 1 && !paused && !suspended;
+  const eligible = count > 1 && !reducedMotionSuspended && !suspended;
   useEffect(() => {
     if (!ready || !eligible) return;
     const timer = setTimeout(() => advanceRef.current(), videoShowcase ? 5000 : 6500);
     return () => clearTimeout(timer);
   }, [selected, ready, eligible, videoShowcase]);
 
-  return { gallery, eligible, paused, togglePause: () => setPaused(value => !value) };
+  return { gallery, eligible };
 }

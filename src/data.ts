@@ -50,8 +50,6 @@ export const siteContent = {
     failedPhoto: "Could not load this photo.",
     failedVideo: "Could not load this video.",
     retry: "Retry",
-    resumeSlideshow: "Resume slideshow",
-    pauseSlideshow: "Pause slideshow",
     previews: "gameplay previews",
     showPreview: "Show {label}",
   },

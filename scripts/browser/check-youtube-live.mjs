@@ -36,7 +36,9 @@ try {
       evidence.push({width, ...initial});
       if(initial.errors.length || !initial.duration) continue;
       const gallery=page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery').nth(index);
-      await gallery.getByRole('button',{name:'Pause slideshow',exact:true}).click();
+      // Keyboard inspection suspends completion while native controls are tested.
+      await gallery.locator('.gallery-thumbnail').first().focus();
+      await page.keyboard.press('Shift');
       await gallery.locator('.gallery-video-current.ready').waitFor({timeout:12000});
       await page.evaluate(i => window.realPlayers[i].player.pauseVideo(), index);
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 2, index, {timeout:10000});
@@ -50,13 +52,14 @@ try {
       await visiblePlay.first().click({timeout:10000});
       await page.waitForFunction(i => window.realPlayers[i].player.getPlayerState() === 1, index, {timeout:10000});
       evidence.push({width,index,nativePlay:true,fullscreenControl:await gallery.frameLocator('iframe').locator('.ytp-fullscreen-button, .fullscreen-icon').count() === 1});
-      await page.mouse.move(0,0);await page.evaluate(()=>document.activeElement?.blur());
+      await gallery.locator('.gallery-thumbnail').first().focus();
+      await page.keyboard.press('Shift');
+      await page.mouse.move(0,0);
       await page.evaluate(i=>{const p=window.realPlayers[i].player;p.mute();p.seekTo(Math.max(0,p.getDuration()-2),true);p.playVideo();},index);
       await page.waitForFunction(i=>window.realPlayers[i].states.includes(0),index,{timeout:20000});
       evidence.push({width,index,completed:true,selected:await gallery.locator('.gallery-thumbnail').first().getAttribute('aria-pressed')});
       await page.evaluate(i=>{const p=window.realPlayers[i].player;p.seekTo(0,true);p.playVideo();},index);
       await page.waitForFunction(i=>window.realPlayers[i].player.getPlayerState()===1,index,{timeout:10000});
-      await gallery.getByRole('button',{name:'Resume slideshow',exact:true}).click();
       await page.mouse.move(0,0);await page.evaluate(()=>document.activeElement?.blur());
       await page.waitForTimeout(1000);
       evidence.push({width,index,replayed:true,selected:await gallery.locator('.gallery-thumbnail').first().getAttribute('aria-pressed')});

@@ -112,10 +112,11 @@ export default async function checkTransitions(page) {
       assert.equal(await page.evaluate(i => window.videoPlayers[i].state, player), 1, 'Manual native Play remains usable');
       assert.equal(await gallery.locator('.gallery-video-current').evaluate(e => e.inert), false);
 
-      // Eight seconds starts at selection; pause and viewport renders cannot extend it.
+      // Eight seconds starts at selection; keyboard inspection and viewport renders cannot extend it.
       await choose(gallery, 2); await waitForPhoto(gallery); await choose(gallery, 0); player = await playerIndex(gallery);
       await page.clock.fastForward(4000); await flush();
-      await gallery.getByRole('button', { name: /slideshow/, exact: false }).evaluate(e => e.click()); await flush();
+      await gallery.locator('.gallery-thumbnail').first().focus();
+      await page.keyboard.press('Shift'); await flush();
       await page.setViewportSize({ width: motion === 'reduce' ? 391 : 1367, height: 6000 });
       await page.clock.fastForward(3999); await flush();
       assert.equal(await gallery.locator('.gallery-video-current').count(), 0, 'Fallback never reveals early');

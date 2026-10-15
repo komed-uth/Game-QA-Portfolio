@@ -321,7 +321,7 @@ async function checkProject(page, projectName) {
     async function gesture(target, dx, dy) {
       await target.scrollIntoViewIfNeeded();
       const box = await target.boundingBox();
-      // Start in the media area, clear of the top-right slideshow control.
+      // Start inside the media area for native touch browsing.
       const x = box.x + box.width * .8, y = box.y + box.height * .5;
       await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
       for (let i = 1; i <= 8; i++) {
