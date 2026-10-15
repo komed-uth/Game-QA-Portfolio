@@ -13,6 +13,22 @@ async function precedes(before, after, message) {
     !!(element.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING), target), message);
 }
 
+export async function checkGalleryActionTargets(media, name) {
+  // A photo/video switch can remove the image opener. Read every current
+  // control in one browser task instead of awaiting live positional locators.
+  const targets = await media.locator('button').evaluateAll(controls => controls.filter(control => {
+    const visibility = getComputedStyle(control).visibility;
+    return control.getClientRects().length > 0 && visibility !== 'hidden' && visibility !== 'collapse';
+  }).map(control => {
+    const { width, height } = control.getBoundingClientRect();
+    return { width, height, label: control.getAttribute('aria-label') || control.textContent.trim() };
+  }));
+  assert(targets.length > 0, name + ': media actions are present');
+  for (const target of targets) {
+    assert(target.width >= 44 && target.height >= 44, name + ': usable media action targets (' + target.label + ')');
+  }
+}
+
 export async function checkProjectLayout(page) {
   await page.evaluate(() => document.fonts.ready);
   assert.deepEqual(await page.locator('main .project-grid .project-title').allTextContents(), [
@@ -53,10 +69,7 @@ export async function checkProjectLayout(page) {
       const viewer = await media.locator('.gallery-viewer').boundingBox();
       assert(Math.abs(viewer.width / viewer.height - 16 / 9) < .02, `${name}: gallery frame proportions`);
     }
-    for (const control of await media.locator('button').all()) {
-      const box = await control.boundingBox();
-      assert(box.width >= 44 && box.height >= 44, `${name}: usable media action targets`);
-    }
+    await checkGalleryActionTargets(media, name);
     const stores = project.locator('.store-links');
     if (await stores.count()) {
       await precedes(details, stores, `${name}: store reading order follows details`);

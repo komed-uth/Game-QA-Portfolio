@@ -64,3 +64,7 @@ The complete run tested commit `0cb502d4fec36c16d985872ce58ae8d61bc1ae32` on a l
 [Complete terminal summary](issue129/browser-summary.json) | [Complete browser output](issue129/browser-output.txt) | [Production build](issue129/build-output.txt) | [Content workflow](issue129/content-workflow-output.txt) | [Overlays](issue129/check-overlays-output.txt) | [Preview: 110/110](issue129/check-preview-output.txt) | [Runner: 151/151](issue129/check-runner-output.txt)
 
 Git cannot authenticate noninteractively on this workstation; publication uses the owner-authenticated GitHub connector. Its published tree must equal the final local Git tree, then the local checkout is synchronized to the published history with the reviewed local commits preserved on a backup branch. No workflow-status monitoring or merge-readiness workflow inspection is performed, following the owner instruction.
+
+## Subsequent CI repair
+
+The owner requested investigation and repair of PR #133’s GitHub validation failure. See the [CI fix record](issue129-ci-fix.md) for the positional-locator race, regression tests, independent reviews, and superseding complete-suite evidence. The Contact implementation is unchanged.
