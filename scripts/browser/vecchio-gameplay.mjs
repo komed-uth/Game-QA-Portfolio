@@ -77,7 +77,8 @@ export default async function checkVecchioGameplay(page) {
   await page.route(delayedUrl, async route => { const response = await route.fetch(); await heldImage; await route.fulfill({ response }); });
   await page.route(failedUrl, route => retry ? route.continue() : route.fulfill({ status: 503, body: 'Photo unavailable' }));
   try {
-    await page.reload();
+    // The held thumbnail can block load; its release follows selection below.
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForPhoto(gallery);
     await previews.nth(2).click();
     await gallery.getByRole('status').waitFor();

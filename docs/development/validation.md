@@ -167,6 +167,33 @@ GitHub CLI is installed persistently through WinGet for this Windows user (`GitH
 
 Run `npm run check:gameplay` (or `node scripts/check-browser.mjs --gameplay-only`) for both gameplay showcases and the temporary empty/single/long portfolio lists. Gameplay checks exercise the ten-viewport matrix in normal and reduced motion, including rapid focus/selection and pointer interruption of scrolling. The complete suite remains the CI default. Focus selectors are mutually exclusive; invalid combinations fail before preview/browser startup.
 
+For a smaller affected scope after building current source:
+
+| Command | Direct selector | Scope |
+| --- | --- | --- |
+| `npm run check:video` | `--video-only` | Existing controlled YouTube completion and transition checks. This fixture does not certify live provider availability. |
+| `npm run check:gameplay-layout` | `--gameplay-layout-only` | Shared gameplay layout assertions, responsive framing, absent caption/slideshow actions and usable remaining action targets. |
+| `npm run check:gallery-keyboard` | `--gallery-keyboard-only` | Existing showcase resize and keyboard scenario: visible focus, preview traversal, modal focus return and selection continuity. |
+
+Direct selectors use `node scripts/check-browser.mjs <selector>`. They share the complete suite's assertions, preview ownership/cleanup, failure artifacts, input fingerprints and terminal summaries. Their output names the selected scope; a focused pass is not complete portfolio validation. Existing complete-suite groups, including Skills and About me, remain required. Follow the implementation/review/publishing order above: affected focused checks first, fixed-point review next, then complete validation against stable inputs.
+
+Native-touch preparation uses `scripts/browser/native-scroll.mjs` at actual native-scroll callers. It bounds settling and ends native scrolling through a verified noninteractive region while asserting no dialog opened. The scenario still performs its own separate activation and real-dialog assertion. Diagnose touch failures with the short rendered reproduction described in the [#27 evidence](../evidence/issue-27/validation.md); extra delay alone is not a fix.
+
+## Current-head CI observation
+
+Use the read-only observer for an opened or updated PR. On Windows, use the direct entrypoint for named options:
+
+```sh
+node scripts/observe-ci.mjs --repo komed-uth/Game-QA-Portfolio --remote origin --pr <number>
+node scripts/observe-ci.mjs --repo komed-uth/Game-QA-Portfolio --remote origin --pr <number> --watch --timeout-seconds 1800 --interval-seconds 15
+```
+
+`npm run check:ci` exposes the same command; the direct invocation avoids the previously observed loss of named options through npm. One-shot inspection is the default. The optional watch is finite and emits observed run/attempt, job and step changes rather than unchanged full tables. It prints the Actions URL immediately, retains unknown progress as unknown and never invents percentages from elapsed time. Failure reporting includes available failing steps, a bounded log excerpt and artifact links; unavailable API/log details are explicit limitations.
+
+Follow publication until terminal success or an explicit unsuccessful/unresolved result. A PR-head change invalidates the old observation. Missing validation, earlier attempts, cancellation, failure, timeout and interruption cannot pass. On verified terminal CI success, the observer invokes the existing `scripts/check-merge-readiness.mjs` entrypoint; only its exact-head complete-evidence and fresh-target result establishes readiness. A green workflow alone does not establish readiness. Fix a reported failure before publishing a new head, then observe that head independently.
+
+Observation does not retry/cancel workflows, merge, close issues or deploy. Preserve separate owner authorization for remote actions. This is an operator-invoked command, not a scheduled CI-watch service. Richer scenario checkpoints remain owned by #86/#110, command diagnostics by #119, and Pages gating/Windows navigation by #85.
+
 ## Workstation search tooling
 
 Ripgrep is installed persistently through WinGet for this Windows user (`BurntSushi.ripgrep.MSVC`, user scope). Fresh shells use `rg` through WinGet’s managed alias and user PATH. An already-running desktop app may need reopening to inherit the updated PATH. Verify with `rg --version`.
