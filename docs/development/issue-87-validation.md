@@ -35,8 +35,54 @@ Initial focused evidence:
 | Focused gameplay layout | Passed eleven widths in both motion modes, 191.90 seconds. |
 | Focused gallery keyboard | Passed shared resize, focus, preview traversal and modal-return scenario, 36.19 seconds. One earlier preview startup timed out before checks. |
 | Native-scroll extraction | Full placeholder suite passed in 623.36 seconds before the noninteractive-target guard was hardened. The final guard then passed three trials across all three projects; existing native evidence-interaction reproduction also passed. Final complete validation covers the final shared helper. |
-| CI observer | 22 tests passed after the stale-job snapshot correction, including controlled real readiness success and rejection, head/run/attempt changes, deadlines, interruption and failure evidence. |
+| CI observer | The original 22 tests passed after the stale-job snapshot correction, including controlled real readiness success and rejection, head/run/attempt changes, deadlines and failure evidence. Those tests did not send interruption signals; they did not establish interruption coverage. The revision evidence below records the subsequent signal tests. |
 | Focused video | Passed the original video group in 101.61 seconds through the supported selector, owned local preview and terminal input-stability gate. Fingerprint: `a9892ca944e15987246ca15003de8410ba137ba89cabe0f158a9533b7f9a9601`. Its subprocess Git metadata was unavailable, so this is behavioral evidence rather than a clean-commit attestation. |
+
+## CI interruption revision, 2026-10-22
+
+The combined runner later exposed a test assumption under host load: its three-second observation deadline can expire before any checkpoint metadata arrives. That timeout case now permits zero checkpoints while retaining the same deadline, unsuccessful outcome and bounded termination assertion. A separate controlled pending-to-identical-pending-to-success sequence verifies that unchanged job, step and workflow checkpoints each appear exactly once. Disabling checkpoint deduplication in a scratch observer produced the expected `2 !== 1` failure; no observer implementation or deadline changed. After this test correction, the observer suite passed all 26 tests in 93.56 seconds against the integrated revision; the combined runner result remains a separate validation step.
+
+`node --test scripts/observe-ci.test.mjs` passed all 26 tests in 61.14 seconds, including four new public subprocess cases: SIGINT and SIGTERM during an active polling request, and each signal while the real readiness command owns an active GitHub CLI subprocess. The controlled CLI starts a confirmed long-lived descendant before signalling. Each case requires exit code 1 through the observer's interruption handler, an explicit unknown-success diagnostic, no `READY:` result, and disappearance of every owned command/descendant PID (including readiness) within five seconds of the signal. The observer's separate 90-second deadline cannot satisfy that interruption bound. The observer implementation needed no change.
+
+On Windows, killing a process does not deliver Node's signal event. A test-only IPC preload emits SIGINT or SIGTERM in the observer process, exercising its installed signal handler; the real CLI, readiness command and process-tree cleanup remain unchanged. POSIX runs send the OS signal directly, without skipping either phase. These executed results are Windows evidence; POSIX execution remains a CI responsibility. The successful complete test run used the approved execution fallback because the sandbox denied readiness process-tree termination. An isolated scratch fault that disabled cancellation failed the five-second polling interruption assertion as expected, and its fixture processes were cleaned up before completion. Scratch faults are excluded from the passing count.
+
+## Video overlap review revision, 2026-10-22
+
+Strict review found that CI run [39761772729, attempt 1](https://github.com/komed-uth/Game-QA-Portfolio/actions/runs/39761772729/attempts/1) failed the photo-overlap assertion at the published head `4df98fa1023d98e0e6e175bb120473ee52ad85b1`. The earlier local complete pass remains historical evidence and does not resolve that failed CI result.
+
+The shortened original transition sequence passed ten local Windows trials. The CI trace shows the incoming photo inserted shortly after decode release, then eventually ready, but does not record the sampler's private state. A scheduling stress probe kept the original 10,000-task limit intact, paused the incoming CSS animation for 600ms in scratch code, then allowed it to resume naturally. The original sampler exhausted all 10,000 tasks at opacity 0, retained no overlap sample, and failed the original assertion. This demonstrates a false-negative under delayed rendering; task-budget exhaustion in the actual CI attempt remains an inference, not a directly observed counter value.
+
+Commit `86d7ea0` replaces that host-throughput budget with native 16ms scheduled observations, one pending callback, a two-second lifetime and abort cleanup. The corrected sampler passed the same scheduling stress. Separate scratch faults still failed the original assertions for missing animation, transparent backdrop and premature outgoing-player destruction. These diagnostic pauses and faults are excluded from passing coverage. Production code, the 300ms duration, easing, opacity, geometry, inertness, outgoing-player lifetime and interrupted-fade assertions are unchanged.
+
+The supported focused video command passed in 105.97 seconds on clean integrated commit `3de95c5504260365a43ba069bea33e8b9a1d1a70`, with its owned local preview and terminal input-stability check. Fingerprint: `df4859ca56eef9a3a0652da0ef9f8c203b2dd41dbd0824673b497c742d1c21f7`. An earlier attempt was correctly marked obsolete after unrelated test inputs were merged during execution and is not acceptance evidence. Revised complete validation and current-head CI remain separate gates, recorded at handoff when available.
+
+Internal Spec review then identified that starting the two-second lifetime at arming could consume it during legitimate decode preparation. Commit `e2dd4c8` starts that lifetime only when a fading element appears; the preparation phase queues no native sampling callbacks and remains owned by the scenario's existing bounded waits, next-arm cleanup and browser-context cleanup. A retained rendered regression holds decode for 2.1 seconds in the existing desktop fixture before release. It failed the original overlap assertion before this correction and passed afterward, without changing the fade or its assertions. The supported focused video command then passed in 143.41 seconds on clean `e2dd4c852ed0c012414efdac84d06c1fe4d9b31a`, fingerprint `ff017e01eaca37005bb17672c5a722d9e9a6c405f615a30177c62796e19d7547`, including terminal input stability and owned-preview cleanup.
+
+## Revision integration validation - 2026-10-22 UTC
+
+The final runner passed all 246 tests, with no failures or skips, in 308.10 seconds on integrated `671a997df2a738cc8341c5758736c83b220a1d0a`. This includes the four interruption cases. An earlier combined attempt passed 245 of 246 tests but exposed the three-second checkpoint assumption corrected above; another attempt lacked the local browser-path setting and is not passing evidence. Production build/type checking, the whitespace guard, overlay checks and all 177 preview tests passed. The five empty real-capture lists remain explicit skips, not certified images.
+
+The supported complete browser command then passed all thirteen groups with exit 0, owned local preview cleanup and the final input-stability gate. Its terminal summary identifies clean `671a997df2a738cc8341c5758736c83b220a1d0a`, fingerprint `a30fc2042927cbfc079f32c762ee455c8a9facea661053b6c78b81742f28814a`, and 1485.75 seconds overall. This is revised-source evidence, separate from the historical complete pass above.
+
+| Group | Result | Duration |
+| --- | --- | --- |
+| skills | Passed | 97.48s |
+| about-me | Passed | 32.45s |
+| placeholder-showcases | Passed | 458.63s |
+| video | Passed | 84.61s |
+| slideshow | Passed | 210.46s |
+| photos | Passed | 36.60s |
+| gameplay-previews | Passed | 117.24s |
+| gameplay-fixtures | Passed | 46.45s |
+| evidence-modal | Passed | 229.26s |
+| evidence-interactions | Passed | 16.14s |
+| report-layout | Passed | 22.96s |
+| overlay-fixture | Passed | 12.36s |
+| report-interactions | Passed | 99.45s |
+
+Content-workflow validation ran in an isolated worktree at `09c0f2e` (identical production and content-harness source). The aggregate command exited 1: earlier modules passed, but the final layout module reached the existing five-second preview-startup timeout before assertions, with no startup output establishing its cause. The unchanged standalone layout command subsequently exited 0 and passed its layout/live-edit assertions. These are separate results; the aggregate command is not reported as passing. Canonical source was restored, and a fresh production rebuild exited 0 with HTML, JS and CSS byte-identical to the main validation build. An earlier interrupted content attempt had no terminal result and is excluded.
+
+Supplementary Standards and Spec reviews of `09c0f2e...6853ae1` each returned no findings. They confirmed that bounded timeout failure and exact checkpoint deduplication remain independently asserted, without changing the observer implementation. The previous sampling-lifetime finding is resolved. Final evidence edits affect documentation only; publication tree equality and the unchanged input fingerprint are verified separately. Corrected-head remote CI, actual POSIX signal execution and exact-head merge readiness remain distinct gates, not claims established by the Windows local results. Merge, issue closure and deployment remain held for human authorization.
 
 ## Video observation correction
 

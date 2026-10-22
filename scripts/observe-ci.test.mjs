@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -10,11 +10,19 @@ import { selectSuite } from './browser/check-suites.mjs';
 const command = fileURLToPath(new URL('./observe-ci.mjs', import.meta.url));
 const sha = 'a'.repeat(40);
 const fixtureCli = `
+import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 const config = JSON.parse(await readFile(process.env.PORTFOLIO_GH_FIXTURE_PATH, 'utf8'));
 const args = process.argv.slice(2);
 const endpoint = args[1];
+if ((config.interruptAt === 'polling' && endpoint.endsWith('/runs/801')) ||
+    (config.interruptAt === 'readiness' && args[0] === 'run' && args[1] === 'list')) {
+  const descendant = spawn(process.execPath, ['-e', "process.stdout.write('started'); setInterval(() => {}, 1000)"], { windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
+  await new Promise((resolve, reject) => { descendant.stdout.once('data', resolve); descendant.once('error', reject); descendant.once('exit', () => reject(Error('descendant exited before interruption'))); });
+  await writeFile(config.interruptionMarker, JSON.stringify({ parent: process.ppid, command: process.pid, descendant: descendant.pid }));
+  await new Promise(() => {});
+}
 if (config.denied) { process.stderr.write('fixture read denied'); process.exit(7); }
 if (config.hang) await new Promise(resolve => setTimeout(resolve, 5000));
 if (config.invalidJson) { process.stdout.write('{broken'); process.exit(0); }
@@ -109,11 +117,14 @@ test('head changes during observation invalidate even successful CI', async t =>
   assert.doesNotMatch(result.stdout, /CI PASSED/);
 });
 
-test('bounded watch suppresses unchanged steps and times out without success', async t => {
+test('bounded watch times out without success even before a checkpoint is available', async t => {
   const fixture = await setup(t, { jobs: [{ id: 900, name: 'build-and-browser', status: 'in_progress', steps: [{ number: 1, name: 'Build', status: 'in_progress' }] }] });
+  const started = performance.now();
   const result = observe(fixture, ['--watch', '--timeout-seconds', '3', '--interval-seconds', '0.1']);
   assert.equal(result.status, 1, result.stderr);
-  assert.equal((result.stdout.match(/Build: in_progress/g) || []).length, 1);
+  assert.ok(performance.now() - started < 6000, 'observer must stop within the deadline plus process cleanup allowance');
+  // A busy host can exhaust the total deadline before GitHub metadata arrives.
+  assert.ok((result.stdout.match(/Build: in_progress/g) || []).length <= 1);
   assert.match(result.stderr, /timed out/);
   assert.doesNotMatch(result.stdout, /CI PASSED|READY:/);
 });
@@ -228,19 +239,23 @@ test('head changing after readiness succeeds withholds READY and exits unsuccess
   assert.doesNotMatch(result.stdout, /READY:/);
 });
 
-test('bounded watch reports changed build checkpoints and hands terminal success to readiness', async t => {
+test('bounded watch suppresses repeated checkpoints and hands changed terminal success to readiness', async t => {
   const fixture = await readyFixture(t);
   const config = JSON.parse(await readFile(fixture.config, 'utf8'));
   const pending = { ...config.runs[0], status: 'in_progress', conclusion: null };
-  config.observations = [pending, pending, config.runs[0], config.runs[0]];
+  config.observations = [pending, pending, pending, pending, config.runs[0], config.runs[0]];
+  const pendingJobs = [{ id: 900, name: 'build-and-browser', status: 'in_progress', steps: [{ number: 1, name: 'Build', status: 'in_progress' }] }];
   config.jobSnapshots = [
-    [{ id: 900, name: 'build-and-browser', status: 'in_progress', steps: [{ number: 1, name: 'Build', status: 'in_progress' }] }],
+    pendingJobs,
+    pendingJobs,
     [{ id: 900, name: 'build-and-browser', status: 'completed', conclusion: 'success', steps: [{ number: 1, name: 'Build', status: 'completed', conclusion: 'success' }] }],
   ];
   await writeFile(fixture.config, JSON.stringify(config));
   const result = observe(fixture, ['--watch', '--timeout-seconds', '45', '--interval-seconds', '0.1']);
   assert.equal(result.status, 0, result.stderr);
   assert.equal((result.stdout.match(/Build: in_progress/g) || []).length, 1);
+  assert.equal((result.stdout.match(/build-and-browser: in_progress/g) || []).length, 1);
+  assert.equal((result.stdout.match(/Validation: in_progress/g) || []).length, 1);
   assert.equal((result.stdout.match(/Build: completed \/ success/g) || []).length, 1);
   assert.match(result.stdout, /READY: owner\/repo PR #123/);
 });
@@ -306,3 +321,98 @@ test('GitHub read failures preserve the original command outcome and error detai
   assert.equal(result.status, 1, result.stderr);
   assert.match(result.stderr, /GitHub api repos\/owner\/repo\/pulls\/123 read unavailable \(exit 7\): fixture read denied/);
 });
+
+async function until(description, predicate, milliseconds = 15000) {
+  const deadline = performance.now() + milliseconds;
+  while (performance.now() < deadline) {
+    const value = await predicate();
+    if (value) return value;
+    await new Promise(resolve => setTimeout(resolve, 20));
+  }
+  assert.fail(`Timed out waiting for ${description}`);
+}
+
+function alive(pid) {
+  try { process.kill(pid, 0); return true; } catch (error) {
+    if (error.code === 'ESRCH') return false;
+    throw error;
+  }
+}
+
+async function interruptObservation(fixture, signal) {
+  const marker = path.join(fixture.directory, 'interruption.json');
+  const config = JSON.parse(await readFile(fixture.config, 'utf8'));
+  config.interruptionMarker = marker;
+  await writeFile(fixture.config, JSON.stringify(config));
+  // Windows child.kill(signal) terminates without delivering Node signal handlers.
+  // An IPC preload translates the test's signal into the same process event there;
+  // POSIX uses the actual OS signal. The observer and readiness CLI stay unmodified.
+  const bridge = path.join(fixture.directory, 'windows-signal.mjs');
+  await writeFile(bridge, "process.on('message', signal => process.emit(signal));\n");
+  const child = spawn(process.execPath, [
+    ...(process.platform === 'win32' ? ['--import', pathToFileURL(bridge).href] : []),
+    command, '--repo', 'owner/repo', '--remote', 'origin', '--pr', '123',
+    '--watch', '--timeout-seconds', '90', '--interval-seconds', '0.1',
+  ], {
+    cwd: fixture.checkout ?? fixture.directory, windowsHide: true,
+    stdio: ['ignore', 'pipe', 'pipe', ...(process.platform === 'win32' ? ['ipc'] : [])],
+    env: { ...process.env, PORTFOLIO_GH_CLI: process.execPath, PORTFOLIO_GH_CLI_ARGS_JSON: JSON.stringify([fixture.cli]), PORTFOLIO_GH_FIXTURE_PATH: fixture.config },
+  });
+  let stdout = '', stderr = '', owned;
+  child.stdout.on('data', text => { stdout += text; });
+  child.stderr.on('data', text => { stderr += text; });
+  const completion = new Promise((resolve, reject) => {
+    child.once('error', reject);
+    child.once('exit', (code, exitSignal) => resolve({ code, exitSignal }));
+  });
+  const cleanup = () => {
+    // Cleanup is scoped to PIDs started by this fixture, even after a failed assertion.
+    for (const pid of [child.pid, owned?.parent, owned?.command, owned?.descendant].filter(Number.isInteger)) {
+      if (!alive(pid)) continue;
+      if (process.platform === 'win32') spawnSync('taskkill.exe', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
+      else process.kill(pid, 'SIGKILL');
+    }
+    if (child.connected) child.disconnect();
+    child.stdout.destroy();
+    child.stderr.destroy();
+  };
+  try {
+    owned = await until('owned command and descendant', async () => {
+      try { return JSON.parse(await readFile(marker, 'utf8')); } catch (error) {
+        if (error.code === 'ENOENT' || error instanceof SyntaxError) return false;
+        throw error;
+      }
+    }, 45000).catch(error => { throw new Error(`${error.message}\nstdout: ${stdout}\nstderr: ${stderr}`); });
+    assert.ok(alive(owned.command));
+    assert.ok(alive(owned.descendant));
+    if (config.interruptAt === 'readiness') assert.notEqual(owned.parent, child.pid, 'real readiness subprocess owns the held CLI');
+    else assert.equal(owned.parent, child.pid, 'observer polling owns the held CLI');
+    const started = performance.now();
+    if (process.platform === 'win32') { child.send(signal); child.disconnect(); }
+    else child.kill(signal);
+    let timer;
+    const result = await Promise.race([
+      completion,
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('interruption did not terminate within five seconds')), 5000); }),
+    ]).finally(() => clearTimeout(timer));
+    assert.equal(result.code, 1, stderr);
+    assert.equal(result.exitSignal, null, 'observer exits through its interruption handler');
+    assert.match(stderr, /Observation interrupted; success is unknown/);
+    assert.doesNotMatch(stdout, /READY:/);
+    await until('owned process-tree cleanup', () => [owned.command, owned.descendant, ...(config.interruptAt === 'readiness' ? [owned.parent] : [])].every(pid => !alive(pid)), 3000);
+    assert.ok(performance.now() - started < 5000, 'interruption and cleanup are bounded');
+  } finally {
+    cleanup();
+  }
+}
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  for (const phase of ['polling', 'readiness']) {
+    test(`${signal} during ${phase} terminates unsuccessfully and cleans its owned command tree`, async t => {
+      const fixture = phase === 'readiness'
+        ? await readyFixture(t, { interruptAt: phase })
+        : await setup(t, { interruptAt: phase });
+      await interruptObservation(fixture, signal);
+    });
+  }
+}

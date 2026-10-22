@@ -13,15 +13,25 @@ export default async function checkTransitions(page) {
     window.armMediaOverlap = (gallery, interruptIndex) => {
       window.mediaOverlap?.cleanup();
       if (!gallery) return;
-      const channel = new MessageChannel();
-      let tasks = 0;
+      const controller = new AbortController();
+      let scheduled = false;
+      let sampling = false;
       let closed = false;
       const state = { gallery, sample: null };
       const observer = new MutationObserver(sample);
       let interruptedElement;
+      function task(callback, delay) {
+        // Scheduler tasks use native wall time even when Playwright pauses the
+        // page's timers. A task-count budget can expire between two paints on
+        // a fast host; pace observations and bound their lifetime instead.
+        scheduler.postTask(callback, { delay, signal: controller.signal }).catch(error => {
+          if (error.name !== 'AbortError') { state.error = error.message; state.cleanup(); }
+        });
+      }
       function continueSampling() {
-        if (++tasks < 10000) channel.port2.postMessage(null);
-        else state.cleanup();
+        if (closed || scheduled) return;
+        scheduled = true;
+        task(() => { scheduled = false; sample(true); }, 16);
       }
       function sample(fromNativeTask) {
         if (closed) return;
@@ -43,6 +53,9 @@ export default async function checkTransitions(page) {
         }
         const e = gallery.querySelector('.gallery-photo.fading-in, .gallery-video-current.fading-in');
         if (!e) return;
+        // Readiness belongs to the scenario's bounded waits. Start the native
+        // observation budget only once a fading layer actually exists.
+        if (!sampling) { sampling = true; task(() => state.cleanup(), 2000); }
         const s = getComputedStyle(e), opacity = Number(s.opacity), b = e.previousElementSibling;
         if (opacity > .05 && opacity < .95) {
           state.sample = { opacity, duration: s.animationDuration, easing: s.animationTimingFunction,
@@ -67,9 +80,8 @@ export default async function checkTransitions(page) {
         if (closed) return;
         closed = true;
         observer.disconnect();
-        channel.port1.close(); channel.port2.close();
+        controller.abort();
       };
-      channel.port1.onmessage = () => sample(true);
       window.mediaOverlap = state;
       observer.observe(gallery, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'aria-pressed'] });
     };
@@ -111,7 +123,11 @@ export default async function checkTransitions(page) {
     }
     let sample;
     for (let i = 0; i < 30; i++) {
-      sample = await gallery.evaluate(e => window.mediaOverlap?.gallery === e ? window.mediaOverlap.sample : null);
+      sample = await gallery.evaluate(e => {
+        const state = window.mediaOverlap?.gallery === e ? window.mediaOverlap : null;
+        if (state?.error) throw new Error(`Overlap sampling failed: ${state.error}`);
+        return state?.sample;
+      });
       if (sample?.incoming === incoming && !sample.interruptionPending && sample.opacity > .05 && sample.opacity < .95) break;
       await tick(16);
     }
@@ -168,6 +184,8 @@ export default async function checkTransitions(page) {
       await event(player, 'state', 0); await selected(gallery, 1);
       // Restore moving playback without allowing an obsolete completion to advance.
       await event(player, 'state', 1);
+      // Slow decode preparation must not consume the fade-observation window.
+      if (motion === 'no-preference' && index === 0) await page.waitForTimeout(2100);
       await page.evaluate(() => { window.restoreDecode(); window.pendingDecode.splice(0).forEach(resolve => resolve()); });
       await flush(); await overlap(gallery, '.gallery-photo', player, motion); await waitForPhoto(gallery);
       assert.equal(await page.evaluate(i => window.videoPlayers[i].destroyed, player), true);
