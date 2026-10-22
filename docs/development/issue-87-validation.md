@@ -138,3 +138,7 @@ The supported complete browser command passed all thirteen groups with exit code
 This evidence update changes documentation only. Publication preserves the reviewed source tree; the published tree and final validation-input fingerprint are checked before handoff. API-created publication commit metadata differs from the local tested commit. Remote CI and merge readiness require their own current-head evidence.
 
 Rendered touch coverage uses Chromium emulation, and video provider coverage uses controlled fixtures. Neither establishes physical-device certification or live provider availability. Real report capture images remain outside the synthetic overlay coverage described above.
+
+## Publication consistency follow-up - 2026-10-22 UTC
+
+The two-hour CI follow-up found that the branch ref had advanced to `258b15831eabb42034d72fd8df22a0463b8f35ea`, while PR #136 and its Git PR ref still pointed to `4df98fa1023d98e0e6e175bb120473ee52ad85b1`. No pull-request workflow run for the revision was discoverable. A direct API consistency assertion reproduced the mismatch; ancestry confirms the revised commit descends from the reviewed head. A branch update alone therefore did not establish PR publication or current-head validation. This evidence-only follow-up uses the existing branch and PR; the expected commit, branch ref and PR head must agree before CI evidence can be accepted. The reason PR synchronization did not follow the Git-data ref update is not established.
