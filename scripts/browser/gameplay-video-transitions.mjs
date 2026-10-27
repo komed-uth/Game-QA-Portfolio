@@ -6,17 +6,105 @@ import { captureRegion } from './capture-region.mjs';
 export default async function checkTransitions(page) {
   await installVideoFixture(page, { autoplay: false });
   await installPausedClock(page);
+  // CSS fades continue in real rendering time while the JS clock is paused.
+  // Arm sampling before each trigger so slow protocol calls cannot miss the
+  // overlap or observe player cleanup at a different time from its opacity.
+  await page.addInitScript(() => {
+    window.armMediaOverlap = (gallery, interruptIndex) => {
+      window.mediaOverlap?.cleanup();
+      if (!gallery) return;
+      const controller = new AbortController();
+      let scheduled = false;
+      let sampling = false;
+      let closed = false;
+      const state = { gallery, sample: null };
+      const observer = new MutationObserver(sample);
+      let interruptedElement;
+      function task(callback, delay) {
+        // Scheduler tasks use native wall time even when Playwright pauses the
+        // page's timers. A task-count budget can expire between two paints on
+        // a fast host; pace observations and bound their lifetime instead.
+        scheduler.postTask(callback, { delay, signal: controller.signal }).catch(error => {
+          if (error.name !== 'AbortError') { state.error = error.message; state.cleanup(); }
+        });
+      }
+      function continueSampling() {
+        if (closed || scheduled) return;
+        scheduled = true;
+        task(() => { scheduled = false; sample(true); }, 16);
+      }
+      function sample(fromNativeTask) {
+        if (closed) return;
+        if (state.sample) {
+          if (!state.sample.interruptionPending) return;
+          if (gallery.querySelectorAll('.gallery-thumbnail')[interruptIndex].getAttribute('aria-pressed') !== 'true') {
+            continueSampling(); return;
+          }
+          if (!state.sample.interruptionDispatched) {
+            interruptedElement.dispatchEvent(new AnimationEvent('animationend', { animationName: 'gallery-photo-in', bubbles: true }));
+            state.sample.interruptionDispatched = true;
+            continueSampling(); return;
+          }
+          // Observe after the dispatched event's React microtasks can commit.
+          if (fromNativeTask !== true) return;
+          state.sample.interruption = interruptedElement.isConnected && Number(getComputedStyle(interruptedElement).opacity) >= state.sample.opacity;
+          state.sample.interruptionPending = false;
+          state.cleanup(); return;
+        }
+        const e = gallery.querySelector('.gallery-photo.fading-in, .gallery-video-current.fading-in');
+        if (!e) return;
+        // Readiness belongs to the scenario's bounded waits. Start the native
+        // observation budget only once a fading layer actually exists.
+        if (!sampling) { sampling = true; task(() => state.cleanup(), 2000); }
+        const s = getComputedStyle(e), opacity = Number(s.opacity), b = e.previousElementSibling;
+        if (opacity > .05 && opacity < .95) {
+          state.sample = { opacity, duration: s.animationDuration, easing: s.animationTimingFunction,
+            transform: s.transform, backdrop: b && Number(getComputedStyle(b).opacity),
+            hidden: b?.getAttribute('aria-hidden'), inert: b?.inert || b?.disabled,
+            frame: e.getBoundingClientRect().toJSON(), oldFrame: b?.getBoundingClientRect().toJSON(),
+            incoming: e.matches('.gallery-photo') ? '.gallery-photo' : '.gallery-video-current',
+            destroyedPlayers: window.videoPlayers.map(player => player.destroyed) };
+          if (interruptIndex !== undefined) {
+            interruptedElement = e;
+            state.sample.interruptionPending = true;
+            gallery.querySelectorAll('.gallery-thumbnail')[interruptIndex].click();
+            continueSampling();
+          } else state.cleanup();
+          return;
+        }
+        // Native tasks keep observing CSS while Playwright pauses JS timers.
+        if (opacity < 1) continueSampling();
+        else state.cleanup();
+      }
+      state.cleanup = () => {
+        if (closed) return;
+        closed = true;
+        observer.disconnect();
+        controller.abort();
+      };
+      window.mediaOverlap = state;
+      observer.observe(gallery, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'aria-pressed'] });
+    };
+  });
+
   const galleries = page.locator('.regulus-showcase .game-gallery, .video-project .game-gallery');
   const flush = () => page.waitForTimeout(60);
   async function tick(ms) { await page.clock.runFor(ms); await flush(); }
-  async function choose(gallery, index) { await gallery.locator('.gallery-thumbnail').nth(index).evaluate(e => e.click()); await flush(); }
-  async function event(player, name, state) {
-    await page.evaluate(([i, name, state]) => {
+  async function choose(gallery, index) {
+    await gallery.locator('.gallery-thumbnail').nth(index).evaluate(e => {
+      window.armMediaOverlap(e.closest('.game-gallery'));
+      e.click();
+    });
+    await flush();
+  }
+  async function event(player, name, state, interruptIndex) {
+    await page.evaluate(([i, name, state, interruptIndex]) => {
       const p = window.videoPlayers[i];
+      if (name === 'state' && state === 1) window.armMediaOverlap(p.iframe.closest('.game-gallery'), interruptIndex);
       if (name === 'state') p.emit(state);
       else if (name === 'ready') p.ready();
       else p.events[name]({ target: p });
-    }, [player, name, state]);
+    }, [player, name, state, interruptIndex]);
     await flush();
   }
   async function selected(gallery, index) { assert.equal(await gallery.locator('.gallery-thumbnail').nth(index).getAttribute('aria-pressed'), 'true'); }
@@ -35,23 +123,21 @@ export default async function checkTransitions(page) {
     }
     let sample;
     for (let i = 0; i < 30; i++) {
-      const layers = gallery.locator(incoming);
-      if (await layers.count()) sample = await layers.evaluate(e => {
-        const s = getComputedStyle(e), b = e.previousElementSibling;
-        return { opacity: Number(s.opacity), duration: s.animationDuration, easing: s.animationTimingFunction,
-          transform: s.transform, backdrop: b && Number(getComputedStyle(b).opacity),
-          hidden: b?.getAttribute('aria-hidden'), inert: b?.inert || b?.disabled,
-          frame: e.getBoundingClientRect().toJSON(), oldFrame: b?.getBoundingClientRect().toJSON() };
+      sample = await gallery.evaluate(e => {
+        const state = window.mediaOverlap?.gallery === e ? window.mediaOverlap : null;
+        if (state?.error) throw new Error(`Overlap sampling failed: ${state.error}`);
+        return state?.sample;
       });
-      if (sample?.opacity > .05 && sample.opacity < .95) break;
+      if (sample?.incoming === incoming && !sample.interruptionPending && sample.opacity > .05 && sample.opacity < .95) break;
       await tick(16);
     }
-    assert(sample?.opacity > 0 && sample.opacity < 1, 'Both media are visible during the overlap');
+    assert(sample?.incoming === incoming && sample.opacity > 0 && sample.opacity < 1, 'Both media are visible during the overlap');
     assert.equal(sample.backdrop, 1, 'The opaque moving backdrop prevents a blank interval');
     assert.equal(sample.duration, '0.3s'); assert.equal(sample.easing, 'ease-in-out'); assert.equal(sample.transform, 'none');
     assert.equal(sample.hidden, 'true'); assert(sample.inert, 'Outgoing controls are unreachable');
     assert.equal(sample.frame.width, sample.oldFrame.width); assert.equal(sample.frame.height, sample.oldFrame.height);
-    if (player !== undefined) assert.equal(await page.evaluate(i => window.videoPlayers[i].destroyed, player), false, 'Outgoing video remains alive through its visible fade');
+    if (player !== undefined) assert.equal(sample.destroyedPlayers[player], false, 'Outgoing video remains alive through its visible fade');
+    return sample;
   }
 
   for (const motion of ['no-preference', 'reduce']) {
@@ -98,6 +184,8 @@ export default async function checkTransitions(page) {
       await event(player, 'state', 0); await selected(gallery, 1);
       // Restore moving playback without allowing an obsolete completion to advance.
       await event(player, 'state', 1);
+      // Slow decode preparation must not consume the fade-observation window.
+      if (motion === 'no-preference' && index === 0) await page.waitForTimeout(2100);
       await page.evaluate(() => { window.restoreDecode(); window.pendingDecode.splice(0).forEach(resolve => resolve()); });
       await flush(); await overlap(gallery, '.gallery-photo', player, motion); await waitForPhoto(gallery);
       assert.equal(await page.evaluate(i => window.videoPlayers[i].destroyed, player), true);
@@ -154,13 +242,9 @@ export default async function checkTransitions(page) {
       if (motion === 'no-preference') {
         await choose(gallery, 1); await waitForPhoto(gallery);
         await choose(gallery, 0); player = await playerIndex(gallery);
-        await event(player, 'ready'); await event(player, 'state', 1);
-        await overlap(gallery, '.gallery-video-current', undefined, motion);
-        const fading = await gallery.locator('.gallery-video-current').elementHandle();
-        const before = await fading.evaluate(e => Number(getComputedStyle(e).opacity));
-        await choose(gallery, 3);
-        await fading.evaluate(e => e.dispatchEvent(new AnimationEvent('animationend', { animationName: 'gallery-photo-in', bubbles: true })));
-        assert(await fading.evaluate((e, before) => e.isConnected && Number(getComputedStyle(e).opacity) >= before, before), 'Interrupting a mixed-media fade preserves its moving backdrop without restarting');
+        await event(player, 'ready'); await event(player, 'state', 1, 3);
+        const interrupted = await overlap(gallery, '.gallery-video-current', undefined, motion);
+        assert(interrupted.interruption, 'Interrupting a mixed-media fade preserves its moving backdrop without restarting');
         await event(player, 'state', 0); await event(player, 'onError');
         await waitForPhoto(gallery); await selected(gallery, 3);
         assert.equal(await gallery.getByRole('alert').count(), 0);

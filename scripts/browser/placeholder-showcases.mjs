@@ -5,6 +5,7 @@ import { installPausedClock, waitForPhoto as waitForClockPhoto } from './gamepla
 import { withBrowserContext } from './run-browser-check.mjs';
 import { checkPreviewStripLayout } from './preview-strip-layout.mjs';
 import { checkGalleryControlLayout } from './gallery-control-layout.mjs';
+import { prepareAfterNativeScroll } from './native-scroll.mjs';
 
 const projectNames = ['Invictus: Lost Soul', 'The Collectors', 'MeowMoney'];
 const viewports = [[360,840],[390,845],[845,390],[840,360],[800,1200],[1200,800],[899,700],[900,700],[901,700],[1366,768],[1920,1080]];
@@ -342,24 +343,7 @@ async function checkProject(page, projectName) {
     await gesture(touchGallery.locator('.gallery-viewer'), 0, -100);
     assert(await touchPage.evaluate(y => scrollY > y, before), 'Vertical photo gesture scrolls the page');
     assert.equal(await selected(touchGallery), 1);
-    // A tap during native scroll momentum stops scrolling instead of activating.
-    // Wait for a quiet page before testing the separate inspection gesture.
-    let lastScroll = await touchPage.evaluate(() => scrollY), quietSince = Date.now();
-    const scrollDeadline = Date.now() + 5000;
-    while (Date.now() - quietSince < 250) {
-      assert(Date.now() < scrollDeadline, 'Native vertical scrolling settles before inspection');
-      await touchPage.waitForTimeout(50);
-      const currentScroll = await touchPage.evaluate(() => scrollY);
-      if (currentScroll !== lastScroll) quietSince = Date.now();
-      lastScroll = currentScroll;
-    }
-    // Chromium may consume the first touch after a canceled native pan even
-    // after scrollY settles. End that interaction on the noninteractive gutter
-    // before testing a distinct image activation, rather than retrying it.
-    assert(await touchPage.evaluate(() => !document.elementFromPoint(2, 2)?.closest('button, a, iframe, input')));
-    await touchPage.touchscreen.tap(2, 2);
-    await touchPage.waitForTimeout(100);
-    assert.equal(await touchPage.locator('dialog').count(), 0, 'Ending native scroll does not open inspection');
+    await prepareAfterNativeScroll(touchPage);
     await touchGallery.locator('.evidence-image-button').tap();
     await touchPage.getByRole('dialog').waitFor();
     await closeModal(touchPage, 'button');

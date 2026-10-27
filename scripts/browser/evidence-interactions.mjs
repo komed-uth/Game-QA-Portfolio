@@ -1,5 +1,6 @@
 import { withBrowserContext } from './run-browser-check.mjs';
 import assert from 'node:assert/strict';
+import { prepareAfterNativeScroll } from './native-scroll.mjs';
 // Visitor-facing checks against the rendered portfolio, retained from ticket #20.
 export default async function check(page) {
     const p = page;
@@ -75,9 +76,10 @@ export default async function check(page) {
             await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - i * 10 }] });
         }
         await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-        await touchPage.waitForTimeout(200);
+        await touchPage.waitForFunction(before => scrollY > before, scrollBeforeTouch);
         assert.equal(await touchPage.locator('dialog').count(), 0);
         assert(await touchPage.evaluate(() => scrollY) > scrollBeforeTouch, 'Vertical touch gestures scroll the page');
+        await prepareAfterNativeScroll(touchPage);
         await gallery.locator('.evidence-image-button').focus();
         await touchPage.keyboard.press('Enter');
         assert.equal(await touchPage.locator('dialog').count(), 1, 'Keyboard opening works after canceled touch scrolling');
