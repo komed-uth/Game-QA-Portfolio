@@ -29,9 +29,18 @@ async function snapshot(root) {
   return files;
 }
 
+export async function inputFingerprint(root = process.cwd()) {
+  const files = await snapshot(root);
+  return fingerprint(files);
+}
+
+function fingerprint(files) {
+  return createHash('sha256').update(JSON.stringify([...files].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0))).digest('hex');
+}
+
 export async function withStableInputs(run, root = process.cwd()) {
   const before = await snapshot(root);
-  const fingerprint = createHash('sha256').update(JSON.stringify([...before].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0))).digest('hex');
+  const initialFingerprint = fingerprint(before);
   async function validateInputs(failure) {
     const after = await snapshot(root);
     const changed = [...new Set([...before.keys(), ...after.keys()])]
@@ -45,7 +54,7 @@ export async function withStableInputs(run, root = process.cwd()) {
   }
   let failure;
   let failed = false;
-  try { await run(validateInputs, { fingerprint }); } catch (error) { failed = true; failure = error; }
+  try { await run(validateInputs, { fingerprint: initialFingerprint }); } catch (error) { failed = true; failure = error; }
   if (failure?.name === 'ObsoleteInputError') throw failure;
   await validateInputs(failure);
   if (failed) throw failure;
