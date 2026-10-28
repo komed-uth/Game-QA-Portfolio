@@ -1,0 +1,43 @@
+name: Validate portfolio checkout
+description: Build and validate the same checkout used by pull requests and Pages
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+    - name: Check project dependency readiness
+      shell: bash
+      run: npm run check:project-dependencies
+    - name: Build portfolio
+      shell: bash
+      run: npm run build
+    - name: Check overlays
+      shell: bash
+      run: npm run check:overlays
+    - name: Check preview startup
+      shell: bash
+      run: npm run check:preview
+    - name: Install browser
+      shell: bash
+      run: npx playwright install --with-deps chromium
+    - name: Check content editing workflow
+      shell: bash
+      run: npm run check:content-workflow
+    - name: Check browser runner diagnostics
+      shell: bash
+      run: npm run check:runner
+    - name: Check rendered portfolio
+      shell: bash
+      run: npm run check:browser
+    - name: Upload browser run evidence
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: browser-validation-evidence
+        path: |
+          .scratch/browser-runs/
+          .scratch/browser-checks/
+        if-no-files-found: ignore
+        include-hidden-files: true
+        retention-days: 7

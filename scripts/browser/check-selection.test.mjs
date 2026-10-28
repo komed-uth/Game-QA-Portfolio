@@ -10,6 +10,7 @@ test('focused package commands use supported selectors and checkout dependency g
     ['check:video', '--video-only'],
     ['check:gameplay-layout', '--gameplay-layout-only'],
     ['check:gallery-keyboard', '--gallery-keyboard-only'],
+    ['check:fixtures', '--gameplay-fixtures-only'],
   ]) {
     assert.equal(scripts[command], `node scripts/check-browser.mjs ${selector}`);
     assert.equal(scripts[`pre${command}`], 'npm run check:project-dependencies');
@@ -24,6 +25,7 @@ const cases = [
   { mode: '--reports-only', checks: ['report-layout', 'overlay-fixture', 'report-interactions'], reports: true },
   { mode: '--report-layout-only', checks: ['report-layout'], reports: false },
   { mode: '--gameplay-only', checks: ['placeholder-showcases', 'video', 'slideshow', 'photos', 'gameplay-previews', 'gameplay-fixtures'], reports: false },
+  { mode: '--gameplay-fixtures-only', checks: ['gameplay-fixtures'], reports: false },
   { mode: '--placeholders-only', checks: ['placeholder-showcases'], reports: false },
   { mode: '--photos-only', checks: ['photos'], reports: false },
   { mode: '--evidence-only', checks: ['evidence-modal', 'evidence-interactions'], reports: true },

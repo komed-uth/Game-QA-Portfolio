@@ -22,6 +22,7 @@ const suites = new Map([
   ['--reports-only', { label: 'reports and overlay fixture', result: 'report', reports: true, checks: [reportLayout, overlays, reports] }],
   ['--report-layout-only', { label: 'quick report layout', result: 'report layout', reports: false, checks: [reportLayout] }],
   ['--gameplay-only', { label: 'gameplay', result: 'gameplay', reports: false, checks: [placeholders, video, slideshow, photos, gameplay, fixtures] }],
+  ['--gameplay-fixtures-only', { label: 'gameplay media-list fixtures', result: 'gameplay fixtures', reports: false, checks: [fixtures] }],
   ['--placeholders-only', { label: 'placeholder showcases', result: 'placeholder showcase', reports: false, checks: [placeholders] }],
   ['--video-only', { label: 'video completion and playback', result: 'video', reports: false, checks: [video] }],
   ['--gameplay-layout-only', { label: 'gameplay layout', result: 'gameplay layout', reports: false, checks: [gameplayLayout] }],
@@ -34,7 +35,7 @@ const suites = new Map([
 export function selectSuite(args) {
   const suite = suites.get(args[0]);
   if (args.length > 1 || !suite) {
-    throw new Error('Usage: node scripts/check-browser.mjs [--skills-only | --about-me-only | --reports-only | --report-layout-only | --gameplay-only | --gameplay-layout-only | --gallery-keyboard-only | --video-only | --photos-only | --evidence-only | --slideshow-only | --placeholders-only]');
+    throw new Error('Usage: node scripts/check-browser.mjs [--skills-only | --about-me-only | --reports-only | --report-layout-only | --gameplay-only | --gameplay-fixtures-only | --gameplay-layout-only | --gallery-keyboard-only | --video-only | --photos-only | --evidence-only | --slideshow-only | --placeholders-only]');
   }
   return suite;
 }

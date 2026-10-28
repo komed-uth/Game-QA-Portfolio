@@ -216,7 +216,10 @@ async function readyFixture(t, overrides = {}) {
   config.head = head;
   config.jobs = [{ id: 900, name: 'build-and-browser', status: 'completed', conclusion: 'success' }];
   Object.assign(config.runs[0], { head_sha: head, status: 'completed', conclusion: 'success', updatedAt: '2026-10-20T00:00:00Z', pull_requests: [{ number: 123, head: { sha: head }, base: { repo: { url: 'https://api.github.com/repos/owner/repo' } } }] });
-  config.summary = { status: 'passed', suite: suite.label, selectedChecks: suite.checks.map(check => check.name), trackedChanges: false, preview: 'local', commit: head, pullRequestNumber: 123, pullRequestHeadSha: head, inputFingerprint: 'c'.repeat(64) };
+  config.summary = { status: 'passed', suite: suite.label, selectedChecks: suite.checks.map(check => check.name),
+    checks: suite.checks.map(check => ({ name: check.name, status: 'passed' })),
+    startedAt: '2026-10-20T00:00:00Z', endedAt: '2026-10-20T00:01:00Z', exitCode: 0,
+    trackedChanges: false, preview: 'local', commit: head, pullRequestNumber: 123, pullRequestHeadSha: head, inputFingerprint: 'c'.repeat(64) };
   Object.assign(config, typeof overrides === 'function' ? overrides(head) : overrides);
   await writeFile(fixture.config, JSON.stringify(config));
   return fixture;
